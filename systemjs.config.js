@@ -24,7 +24,9 @@
       // other libraries
       'rxjs': 'npm:rxjs',
       'angular-in-memory-web-api': 'npm:angular-in-memory-web-api',
-      '@angular/material': 'npm:@angular/material/material.umd.js'
+      '@angular/material': 'npm:@angular/material/material.umd.js',
+      'leaflet': 'npm:leaflet',
+      'css': 'node_modules/systemjs-plugin-css/css.js'
     },
     // packages tells the System loader how to load when no filename and/or no extension
     packages: {
@@ -38,6 +40,13 @@
       'angular-in-memory-web-api': {
         main: './index.js',
         defaultExtension: 'js'
+      },
+      'leaflet': {
+        main: './dist/leaflet.js',
+        defaultExtension: 'js',
+        meta: {
+          './dist/leaflet.css': { loader: 'css' }
+        }
       }
     }
   });
