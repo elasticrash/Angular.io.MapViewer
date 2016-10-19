@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-var L = require('leaflet');
+var Lealflet = require('leaflet');
+declare var L: any;
 
 @Component({
   selector: 'leaf-element',
   templateUrl: 'app/templates/leaflet.element.html',
   styleUrls: [],
 })
+
 export class LeafletElement {
   ngOnInit() {
     let map = L.map("map", {
