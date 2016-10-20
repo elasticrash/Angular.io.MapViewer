@@ -4,6 +4,7 @@
  */
 (function (global) {
   System.config({
+    transpiler: 'typescript',
     paths: {
       // paths serve as alias
       'npm:': 'node_modules/'
@@ -26,7 +27,10 @@
       'angular-in-memory-web-api': 'npm:angular-in-memory-web-api',
       '@angular/material': 'npm:@angular/material/material.umd.js',
       'leaflet': 'npm:leaflet',
-      'css': 'node_modules/systemjs-plugin-css/css.js'
+      'angular2.leaflet.components': 'npm:angular2.leaflet.components',
+      //typescript
+      "ts": "npm:plugin-typescript/lib/",
+      "typescript": "npm:typescript/lib/"
     },
     // packages tells the System loader how to load when no filename and/or no extension
     packages: {
@@ -41,11 +45,26 @@
         main: './index.js',
         defaultExtension: 'js'
       },
+      'angular2.leaflet.components': {
+        main: './index.js',
+        defaultExtension: 'js'
+      },
       'leaflet': {
         main: './dist/leaflet.js',
         defaultExtension: 'js',
         meta: {
           './dist/leaflet.css': { loader: 'css' }
+        }
+      },
+      "ts": {
+        "main": "plugin.js"
+      },
+      "typescript": {
+        "main": "typescript.js",
+        "meta": {
+          "lib/typescript.js": {
+            "exports": "ts"
+          }
         }
       }
     }
