@@ -46,8 +46,11 @@
         defaultExtension: 'js'
       },
       'angular2.leaflet.components': {
-        main: './index.js',
-        defaultExtension: 'js'
+        main: './index',
+        defaultExtension: 'js',
+        meta: {
+          "format": "register"
+        }
       },
       'leaflet': {
         main: './dist/leaflet.js',
