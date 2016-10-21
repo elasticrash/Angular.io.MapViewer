@@ -6,6 +6,7 @@ import { ToolbarElement } from './components/toolbar.element';
 import { CandTLeafletComponent } from 'angular2.leaflet.components';
 import { CandTLeafletService } from 'angular2.leaflet.components';
 
+
 @NgModule({
   imports: [BrowserModule, MaterialModule.forRoot()],
   declarations: [AppComponent, ToolbarElement, CandTLeafletComponent],
