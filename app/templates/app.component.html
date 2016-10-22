@@ -1,6 +1,10 @@
 <div class="full-dim" layout="column">
 	<toolbar-element></toolbar-element>
 	<leaf-element>
-		<layer-element [tileLayer]="'http://{s}.tile.osm.org/{z}/{x}/{y}.png'"></layer-element>
+		<layer-element [slippyLayer]="'http://{s}.tile.osm.org/{z}/{x}/{y}.png'"></layer-element>
+		<layer-element 
+		[wmsLayer]="'http://sedac.ciesin.columbia.edu/geoserver/wms'"
+		[name]="'gpw-v3:gpw-v3-population-density_2000'"
+		[opacity]=0.3></layer-element>
 	</leaf-element>
 </div>
