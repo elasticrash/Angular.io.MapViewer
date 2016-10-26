@@ -36,7 +36,11 @@
     "systemjs": "0.19.39",
     "systemjs-plugin-css": "^0.1.31",
     "zone.js": "^0.6.25",
+<<<<<<< HEAD
+    "angular2.leaflet.components": "latest"
+=======
     "angular2.leaflet.components": "1.0.14"
+>>>>>>> origin/develop
   },
   "devDependencies": {
     "concurrently": "^3.0.0",
