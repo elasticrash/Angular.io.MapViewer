@@ -2,11 +2,12 @@
 	<toolbar-element></toolbar-element>
 	<leaf-element [zoom]=11 [layerControl]=true>
 		<layer-element [slippyLayer]="'http://{s}.tile.osm.org/{z}/{x}/{y}.png'"></layer-element>
-		<layer-element [wmsLayer]="'http://78.46.70.93:8080/geoserver/wms'" [name]="'cnt:post_codes'"
-			[opacity]=0.3></layer-element>
+		<layer-element [wmsLayer]="'http://78.46.70.93:8080/geoserver/wms'" [name]="'cnt:post_codes'" [opacity]=0.3></layer-element>
 		<marker-element [lat]=52.6 [lon]=-1.1 [mouseover]="'marker A'"></marker-element>
 		<marker-element [lat]=52.65 [lon]=-1.15 [mouseover]="'marker B'"></marker-element>
-		<circle-element [lat]=52.62 [lon]=-1.12 [radius]=180></circle-element>
-		<circle-element [lat]=52.63 [lon]=-1.13 [radius]=180 [Options]="{color:'#576887', weight:6}"></circle-element>
+		<leaflet-group>
+			<circle-element [lat]=52.62 [lon]=-1.12 [radius]=180></circle-element>
+			<circle-element [lat]=52.63 [lon]=-1.13 [radius]=180 [Options]="{color:'#576887', weight:6}"></circle-element>
+		</leaflet-group>
 	</leaf-element>
 </div>
