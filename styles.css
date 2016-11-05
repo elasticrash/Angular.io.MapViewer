@@ -33,7 +33,7 @@ md-list-item .ng-hide {
 .map-container {
   position: absolute;
   display: block;
-	top: 64px;
+	top: 64px !important;
 	left: 0px;
 	right: 0px;
 	bottom: 0px;
