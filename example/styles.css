@@ -30,10 +30,14 @@ md-list-item .ng-hide {
     height:100%;
 }
 
+.half-dim {
+    width: 50%;
+    height:50%;
+}
+
 .map-container {
-  position: absolute;
   display: block;
-	top: 64px;
+	top: 64px !important;
 	left: 0px;
 	right: 0px;
 	bottom: 0px;
@@ -45,4 +49,11 @@ leaf-element{
 
 .leaflet-pane {
     z-index: 0 !important;
+}
+
+.box {
+    float: left;
+    width: 200px;
+    margin-left: 10px;
+    border: 2px solid black;
 }
