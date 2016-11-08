@@ -17,12 +17,14 @@
 	<script src="js/system.src.js"></script>
 	<script src="js/hammer.js"></script>
 
+
 	<!-- 2. Configure SystemJS -->
 	<script src="systemjs.config.js"></script>
 	<script>
       System.import('app').catch(function(err){ console.error(err); });
     </script>
 </head>
+<base href="/example/">
 <!-- 3. Display the application -->
 
 <body>
