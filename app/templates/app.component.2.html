@@ -5,7 +5,7 @@
 		<layer-element [name]="'openstreetmap|hot'" [type]="'basemap'" [slippyLayer]="'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'"></layer-element>
 		<layer-element [wmsLayer]="'http://78.46.70.93:8080/geoserver/wms'" [name]="'cnt:post_codes'" [opacity]=0.3></layer-element>
 		<leaflet-group [name]="'markers'">
-			<marker-element [iconUrl]="'http://localhost:3000/custom-marker.png'" [lat]=52.6 [lon]=-1.1 [onclick]="'you clicked here'"></marker-element>
+			<marker-element [iconUrl]="'/custom-marker.png'" [lat]=52.6 [lon]=-1.1 [onclick]="'you clicked here'"></marker-element>
 			<marker-element [lat]=52.65 [lon]=-1.15 [mouseover]="'marker B'"></marker-element>
 			<marker-element [lat]=52.65 [lon]=-1.17 [mouseover]="'marker C'"></marker-element>			
 		</leaflet-group>
@@ -20,6 +20,6 @@
 		<popup-element [lat]=52.65 [lon]=-1.17 [content]="'Best popup'"></popup-element>
 		<polygon-element [onclick]="'hello I am a polygon'" [latlngs]="[[52.65, -1.2],[52.645, -1.15], [52.696, -1.155], [52.697, -1.189]]"></polygon-element>
 		<polyline-element [onclick]="'hello I am a polyline'" [latlngs]="[[52.6, -1.1],[52.605, -1.1], [52.606, -1.105], [52.697, -1.109]]"></polyline-element>
-		<marker-element [iconUrl]="'http://localhost:3000/custom-marker.png'" [lat]=52.7 [lon]=-1.1 [onclick]="'custom icon'"></marker-element>
+		<marker-element [iconUrl]="'/custom-marker.png'" [lat]=52.7 [lon]=-1.1 [onclick]="'custom icon'"></marker-element>
 	</leaf-element>
 </div>

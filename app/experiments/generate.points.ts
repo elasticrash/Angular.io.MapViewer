@@ -5,16 +5,22 @@ import { Observable } from 'rxjs/Rx';
     selector: 'generate-points',
     templateUrl: 'app/experiments/generate.points.html'
 })
-export class GeneratePoints {t
+export class GeneratePoints {
+    t
     @Input() count: Array<number> = Array(100).fill(0, 0);//.map((x,i)=>i);
     lat: Array<number> = this.randomArray(52.61, 52.7, 100);
     lon: Array<number> = this.randomArray(-1.11, -1, 100);
     allp: Array<Array<number>> = this.mergelatlon();
-    zone: NgZone;
+    allpclone: Array<Array<number>> = [...this.allp];
+    generations: Array<any> = [];
+    generationsScore: Array<any> = [];
+    seed: Array<number> = Array(100).fill(0, 0).map((x, i) => i);
+    genloop: number = 0;
+    keep: number = 2;
+    timer = Observable.timer(2000, 100);
+    subscription;
 
     constructor(zone: NgZone) {
-        zone.run(() => {
-        });
     }
 
     randomFromInterval(min, max) {
@@ -32,16 +38,78 @@ export class GeneratePoints {t
     }
 
     ngOnInit() {
-        let timer = Observable.timer(5000, 5000);
-        timer.subscribe(t => {
+        this.subscription = this.timer.subscribe(t => {
             this.shufflestaff(t);
         });
     }
 
+    sortNumber(a, b) {
+        return a - b;
+    }
+
     shufflestaff(t) {
-        this.allp = this.shuffle(this.allp);
+        let newgen = [...this.allpclone];
+        let seedclone = [...this.seed]
+        this.shuffle(seedclone);
+
+        var seedsplice = seedclone.splice(0, this.keep);
+        seedsplice.sort(this.sortNumber).reverse();
+        var seedgen = [];
+
+        seedsplice.forEach((element, index) => {
+            seedgen[index] = newgen[element];
+        });
+
+        seedsplice.forEach((element, index) => {
+            newgen.splice(element, 1);
+        });
+
+        this.shuffle(newgen);
+
+        seedsplice.forEach((element, index) => {
+            newgen.splice(element, 0, seedgen[index]);
+        });
+
         console.log("shuffle");
-        this.getdistance();
+        let distance = this.getdistance(newgen);
+
+        if (this.generations.length < 10) {
+            this.generations.push(newgen);
+            this.generationsScore.push(distance);
+        } else {
+            let maxItem = Math.max(...this.generationsScore);
+            if (maxItem > distance) {
+                let maxIndex = this.generationsScore.indexOf(maxItem);
+                this.generationsScore[maxIndex] = distance;
+                this.generations[maxIndex] = newgen;
+            }
+        }
+        let minItem = Math.min(...this.generationsScore);
+        let minIndex = this.generationsScore.indexOf(minItem);
+        this.allp = this.generations[minIndex];
+
+        if (distance < this.generationsScore[this.genloop]) {
+            this.keep += 1;
+            console.log("now keep is at ", this.keep);
+            if (this.keep > 50) {
+                this.subscription.unsubscribe();
+            }
+        }
+
+        this.allpclone = this.generations[this.genloop];
+        if (this.genloop < this.generations.length - 1) {
+            this.genloop += 1
+        } else {
+            this.genloop = 0;
+        }
+
+
+
+
+        console.log("loop", this.genloop);
+        console.log("score", this.generationsScore);
+        console.log("generation", this.generations);
+
     }
 
     mergelatlon() {
@@ -49,30 +117,24 @@ export class GeneratePoints {t
         var distance = 0;
         let model = this;
         this.lat.forEach((element, index) => {
-            allpoints.push([model.lat[index], model.lon[index]]);
-            if (index + 1 > model.lat.length - 1) {
-            } else {
-                let dis = this.distance(model.lon[index], model.lat[index], model.lon[index + 1], model.lat[index + 1]);
-                distance += dis;
-            }
+            allpoints[index] = [model.lat[index], model.lon[index]];
         });
-
-        console.log(distance);
         return allpoints;
     }
 
-    getdistance() {
+    getdistance(gen) {
         var distance = 0;
-        let model = this;
-        this.allp.forEach((element, index) => {
-            if (index + 1 > model.allp.length - 1) {
+        gen.forEach((element, index) => {
+            if (index + 1 > gen.length - 1) {
             } else {
-                let dis = this.distance(model.allp[index][0], model.allp[index][1], model.allp[index + 1][0], model.allp[index + 1][1]);
+                let dis = this.distance(gen[index][0], gen[index][1], gen[index + 1][0], gen[index + 1][1]);
                 distance += dis;
             }
         });
-        console.log(distance);
 
+
+        console.log(distance);
+        return distance;
     }
 
     shuffle(a) {
@@ -80,8 +142,6 @@ export class GeneratePoints {t
             let j = Math.floor(Math.random() * i);
             [a[i - 1], a[j]] = [a[j], a[i - 1]];
         }
-
-        return a;
     }
 
     distance(ax, ay, bx, by) {
