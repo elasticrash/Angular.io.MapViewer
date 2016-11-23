@@ -17,7 +17,7 @@ export class GeneratePoints {
     seed: Array<number> = Array(100).fill(0, 0).map((x, i) => i);
     genloop: number = 0;
     keep: number = 2;
-    timer = Observable.timer(2000, 100);
+    timer = Observable.timer(2000, 50);
     subscription;
 
     constructor(zone: NgZone) {
@@ -70,7 +70,6 @@ export class GeneratePoints {
             newgen.splice(element, 0, seedgen[index]);
         });
 
-        console.log("shuffle");
         let distance = this.getdistance(newgen);
 
         if (this.generations.length < 10) {
@@ -82,19 +81,20 @@ export class GeneratePoints {
                 let maxIndex = this.generationsScore.indexOf(maxItem);
                 this.generationsScore[maxIndex] = distance;
                 this.generations[maxIndex] = newgen;
+                console.log("score", this.generationsScore);
+
+                if (distance < this.generationsScore[this.genloop]) {
+                    this.keep += 1;
+                    console.log("now keep is at ", this.keep);
+                    if (this.keep > 80) {
+                        this.subscription.unsubscribe();
+                    }
+                }
             }
         }
         let minItem = Math.min(...this.generationsScore);
         let minIndex = this.generationsScore.indexOf(minItem);
         this.allp = this.generations[minIndex];
-
-        if (distance < this.generationsScore[this.genloop]) {
-            this.keep += 1;
-            console.log("now keep is at ", this.keep);
-            if (this.keep > 50) {
-                this.subscription.unsubscribe();
-            }
-        }
 
         this.allpclone = this.generations[this.genloop];
         if (this.genloop < this.generations.length - 1) {
@@ -103,13 +103,7 @@ export class GeneratePoints {
             this.genloop = 0;
         }
 
-
-
-
-        console.log("loop", this.genloop);
-        console.log("score", this.generationsScore);
-        console.log("generation", this.generations);
-
+        //console.log("generation", this.generations);
     }
 
     mergelatlon() {
@@ -132,8 +126,6 @@ export class GeneratePoints {
             }
         });
 
-
-        console.log(distance);
         return distance;
     }
 
