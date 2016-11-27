@@ -1,12 +1,13 @@
 import { Component, Input, Output, NgZone } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
+import { MapService } from 'angular2.leaflet.components/services/map.service';
+declare var L: any;
 
 @Component({
     selector: 'generate-points',
     templateUrl: 'app/experiments/generate.points.html'
 })
 export class GeneratePoints {
-    t
     @Input() count: Array<number> = Array(100).fill(0, 0);//.map((x,i)=>i);
     lat: Array<number> = this.randomArray(52.61, 52.7, 100);
     lon: Array<number> = this.randomArray(-1.11, -1, 100);
@@ -16,11 +17,14 @@ export class GeneratePoints {
     generationsScore: Array<any> = [];
     seed: Array<number> = Array(100).fill(0, 0).map((x, i) => i);
     genloop: number = 0;
-    keep: number = 2;
+    keep: number = 80;
     timer = Observable.timer(2000, 50);
     subscription;
+    options = {};
+    ourCustomControl;
+    ourCustomControlConstructor;
 
-    constructor(zone: NgZone) {
+    constructor(private mapService: MapService) {
     }
 
     randomFromInterval(min, max) {
@@ -41,6 +45,37 @@ export class GeneratePoints {
         this.subscription = this.timer.subscribe(t => {
             this.shufflestaff(t);
         });
+        var model = this;
+        this.ourCustomControlConstructor = L.Control.extend({
+            options: {
+                position: 'topleft'
+            },
+            initialize: function (data) {
+                this._data = data;
+            },
+            onAdd: function (map) {
+                return this.updateModel(this._data);
+            },
+            updateModel: function (_data) {
+                var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+
+                container.style.backgroundColor = 'white';
+                container.style.width = '300px';
+                container.style.height = '70px';
+                container.innerHTML = "<div style='padding-left:5px;'> unmutatable genes are now at : " + _data.keep + "%</div><br>" +
+                    "<div style='padding-left:5px;'> best solution at " + _data.solution + "</div>" +
+                    "<div style='padding-left:5px;'> current iteration at " + _data.distance + "</div>";
+
+                container.onclick = function () {
+                    console.log('buttonClicked');
+                }
+                return container;
+            }
+        });
+
+        let map = this.mapService.getMap();
+        this.ourCustomControl = new this.ourCustomControlConstructor({ keep: this.keep, solution: 0, distance: 0 });
+        map.addControl(this.ourCustomControl);
     }
 
     sortNumber(a, b) {
@@ -50,6 +85,71 @@ export class GeneratePoints {
     shufflestaff(t) {
         let newgen = [...this.allpclone];
         let seedclone = [...this.seed]
+
+        newgen = this.evolve(seedclone, newgen);
+
+        var distance = this.getdistance(newgen);
+
+        if (this.generations.length < 10) {
+            this.generations.push(newgen);
+            this.generationsScore.push(distance);
+        } else {
+            var maxItem = Math.max(...this.generationsScore);
+            var minItem = Math.min(...this.generationsScore);
+
+            if (maxItem > distance) {
+                var maxIndex = this.generationsScore.indexOf(maxItem);
+                var minIndex = this.generationsScore.indexOf(minItem);
+
+                var marriage = this.marry([...this.generations[minIndex]], newgen);
+                let marriagedistance = this.getdistance(marriage);
+
+
+                if (distance < marriagedistance) {
+                    this.generationsScore[maxIndex] = distance;
+                    this.generations[maxIndex] = newgen;
+                } else {
+                    this.generationsScore[maxIndex] = marriagedistance;
+                    this.generations[maxIndex] = marriage;
+
+                    this.keep += 1;
+
+                    if (this.keep > 99) {
+                        this.subscription.unsubscribe();
+                    }
+                }
+
+                console.log("score", this.generationsScore);
+            }
+        }
+
+        minItem = Math.min(...this.generationsScore);
+        minIndex = this.generationsScore.indexOf(minItem);
+
+        let map = this.mapService.getMap();
+        map.removeControl(this.ourCustomControl);
+        this.ourCustomControl = new this.ourCustomControlConstructor({
+            keep: this.keep,
+            solution: this.generationsScore[minIndex],
+            distance: distance
+        });
+        map.addControl(this.ourCustomControl);
+
+        this.allp = this.generations[minIndex];
+
+        this.allpclone = this.generations[this.genloop];
+        if (this.genloop < this.generations.length - 1) {
+            this.genloop += 1
+        } else {
+            this.genloop = 0;
+        }
+    }
+
+    getnewColor() {
+        return { color: '#' + (Math.random() * 0xFFFFFF << 0).toString(16) };
+    }
+
+    evolve(seedclone, newgen) {
         this.shuffle(seedclone);
 
         var seedsplice = seedclone.splice(0, this.keep);
@@ -70,40 +170,41 @@ export class GeneratePoints {
             newgen.splice(element, 0, seedgen[index]);
         });
 
-        let distance = this.getdistance(newgen);
+        return newgen;
+    }
 
-        if (this.generations.length < 10) {
-            this.generations.push(newgen);
-            this.generationsScore.push(distance);
-        } else {
-            let maxItem = Math.max(...this.generationsScore);
-            if (maxItem > distance) {
-                let maxIndex = this.generationsScore.indexOf(maxItem);
-                this.generationsScore[maxIndex] = distance;
-                this.generations[maxIndex] = newgen;
-                console.log("score", this.generationsScore);
-
-                if (distance < this.generationsScore[this.genloop]) {
-                    this.keep += 1;
-                    console.log("now keep is at ", this.keep);
-                    if (this.keep > 80) {
-                        this.subscription.unsubscribe();
-                    }
-                }
+    marry(genPoolA, genPoolB) {
+        var common: Array<number> = [];
+        genPoolA.forEach((element, index) => {
+            if (element[0] == genPoolB[index][0] && element[0] == genPoolB[index][0]) {
+                common.push(index);
             }
-        }
-        let minItem = Math.min(...this.generationsScore);
-        let minIndex = this.generationsScore.indexOf(minItem);
-        this.allp = this.generations[minIndex];
+        });
 
-        this.allpclone = this.generations[this.genloop];
-        if (this.genloop < this.generations.length - 1) {
-            this.genloop += 1
-        } else {
-            this.genloop = 0;
-        }
+        if (common.length > 0) {
+            common.sort(this.sortNumber).reverse();
+            var seedgen = [];
 
-        //console.log("generation", this.generations);
+            common.forEach((element, index) => {
+                seedgen[index] = genPoolA[element];
+            });
+
+            common.forEach((element, index) => {
+                genPoolA.splice(element, 1);
+            });
+
+            this.shuffle(genPoolA);
+
+            common.forEach((element, index) => {
+                genPoolA.splice(element, 0, seedgen[index]);
+            });
+
+            console.log("marriage keep", common.length);
+            console.log(Date.now());
+
+            return genPoolA;
+        }
+        return genPoolA;
     }
 
     mergelatlon() {

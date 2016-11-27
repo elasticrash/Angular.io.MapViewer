@@ -53,7 +53,7 @@
         }
       },
       'leaflet': {
-        main: './dist/leaflet.js',
+        main: './dist/leaflet-src.js',
         defaultExtension: 'js',
         meta: {
           './dist/leaflet.css': { loader: 'css' }
