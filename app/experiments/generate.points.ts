@@ -8,28 +8,30 @@ declare var L: any;
     templateUrl: 'app/experiments/generate.points.html'
 })
 export class GeneratePoints {
-    @Input() count: Array<number> = Array(100).fill(0, 0);//.map((x,i)=>i);
-    lat: Array<number> = this.randomArray(52.61, 52.7, 100);
-    lon: Array<number> = this.randomArray(-1.11, -1, 100);
+    population: number = 30;
+    @Input() count: Array<number> = Array(this.population).fill(0, 0);//.map((x,i)=>i);
+    lat: Array<number> = this.randomArray(52.611, 52.701, this.population);
+    lon: Array<number> = this.randomArray(-1.109, -1.001, this.population);
     allp: Array<Array<number>> = this.mergelatlon();
     allpclone: Array<Array<number>> = [...this.allp];
     generations: Array<any> = [];
     generationsScore: Array<any> = [];
-    seed: Array<number> = Array(100).fill(0, 0).map((x, i) => i);
+    seed: Array<number> = Array(this.population).fill(0, 0).map((x, i) => i);
     genloop: number = 0;
-    keep: number = 80;
+    keep: number = 8;
     timer = Observable.timer(2000, 50);
     subscription;
     options = {};
     ourCustomControl;
     ourCustomControlConstructor;
+    solutions = 0;
 
     constructor(private mapService: MapService) {
     }
 
     randomFromInterval(min, max) {
-        let rand = Math.floor(Math.random() * (max * 100 - min * 100 + 1) + min * 100);
-        return rand / 100;
+        let rand = Math.floor(Math.random() * (max * 1000 - min * 1000 + 1) + min * 1000);
+        return rand / 1000;
     }
 
     randomArray(min, max, size) {
@@ -62,7 +64,7 @@ export class GeneratePoints {
                 container.style.backgroundColor = 'white';
                 container.style.width = '300px';
                 container.style.height = '70px';
-                container.innerHTML = "<div style='padding-left:5px;'> unmutatable genes are now at : " + _data.keep + "%</div><br>" +
+                container.innerHTML = "<div style='padding-left:5px;'> unmutatable genes are now at : " + _data.keep + "</div><br>" +
                     "<div style='padding-left:5px;'> best solution at " + _data.solution + "</div>" +
                     "<div style='padding-left:5px;'> current iteration at " + _data.distance + "</div>";
 
@@ -93,6 +95,7 @@ export class GeneratePoints {
         if (this.generations.length < 10) {
             this.generations.push(newgen);
             this.generationsScore.push(distance);
+            this.solutions += 1;
         } else {
             var maxItem = Math.max(...this.generationsScore);
             var minItem = Math.min(...this.generationsScore);
@@ -108,17 +111,20 @@ export class GeneratePoints {
                 if (distance < marriagedistance) {
                     this.generationsScore[maxIndex] = distance;
                     this.generations[maxIndex] = newgen;
+                    this.solutions += 1;
+
+                    if (this.solutions % Math.floor(this.population / 4) === 0) {
+                        this.keep += 1;
+                    }
+
                 } else {
                     this.generationsScore[maxIndex] = marriagedistance;
                     this.generations[maxIndex] = marriage;
-
-                    this.keep += 1;
-
-                    if (this.keep > 99) {
-                        this.subscription.unsubscribe();
+                    this.solutions += 1;
+                    if (this.solutions % Math.floor(this.population / 4) === 0) {
+                        this.keep += 1;
                     }
                 }
-
                 console.log("score", this.generationsScore);
             }
         }
@@ -131,7 +137,7 @@ export class GeneratePoints {
         this.ourCustomControl = new this.ourCustomControlConstructor({
             keep: this.keep,
             solution: this.generationsScore[minIndex],
-            distance: distance
+            distance: t
         });
         map.addControl(this.ourCustomControl);
 
@@ -142,6 +148,10 @@ export class GeneratePoints {
             this.genloop += 1
         } else {
             this.genloop = 0;
+        }
+
+        if (this.keep > this.population) {
+            this.subscription.unsubscribe();
         }
     }
 
@@ -174,10 +184,22 @@ export class GeneratePoints {
     }
 
     marry(genPoolA, genPoolB) {
+        let seedclone = [...this.seed]
+        var seedsplice = seedclone.splice(0, this.keep);
+        seedsplice.sort(this.sortNumber).reverse();
+
         var common: Array<number> = [];
         genPoolA.forEach((element, index) => {
             if (element[0] == genPoolB[index][0] && element[0] == genPoolB[index][0]) {
                 common.push(index);
+            }
+        });
+
+        seedsplice.forEach((element, index) => {
+            if (common.length < this.population - 1) {
+                if (common.indexOf(element) === -1) {
+                    common.push(element)
+                }
             }
         });
 
