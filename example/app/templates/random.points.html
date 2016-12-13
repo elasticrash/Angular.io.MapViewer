@@ -1,0 +1,9 @@
+<div class="full-dim" layout="column">
+    <toolbar-element></toolbar-element>
+    <leaf-element [zoom]=11 [layerControl]=true>
+        <layer-element [name]="'openstreetmap|hot'" [type]="'basemap'" [slippyLayer]="'http://{s}.tile.osm.org/{z}/{x}/{y}.png'"></layer-element>
+        <leaflet-group>
+            <generate-points></generate-points>
+        </leaflet-group>
+    </leaf-element>
+</div>

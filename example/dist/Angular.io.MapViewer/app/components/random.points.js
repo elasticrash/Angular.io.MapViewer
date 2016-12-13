@@ -9,17 +9,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var ToolbarElement = (function () {
-    function ToolbarElement() {
+var RandomPoints = (function () {
+    function RandomPoints() {
     }
-    ToolbarElement = __decorate([
+    RandomPoints = __decorate([
         core_1.Component({
-            selector: 'toolbar-element',
-            templateUrl: 'app/templates/toolbar.element.html'
+            selector: 'random-points',
+            templateUrl: 'app/templates/random.points.html'
         }), 
         __metadata('design:paramtypes', [])
-    ], ToolbarElement);
-    return ToolbarElement;
+    ], RandomPoints);
+    return RandomPoints;
 }());
-exports.ToolbarElement = ToolbarElement;
-//# sourceMappingURL=toolbar.element.js.map
+exports.RandomPoints = RandomPoints;
+//# sourceMappingURL=random.points.js.map
