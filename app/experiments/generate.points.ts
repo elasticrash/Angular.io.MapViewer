@@ -190,7 +190,7 @@ export class GeneratePoints {
 
         var common: Array<number> = [];
         genPoolA.forEach((element, index) => {
-            if (element[0] == genPoolB[index][0] && element[0] == genPoolB[index][0]) {
+            if (element[0] == genPoolB[index][0] && element[1] == genPoolB[index][1]) {
                 common.push(index);
             }
         });
@@ -224,9 +224,23 @@ export class GeneratePoints {
             console.log("marriage keep", common.length);
             console.log(Date.now());
 
+            this.findLargeSegments(genPoolA);
+
             return genPoolA;
         }
         return genPoolA;
+    }
+
+    findLargeSegments(a) {
+        var distanceList = [];
+        a.forEach((element, index) => {
+            if (index < a.length - 1) {
+                var dist = this.distance(element[1], element[0], a[index+1][1], a[index+1][0]);
+                distanceList.push(dist);
+            }
+        });
+
+        console.log("distanceList", distanceList);
     }
 
     mergelatlon() {
