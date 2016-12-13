@@ -15,9 +15,9 @@ import { RouterModule } from '@angular/router';
     RouterModule.forRoot([
       { path: 'mm-map', component: AppComponent1 },
       { path: '', component: AppComponent2 },
-    ]),
+    ], { useHash: true }),
   ],
-  declarations: [AppComponent, AppComponent1,AppComponent2, ToolbarElement, CandTLeafletComponent],
+  declarations: [AppComponent, AppComponent1, AppComponent2, ToolbarElement, CandTLeafletComponent],
   providers: [CandTLeafletService],
   bootstrap: [AppComponent]
 })
