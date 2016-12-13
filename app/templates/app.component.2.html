@@ -2,7 +2,7 @@
 	<toolbar-element></toolbar-element>
 	<leaf-element [zoom]=11 [layerControl]=true>
 		<layer-element [name]="'openstreetmap'" [type]="'basemap'" [slippyLayer]="'http://{s}.tile.osm.org/{z}/{x}/{y}.png'"></layer-element>
-		<layer-element [name]="'openstreetmap|hot'" [type]="'basemap'" [slippyLayer]="'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'"></layer-element>
+		<layer-element [name]="'carto'" [type]="'basemap'" [slippyLayer]="'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'"></layer-element>
 		<layer-element [wmsLayer]="'http://78.46.70.93:8080/geoserver/wms'" [name]="'cnt:post_codes'" [opacity]=0.3></layer-element>
 		<leaflet-group [name]="'markers'">
 			<marker-element [iconUrl]="'/custom-marker.png'" [lat]=52.6 [lon]=-1.1 [onclick]="'you clicked here'"></marker-element>
