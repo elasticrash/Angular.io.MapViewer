@@ -27,6 +27,7 @@
       'angular-in-memory-web-api': 'npm:angular-in-memory-web-api',
       '@angular/material': 'npm:@angular/material/material.umd.js',
       'leaflet': 'npm:leaflet',
+      'moment': 'npm:moment',
       'angular2.leaflet.components': 'npm:angular2.leaflet.components',
       //typescript
       "ts": "npm:plugin-typescript/lib/",
@@ -58,6 +59,10 @@
         meta: {
           './dist/leaflet.css': { loader: 'css' }
         }
+      },
+      'moment': {
+        main: './moment.js',
+        defaultExtension: 'js',
       },
       "ts": {
         "main": "plugin.js"
