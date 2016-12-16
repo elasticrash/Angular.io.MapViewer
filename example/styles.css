@@ -35,12 +35,9 @@ md-list-item .ng-hide {
     height:50%;
 }
 
-.map-container {
-  display: block;
+.full-dim .map-container {
+    position: absolute;
 	top: 64px !important;
-	left: 0px;
-	right: 0px;
-	bottom: 0px;
 }
 
 leaf-element{
