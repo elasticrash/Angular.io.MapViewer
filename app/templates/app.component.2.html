@@ -2,24 +2,27 @@
 	<toolbar-element></toolbar-element>
 	<leaf-element [zoom]=11 [layerControl]=true>
 		<layer-element [name]="'openstreetmap'" [type]="'basemap'" [slippyLayer]="'http://{s}.tile.osm.org/{z}/{x}/{y}.png'"></layer-element>
-		<layer-element [name]="'openstreetmap|hot'" [type]="'basemap'" [slippyLayer]="'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'"></layer-element>
+		<layer-element [name]="'carto'" [type]="'basemap'" [slippyLayer]="'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'"></layer-element>
 		<layer-element [wmsLayer]="'http://78.46.70.93:8080/geoserver/wms'" [name]="'cnt:post_codes'" [opacity]=0.3></layer-element>
 		<leaflet-group [name]="'markers'">
-			<marker-element [iconUrl]="'http://localhost:3000/custom-marker.png'" [lat]=52.6 [lon]=-1.1 [onclick]="'you clicked here'"></marker-element>
+			<marker-element [iconUrl]="'/custom-marker.png'" [lat]=52.6 [lon]=-1.1 [onclick]="'you clicked here'"></marker-element>
 			<marker-element [lat]=52.65 [lon]=-1.15 [mouseover]="'marker B'"></marker-element>
-			<marker-element [lat]=52.65 [lon]=-1.17 [mouseover]="'marker C'"></marker-element>			
+			<marker-element [lat]=52.65 [lon]=-1.17 [mouseover]="'marker C'"></marker-element>
 		</leaflet-group>
 		<leaflet-group [name]="'circles'">
 			<circle-element [lat]=52.62 [lon]=-1.12 [radius]=180 [onclick]="'hello I am a circle-element'"> </circle-element>
-			<circle-element [lat]=52.63 [lon]=-1.13 [radius]=180 [Options]="{color:'#576887', weight:6}"></circle-element>			
+			<circle-element [lat]=52.63 [lon]=-1.13 [radius]=180 [Options]="{color:'#576887', weight:6}"></circle-element>
 		</leaflet-group>
-		<leaflet-group [name]="'popup'">			
+		<leaflet-group [name]="'popup'">
 			<popup-element [lat]=52.65 [lon]=-1.30 [content]="'Good Popup'"></popup-element>
 			<popup-element [lat]=52.70 [lon]=-1.35 [content]="'Bad Popup'"></popup-element>
 		</leaflet-group>
-		<popup-element [lat]=52.65 [lon]=-1.17 [content]="'Best popup'"></popup-element>
-		<polygon-element [onclick]="'hello I am a polygon'" [latlngs]="[[52.65, -1.2],[52.645, -1.15], [52.696, -1.155], [52.697, -1.189]]"></polygon-element>
-		<polyline-element [onclick]="'hello I am a polyline'" [latlngs]="[[52.6, -1.1],[52.605, -1.1], [52.606, -1.105], [52.697, -1.109]]"></polyline-element>
-		<marker-element [iconUrl]="'http://localhost:3000/custom-marker.png'" [lat]=52.7 [lon]=-1.1 [onclick]="'custom icon'"></marker-element>
+		<leaflet-group [name]="'rest'">
+			<popup-element [lat]=52.65 [lon]=-1.17 [content]="'Best popup'"></popup-element>
+			<polygon-element [onclick]="'hello I am a polygon with a hole'"></polygon-element>
+			<polygon-element [latlngs]="[[52.68, -1.22], [52.65, -1.21], [52.697, -1.20], [52.698, -1.21]]" [onclick]="'hello I am a polygon without a hole'"></polygon-element>
+			<polyline-element [onclick]="'hello I am a polyline'" [latlngs]="[[52.6, -1.1],[52.605, -1.1], [52.606, -1.105], [52.697, -1.109]]"></polyline-element>
+			<marker-element [iconUrl]="'/custom-marker.png'" [lat]=52.7 [lon]=-1.1 [onclick]="'custom icon'"></marker-element>
+		</leaflet-group>
 	</leaf-element>
 </div>
