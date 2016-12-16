@@ -10,7 +10,7 @@ var moment = require('moment');
     templateUrl: 'app/experiments/generate.points.html'
 })
 export class GeneratePoints {
-    population: number = 30;
+    population: number = 5;
     @Input() count: Array<number> = Array(this.population).fill(0, 0);//.map((x,i)=>i);
     lat: Array<number> = this.randomArray(52.611, 52.701, this.population);
     lon: Array<number> = this.randomArray(-1.109, -1.001, this.population);
@@ -20,7 +20,7 @@ export class GeneratePoints {
     generationsScore: Array<any> = [];
     seed: Array<number> = Array(this.population).fill(0, 0).map((x, i) => i);
     genloop: number = 0;
-    keep: number = 25;
+    keep: number = 1;
     timer = Observable.timer(2000, 50);
     subscription;
     options = {};
@@ -123,9 +123,9 @@ export class GeneratePoints {
                     this.generationsScore[maxIndex] = marriagedistance;
                     this.generations[maxIndex] = marriage;
                     this.solutions += 1;
-                    if (this.solutions % Math.floor(this.population / 4) === 0) {
-                        this.keep += 1;
-                    }
+                    // if (this.solutions % Math.floor(this.population / 4) === 0) {
+                    //     this.keep += 1;
+                    // }
                 }
                 console.log("score", this.generationsScore);
             }
@@ -152,7 +152,7 @@ export class GeneratePoints {
             this.genloop = 0;
         }
 
-        if (this.keep > this.population) {
+        if (this.keep == this.population) {
             this.subscription.unsubscribe();
         }
     }
@@ -266,7 +266,7 @@ export class GeneratePoints {
         var allpoints: Array<Array<number>> = [];
         var distance = 0;
         let model = this;
-        this.lat.forEach((element, index) => {
+        this.count.forEach((element, index) => {
             allpoints[index] = [model.lat[index], model.lon[index]];
         });
         return allpoints;
