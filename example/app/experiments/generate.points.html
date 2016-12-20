@@ -1,2 +1,2 @@
-<circle-element *ngFor="let c of count; let i = index; trackBy: trackByFn" [lat]='lat[i]' [lon]='lon[i]' [radius]=80 > </circle-element>
+<circle-element *ngFor="let c; of:count; trackBy:trackByFn; let i = index;" [lat]='lat[i]' [lon]='lon[i]' [radius]=80 > </circle-element>
 <polyline-element [latlngs]="allp" [Options]="getnewColor()"></polyline-element>

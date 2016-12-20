@@ -11,10 +11,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var Rx_1 = require('rxjs/Rx');
 var map_service_1 = require('angular2.leaflet.components/services/map.service');
+var moment = require('moment');
 var GeneratePoints = (function () {
     function GeneratePoints(mapService) {
         this.mapService = mapService;
-        this.population = 30;
+        this.population = 9;
         this.count = Array(this.population).fill(0, 0); //.map((x,i)=>i);
         this.lat = this.randomArray(52.611, 52.701, this.population);
         this.lon = this.randomArray(-1.109, -1.001, this.population);
@@ -24,10 +25,21 @@ var GeneratePoints = (function () {
         this.generationsScore = [];
         this.seed = Array(this.population).fill(0, 0).map(function (x, i) { return i; });
         this.genloop = 0;
-        this.keep = 8;
+        this.keep = 1;
         this.timer = Rx_1.Observable.timer(2000, 50);
         this.options = {};
         this.solutions = 0;
+        this.getdistancefromlatlon = function (lat1, lon1, lat2, lon2) {
+            var R = 6378.137; // Radius of earth in KM
+            var dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
+            var dLon = lon2 * Math.PI / 180 - lon1 * Math.PI / 180;
+            var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            var d = R * c;
+            return d * 1000; // meters
+        };
     }
     GeneratePoints.prototype.randomFromInterval = function (min, max) {
         var rand = Math.floor(Math.random() * (max * 1000 - min * 1000 + 1) + min * 1000);
@@ -102,16 +114,17 @@ var GeneratePoints = (function () {
                     this.generations[maxIndex] = newgen;
                     this.solutions += 1;
                     if (this.solutions % Math.floor(this.population / 4) === 0) {
-                        this.keep += 1;
+                        if (this.keep == this.population - 2) {
+                        }
+                        else {
+                            this.keep += 1;
+                        }
                     }
                 }
                 else {
                     this.generationsScore[maxIndex] = marriagedistance;
                     this.generations[maxIndex] = marriage;
                     this.solutions += 1;
-                    if (this.solutions % Math.floor(this.population / 4) === 0) {
-                        this.keep += 1;
-                    }
                 }
                 console.log("score", this.generationsScore);
             }
@@ -134,7 +147,7 @@ var GeneratePoints = (function () {
         else {
             this.genloop = 0;
         }
-        if (this.keep > this.population) {
+        if (this.keep == this.population) {
             this.subscription.unsubscribe();
         }
     };
@@ -165,7 +178,7 @@ var GeneratePoints = (function () {
         seedsplice.sort(this.sortNumber).reverse();
         var common = [];
         genPoolA.forEach(function (element, index) {
-            if (element[0] == genPoolB[index][0] && element[0] == genPoolB[index][0]) {
+            if (element[0] == genPoolB[index][0] && element[1] == genPoolB[index][1]) {
                 common.push(index);
             }
         });
@@ -177,6 +190,16 @@ var GeneratePoints = (function () {
             }
         });
         if (common.length > 0) {
+            var mm = this.findLargeSegments(genPoolA);
+            var cmm = common.indexOf(mm);
+            if (cmm !== -1) {
+                common.splice(cmm, 1);
+                cmm = common.indexOf(mm + 1);
+                if (cmm !== -1) {
+                    common.splice(cmm, 1);
+                }
+                console.log("got rid of largest segment");
+            }
             common.sort(this.sortNumber).reverse();
             var seedgen = [];
             common.forEach(function (element, index) {
@@ -190,16 +213,30 @@ var GeneratePoints = (function () {
                 genPoolA.splice(element, 0, seedgen[index]);
             });
             console.log("marriage keep", common.length);
-            console.log(Date.now());
+            console.log(moment().format("h:mm:ss a"));
             return genPoolA;
         }
         return genPoolA;
+    };
+    GeneratePoints.prototype.findLargeSegments = function (a) {
+        var _this = this;
+        var distanceList = [];
+        a.forEach(function (element, index) {
+            if (index < a.length - 1) {
+                var dist = _this.getdistancefromlatlon(element[0], element[1], a[index + 1][0], a[index + 1][1]);
+                distanceList.push(dist);
+            }
+        });
+        //var indeces = Array(distanceList.length).fill(0, 0).map((x, i) => i);
+        var maxItem = Math.max.apply(Math, distanceList);
+        var maxIndex = distanceList.indexOf(maxItem);
+        return maxIndex;
     };
     GeneratePoints.prototype.mergelatlon = function () {
         var allpoints = [];
         var distance = 0;
         var model = this;
-        this.lat.forEach(function (element, index) {
+        this.count.forEach(function (element, index) {
             allpoints[index] = [model.lat[index], model.lon[index]];
         });
         return allpoints;
@@ -211,7 +248,7 @@ var GeneratePoints = (function () {
             if (index + 1 > gen.length - 1) {
             }
             else {
-                var dis = _this.distance(gen[index][0], gen[index][1], gen[index + 1][0], gen[index + 1][1]);
+                var dis = _this.getdistancefromlatlon(gen[index][0], gen[index][1], gen[index + 1][0], gen[index + 1][1]);
                 distance += dis;
             }
         });
