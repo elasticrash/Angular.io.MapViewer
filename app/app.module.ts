@@ -5,6 +5,7 @@ import { AppComponent } from './components/app.component';
 import { AppComponent1 } from './components/app.component.1';
 import { AppComponent2 } from './components/app.component.2';
 import { RandomPoints } from './components/random.points';
+import { Simple } from './components/simple';
 import { ToolbarElement } from './components/toolbar.element';
 import { CandTLeafletComponent } from 'angular2.leaflet.components';
 import { CandTLeafletService } from 'angular2.leaflet.components';
@@ -17,11 +18,12 @@ import { GeneratePoints } from './experiments/generate.points';
     RouterModule.forRoot([
       { path: 'mm-map', component: AppComponent1 },
       { path: '', component: AppComponent2 },
-      { path: 'random', component: RandomPoints }
-    ]),
+      { path: 'random', component: RandomPoints },
+      { path: 'simple', component: Simple }
+      ]),
   ],
   declarations: [AppComponent, AppComponent1, AppComponent2,
-   RandomPoints, GeneratePoints, ToolbarElement, CandTLeafletComponent],
+    RandomPoints, GeneratePoints, Simple, ToolbarElement, CandTLeafletComponent],
   providers: [CandTLeafletService],
   bootstrap: [AppComponent]
 })

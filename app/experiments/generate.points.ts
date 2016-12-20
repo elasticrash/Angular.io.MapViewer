@@ -10,7 +10,7 @@ var moment = require('moment');
     templateUrl: 'app/experiments/generate.points.html'
 })
 export class GeneratePoints {
-    population: number = 5;
+    population: number = 9;
     @Input() count: Array<number> = Array(this.population).fill(0, 0);//.map((x,i)=>i);
     lat: Array<number> = this.randomArray(52.611, 52.701, this.population);
     lon: Array<number> = this.randomArray(-1.109, -1.001, this.population);
@@ -116,7 +116,10 @@ export class GeneratePoints {
                     this.solutions += 1;
 
                     if (this.solutions % Math.floor(this.population / 4) === 0) {
-                        this.keep += 1;
+                        if (this.keep == this.population - 2) {
+                        } else {
+                            this.keep += 1;
+                        }
                     }
 
                 } else {
