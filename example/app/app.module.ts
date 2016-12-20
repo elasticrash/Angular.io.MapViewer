@@ -20,7 +20,7 @@ import { GeneratePoints } from './experiments/generate.points';
       { path: '', component: AppComponent2 },
       { path: 'random', component: RandomPoints },
       { path: 'simple', component: Simple }
-      ]),
+    ], { useHash: true }),
   ],
   declarations: [AppComponent, AppComponent1, AppComponent2,
     RandomPoints, GeneratePoints, Simple, ToolbarElement, CandTLeafletComponent],

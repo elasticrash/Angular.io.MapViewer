@@ -27,21 +27,21 @@ var AppModule = (function () {
     AppModule = __decorate([
         core_1.NgModule({
             imports: [platform_browser_1.BrowserModule, material_1.MaterialModule.forRoot(),
-                router_1.RouterModule.forRoot([
-                    { path: 'mm-map', component: app_component_1_1.AppComponent1 },
-                    { path: '', component: app_component_2_1.AppComponent2 },
-                    { path: 'random', component: random_points_1.RandomPoints },
-                    { path: 'simple', component: simple_1.Simple }
-                ]),
+            router_1.RouterModule.forRoot([
+                { path: 'mm-map', component: app_component_1_1.AppComponent1 },
+                { path: '', component: app_component_2_1.AppComponent2 },
+                { path: 'random', component: random_points_1.RandomPoints },
+                { path: 'simple', component: simple_1.Simple }
+            ], { useHash: true }),
             ],
             declarations: [app_component_1.AppComponent, app_component_1_1.AppComponent1, app_component_2_1.AppComponent2,
-                random_points_1.RandomPoints, generate_points_1.GeneratePoints, simple_1.Simple, toolbar_element_1.ToolbarElement, angular2_leaflet_components_1.CandTLeafletComponent],
+            random_points_1.RandomPoints, generate_points_1.GeneratePoints, simple_1.Simple, toolbar_element_1.ToolbarElement, angular2_leaflet_components_1.CandTLeafletComponent],
             providers: [angular2_leaflet_components_2.CandTLeafletService],
             bootstrap: [app_component_1.AppComponent]
-        }), 
+        }),
         __metadata('design:paramtypes', [])
     ], AppModule);
     return AppModule;
-}());
+} ());
 exports.AppModule = AppModule;
 //# sourceMappingURL=app.module.js.map
