@@ -28,6 +28,8 @@
       '@angular/material': 'npm:@angular/material/material.umd.js',
       'leaflet': 'npm:leaflet',
       'moment': 'npm:moment',
+      'proj4': 'npm:proj4',
+      'proj4leaflet': 'npm:proj4leaflet',
       'angular2.leaflet.components': 'npm:angular2.leaflet.components',
       //typescript
       "ts": "npm:plugin-typescript/lib/",
@@ -62,6 +64,14 @@
       },
       'moment': {
         main: './moment.js',
+        defaultExtension: 'js',
+      },
+      'proj4': {
+        main: './dist/proj4.js',
+        defaultExtension: 'js',
+      },
+      'proj4leaflet': {
+        main: './src/proj4leaflet.js',
         defaultExtension: 'js',
       },
       "ts": {

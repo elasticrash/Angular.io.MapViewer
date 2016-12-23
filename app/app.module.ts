@@ -4,6 +4,7 @@ import { MaterialModule } from '@angular/material';
 import { AppComponent } from './components/app.component';
 import { AppComponent1 } from './components/app.component.1';
 import { AppComponent2 } from './components/app.component.2';
+import { AppComponent3 } from './components/app.component.3';
 import { RandomPoints } from './components/random.points';
 import { Simple } from './components/simple';
 import { ToolbarElement } from './components/toolbar.element';
@@ -18,11 +19,12 @@ import { GeneratePoints } from './experiments/generate.points';
     RouterModule.forRoot([
       { path: 'mm-map', component: AppComponent1 },
       { path: '', component: AppComponent2 },
+      { path: 'prj', component: AppComponent3 },
       { path: 'random', component: RandomPoints },
       { path: 'simple', component: Simple }
       ]),
   ],
-  declarations: [AppComponent, AppComponent1, AppComponent2,
+  declarations: [AppComponent, AppComponent1, AppComponent2, AppComponent3,
     RandomPoints, GeneratePoints, Simple, ToolbarElement, CandTLeafletComponent],
   providers: [CandTLeafletService],
   bootstrap: [AppComponent]
