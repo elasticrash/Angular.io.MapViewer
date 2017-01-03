@@ -19,11 +19,22 @@ export class AppComponent3 {
     var system = Proj4(this.systemDefinition);
     console.log(system);
 
+    var upleft = [90000, 5508488];
+    var botright = [1090000, 3602087];
+
+    var boundsa = system.inverse(upleft);
+    var boundsb = system.inverse(botright);
+
+    var boundpointa = new L.Point(upleft[0], upleft[1]);
+    var boundpointb = new L.Point(botright[0], botright[1]);
+    var b = new L.bounds(boundpointa, boundpointb);
+
+
     L.Projection[Proj4.projName] = {
       R: system.a,
       R_MINOR: system.b,
 
-      bounds: L.bounds([3602087,90000],[5508488,1090000]),
+      bounds: b,
       project: function (latlng) {
         var point = system.forward([latlng.lng, latlng.lat]);
         return new L.Point(point[0], point[1]);
