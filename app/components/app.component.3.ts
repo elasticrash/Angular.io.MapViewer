@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 var Lealflet = require('leaflet');
-var Proj4Lealflet = require('proj4leaflet');
+var Proj4 = require('proj4');
 declare var L: any;
 
 @Component({
@@ -9,5 +9,36 @@ declare var L: any;
   templateUrl: 'app/templates/app.component.3.html'
 })
 export class AppComponent3 {
-  coordinateSystem: any = new L.Proj.CRS('EPSG:2100', "+proj=tmerc +lat_0=0 +lon_0=24 +k=0.9996 +x_0=500000 +y_0=0 +ellps=GRS80 +datum=GGRS87 +units=m +no_defs");
+
+
+  systemDefinition: string = "+proj=tmerc +lat_0=0 +lon_0=24 +k=0.9996 +x_0=500000 +y_0=0 +ellps=GRS80 +towgs84=-199.87,74.79,246.62,0,0,0,0 +units=m +no_defs";
+  coordinateSystem: any = 'L.CRS.EPSG2100';
+
+  ngOnInit() {
+
+    var system = Proj4(this.systemDefinition);
+    console.log(system);
+
+    L.Projection[Proj4.projName] = {
+      R: system.a,
+      R_MINOR: system.b,
+
+      bounds: L.bounds([3602087,90000],[5508488,1090000]),
+      project: function (latlng) {
+        var point = system.forward([latlng.lng, latlng.lat]);
+        return new L.Point(point[0], point[1]);
+      },
+      unproject: function (point) {
+        var point2 = system.inverse([point.x, point.y]);
+        return new L.LatLng(point2[1], point2[0]);
+      }
+    }
+
+    L.CRS.EPSG2100 = L.extend({}, L.CRS.Earth, {
+      code: 'EPSG:2100',
+      projection: L.Projection[Proj4.projName],
+      transformation: new L.Transformation(1, 0, -1, 0)
+    });
+  }
 }
+
