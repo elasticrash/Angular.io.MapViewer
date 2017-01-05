@@ -12,6 +12,7 @@ import { CandTLeafletComponent } from 'angular2.leaflet.components';
 import { CandTLeafletService } from 'angular2.leaflet.components';
 import { RouterModule } from '@angular/router';
 import { GeneratePoints } from './experiments/generate.points';
+import { CoordinateControl } from './components/coordinates';
 
 
 @NgModule({
@@ -22,10 +23,10 @@ import { GeneratePoints } from './experiments/generate.points';
       { path: 'prj', component: AppComponent3 },
       { path: 'random', component: RandomPoints },
       { path: 'simple', component: Simple }
-      ]),
+    ]),
   ],
   declarations: [AppComponent, AppComponent1, AppComponent2, AppComponent3,
-    RandomPoints, GeneratePoints, Simple, ToolbarElement, CandTLeafletComponent],
+    RandomPoints, GeneratePoints, Simple, ToolbarElement, CandTLeafletComponent, CoordinateControl],
   providers: [CandTLeafletService],
   bootstrap: [AppComponent]
 })
