@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MapService } from 'angular2.leaflet.components/services/map.service';
 
 var Lealflet = require('leaflet');
@@ -10,14 +10,15 @@ declare var L: any;
 })
 export class CoordinateControl {
 
+    @Input() crs: any = {};
+
     ourCustomControlConstructor;
     ourCustomControl;
-    lat = 0;
-    lon = 0;
     constructor(private mapService: MapService) {
     }
 
     ngOnInit() {
+        var model = this;
         this.ourCustomControlConstructor = L.Control.extend({
             options: {
                 position: 'topleft'
@@ -45,11 +46,16 @@ export class CoordinateControl {
         });
 
         let map = this.mapService.getMap();
-        map.on('click', function (e) {
-            this.lat = e.latlng.lat;
-            this.lon = e.latlng.lng;
+        map.on('mousemove', function (e) {
+            map.removeControl(model.ourCustomControl);
+            var proj = model.crs.forward([e.latlng.lng, e.latlng.lat]);
+            model.ourCustomControl = new model.ourCustomControlConstructor({
+                x: proj[0],
+                y: proj[1]
+            });
+            map.addControl(model.ourCustomControl);
         });
-        this.ourCustomControl = new this.ourCustomControlConstructor({ x: this.lat, y: this.lon });
+        this.ourCustomControl = new this.ourCustomControlConstructor({ x: 0, y: 0 });
         map.addControl(this.ourCustomControl);
     }
 }
