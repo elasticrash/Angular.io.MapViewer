@@ -9,5 +9,11 @@
     "removeComments": false,
     "noImplicitAny": false,
     "outDir": "dist"
-  }
+  },
+  "types": [
+    "node",
+    "jasmine",
+    "core-js",
+    "hammerjs"
+  ]
 }

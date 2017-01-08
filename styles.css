@@ -40,6 +40,10 @@ md-list-item .ng-hide {
 	top: 64px !important;
 }
 
+.custombackground .leaflet-container {
+    background: #000000;
+}
+
 leaf-element{
     width:100%;
 }
