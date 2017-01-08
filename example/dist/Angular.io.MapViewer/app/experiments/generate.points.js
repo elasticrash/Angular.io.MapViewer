@@ -16,9 +16,10 @@ var GeneratePoints = (function () {
     function GeneratePoints(mapService) {
         this.mapService = mapService;
         this.population = 9;
-        this.count = Array(this.population).fill(0, 0); //.map((x,i)=>i);
+        this.count = Array(this.population).fill(0, 0).map(function (x, i) { return i; });
         this.lat = this.randomArray(52.611, 52.701, this.population);
         this.lon = this.randomArray(-1.109, -1.001, this.population);
+        this.latlonColllection = [];
         this.allp = this.mergelatlon();
         this.allpclone = this.allp.slice();
         this.generations = [];
@@ -56,6 +57,9 @@ var GeneratePoints = (function () {
     };
     GeneratePoints.prototype.ngOnInit = function () {
         var _this = this;
+        this.count.forEach(function (element) {
+            _this.latlonColllection.push({ lat: _this.lat[element], lon: _this.lon[element] });
+        });
         this.subscription = this.timer.subscribe(function (t) {
             _this.shufflestaff(t);
         });

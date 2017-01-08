@@ -7,6 +7,7 @@
 		<leaflet-group [name]="'markers'">
 			<marker-element [iconUrl]="'/Angular.io.MapViewer/example/custom-marker.png'" [lat]=52.6 [lon]=-1.1 [onclick]="'you clicked here'"></marker-element>
 			<marker-element [lat]=52.65 [lon]=-1.15 [mouseover]="'marker B'"></marker-element>
+			<marker-element [lat]=52.65 [lon]=-1.17 [mouseover]="'marker C'"></marker-element>
 		</leaflet-group>
 		<leaflet-group [name]="'circles'">
 			<circle-element [lat]=52.62 [lon]=-1.12 [radius]=180 [onclick]="'hello I am a circle-element'"> </circle-element>
@@ -21,7 +22,8 @@
 			<polygon-element [onclick]="'hello I am a polygon with a hole'"></polygon-element>
 			<polygon-element [latlngs]="[[52.68, -1.22], [52.65, -1.21], [52.697, -1.20], [52.698, -1.21]]" [onclick]="'hello I am a polygon without a hole'"></polygon-element>
 			<polyline-element [onclick]="'hello I am a polyline'" [latlngs]="[[52.6, -1.1],[52.605, -1.1], [52.606, -1.105], [52.697, -1.109]]"></polyline-element>
-		<marker-element [iconUrl]="'/Angular.io.MapViewer/example/custom-marker.png'" [lat]=52.7 [lon]=-1.1 [onclick]="'custom icon'"></marker-element>
+			<marker-element [iconUrl]="'/Angular.io.MapViewer/example/custom-marker.png'" [lat]=52.7 [lon]=-1.1 [onclick]="'custom icon'"></marker-element>
+			<geojson-element [geojson]='g'></geojson-element>
 		</leaflet-group>
 	</leaf-element>
 </div>
