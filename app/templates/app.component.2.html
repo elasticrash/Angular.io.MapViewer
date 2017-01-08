@@ -23,6 +23,7 @@
 			<polygon-element [latlngs]="[[52.68, -1.22], [52.65, -1.21], [52.697, -1.20], [52.698, -1.21]]" [onclick]="'hello I am a polygon without a hole'"></polygon-element>
 			<polyline-element [onclick]="'hello I am a polyline'" [latlngs]="[[52.6, -1.1],[52.605, -1.1], [52.606, -1.105], [52.697, -1.109]]"></polyline-element>
 			<marker-element [iconUrl]="'/custom-marker.png'" [lat]=52.7 [lon]=-1.1 [onclick]="'custom icon'"></marker-element>
+			<geojson-element [geojson]='g'></geojson-element>
 		</leaflet-group>
 	</leaf-element>
 </div>
