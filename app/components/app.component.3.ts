@@ -13,7 +13,7 @@ export class AppComponent3 {
 
   systemDefinition: string = "+proj=tmerc +lat_0=0 +lon_0=24 +k=0.9996 +x_0=500000 +y_0=0 +ellps=GRS80 +towgs84=-199.87,74.79,246.62,0,0,0,0 +units=m +no_defs";
   coordinateSystem: any = 'L.CRS.EPSG2100';
-  system:any  = {};
+  system: any = {};
 
   constructor() {
   }
@@ -22,19 +22,12 @@ export class AppComponent3 {
 
     this.system = Proj4(this.systemDefinition);
     var model = this;
-    console.log(this.system);
 
-    var upleft = [90000, 3602087];
-    var botright = [1090000, 5508488];
-
-    //   var upleft = [18.2700, 41.7700];
-    // var botright = [29.9700, 33.2300];
+    var upleft = [-34387.6695, 4641211.3222];
+    var botright = [1056496.8434, 3691163.5140];
 
     var extentWidth = botright[0] - upleft[0];
     var extentHeight = upleft[1] - botright[1];
-
-    var boundsa = this.system.inverse(upleft);
-    var boundsb = this.system.inverse(botright);
 
     var boundpointa = new L.Point(upleft[0], upleft[1]);
     var boundpointb = new L.Point(botright[0], botright[1]);
@@ -43,8 +36,6 @@ export class AppComponent3 {
     var resX = extentWidth / 256;
     var resY = extentHeight / 256;
     var res = Math.max(resX, resY);
-    var adjustedExtentWidth = 256 * 256 * res;
-    var adjustedExtentHeight = 256 * 256 * res;
 
     L.Projection[this.system.oProj.projName] = {
       R: this.system.a,
@@ -61,15 +52,22 @@ export class AppComponent3 {
       }
     }
 
-    L.CRS.EPSG2100 = L.extend({}, L.CRS.Earth, {
+    L.CRS.EPSG2100 = L.extend({}, L.CRS, {
       code: 'EPSG:2100',
       projection: L.Projection[model.system.oProj.projName],
-      transformation: new L.Transformation(1, 0, 1, 0),
-      //transformation: new L.Transformation(system.oProj.k0, -system.oProj.lat0, -system.oProj.k0, system.oProj.long0),
+      transformation: new L.Transformation(model.system.oProj.k0, -model.system.oProj.lat0, -model.system.oProj.k0, model.system.oProj.long0),
       scale: function (zoom) {
-        var s = 3117.411496270278;
-        console.log("scale", 1 / (s / Math.pow(2, zoom)), "zoom", zoom);
-        return 1 / (s / Math.pow(2, zoom));
+        return 1 / (res / Math.pow(2, zoom));
+      },
+      distance: function (latlng1, latlng2) {
+
+        var ll1 = model.system.forward([latlng1.lng, latlng1.lat]);
+        var ll2 = model.system.forward([latlng2.lng, latlng2.lat]);
+
+        var dx = ll2[0] - ll1[0],
+          dy = ll2[1] - ll1[1];
+
+        return Math.sqrt(dx * dx + dy * dy);
       }
     });
   }
