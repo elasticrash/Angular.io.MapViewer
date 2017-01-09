@@ -1,4 +1,4 @@
-export declare type MdUniqueSelectionDispatcherListener = (id: string, name: string) => void;
+export declare type UniqueSelectionDispatcherListener = (id: string, name: string) => void;
 /**
  * Class to coordinate unique selection based on name.
  * Intended to be consumed as an Angular service.
@@ -8,10 +8,14 @@ export declare type MdUniqueSelectionDispatcherListener = (id: string, name: str
  * This service does not *store* any IDs and names because they may change at any time, so it is
  * less error-prone if they are simply passed through when the events occur.
  */
-export declare class MdUniqueSelectionDispatcher {
+export declare class UniqueSelectionDispatcher {
     private _listeners;
-    /** Notify other items that selection for the given name has been set. */
+    /**
+     * Notify other items that selection for the given name has been set.
+     * @param id ID of the item.
+     * @param name Name of the item.
+     */
     notify(id: string, name: string): void;
     /** Listen for future changes to item selection. */
-    listen(listener: MdUniqueSelectionDispatcherListener): void;
+    listen(listener: UniqueSelectionDispatcherListener): void;
 }

@@ -16,16 +16,25 @@ export var MdInkBar = (function () {
     }
     /**
      * Calculates the styles from the provided element in order to align the ink-bar to that element.
+     * Shows the ink bar if previously set as hidden.
      * @param element
      */
     MdInkBar.prototype.alignToElement = function (element) {
+        this.show();
         this._renderer.setElementStyle(this._elementRef.nativeElement, 'left', this._getLeftPosition(element));
         this._renderer.setElementStyle(this._elementRef.nativeElement, 'width', this._getElementWidth(element));
+    };
+    /** Shows the ink bar. */
+    MdInkBar.prototype.show = function () {
+        this._renderer.setElementStyle(this._elementRef.nativeElement, 'visibility', 'visible');
+    };
+    /** Hides the ink bar. */
+    MdInkBar.prototype.hide = function () {
+        this._renderer.setElementStyle(this._elementRef.nativeElement, 'visibility', 'hidden');
     };
     /**
      * Generates the pixel distance from the left based on the provided element in string format.
      * @param element
-     * @returns {string}
      */
     MdInkBar.prototype._getLeftPosition = function (element) {
         return element ? element.offsetLeft + 'px' : '0';
@@ -33,14 +42,13 @@ export var MdInkBar = (function () {
     /**
      * Generates the pixel width from the provided element in string format.
      * @param element
-     * @returns {string}
      */
     MdInkBar.prototype._getElementWidth = function (element) {
         return element ? element.offsetWidth + 'px' : '0';
     };
     MdInkBar = __decorate([
         Directive({
-            selector: 'md-ink-bar',
+            selector: 'md-ink-bar, mat-ink-bar',
         }), 
         __metadata('design:paramtypes', [Renderer, ElementRef])
     ], MdInkBar);

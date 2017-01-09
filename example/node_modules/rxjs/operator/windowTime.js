@@ -69,7 +69,7 @@ var WindowTimeOperator = (function () {
         this.scheduler = scheduler;
     }
     WindowTimeOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new WindowTimeSubscriber(subscriber, this.windowTimeSpan, this.windowCreationInterval, this.scheduler));
+        return source.subscribe(new WindowTimeSubscriber(subscriber, this.windowTimeSpan, this.windowCreationInterval, this.scheduler));
     };
     return WindowTimeOperator;
 }());

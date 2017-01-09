@@ -6,7 +6,10 @@ $md-body-font-size-base: rem(1.4) !default;
 $md-font-family: Roboto, 'Helvetica Neue', sans-serif !default;
 
 // Media queries
+// TODO: Find a way to respect media query ranges.
+// TODO: For example the xs-breakpoint should not interfere with the sm-breakpoint.
 $md-xsmall: 'max-width: 600px';
+$md-small: 'max-width: 960px';
 
 // TODO: Revisit all z-indices before beta
 // z-index master list
@@ -15,10 +18,16 @@ $z-index-fab: 20 !default;
 $z-index-drawer: 100 !default;
 
 // Overlay z indices.
-$md-z-index-overlay: 1000;
-$md-z-index-overlay-container: 1;
-$md-z-index-overlay-backdrop: 1;
 
+// We want overlays to always appear over user content, so set a baseline
+// very high z-index for the overlay container, which is where we create the new
+// stacking context for all overlays.
+$cdk-z-index-overlay-container: 1000;
+$cdk-z-index-overlay: 1000;
+$cdk-z-index-overlay-backdrop: 1000;
+
+// Background color for all of the backdrops
+$cdk-overlay-dark-backdrop-background: rgba(0, 0, 0, 0.6);
 
 // Global constants
 $pi: 3.14159265;

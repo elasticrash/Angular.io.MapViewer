@@ -21,16 +21,16 @@ export declare class MdGridList implements OnInit, AfterContentChecked {
     /** Query list of tiles that are being rendered. */
     _tiles: QueryList<MdGridTile>;
     constructor(_renderer: Renderer, _element: ElementRef, _dir: Dir);
+    /** Amount of columns in the grid list. */
     cols: any;
+    /** Size of the grid list's gutter in pixels. */
     gutterSize: any;
     /** Set internal representation of row height from the user-provided value. */
     rowHeight: string | number;
-    /** TODO: internal */
     ngOnInit(): void;
     /**
      * The layout calculation is fairly cheap if nothing changes, so there's little cost
      * to run it frequently.
-     * TODO: internal
      */
     ngAfterContentChecked(): void;
     /** Throw a friendly error if cols property is missing */

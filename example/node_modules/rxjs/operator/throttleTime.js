@@ -56,7 +56,7 @@ var ThrottleTimeOperator = (function () {
         this.scheduler = scheduler;
     }
     ThrottleTimeOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new ThrottleTimeSubscriber(subscriber, this.duration, this.scheduler));
+        return source.subscribe(new ThrottleTimeSubscriber(subscriber, this.duration, this.scheduler));
     };
     return ThrottleTimeOperator;
 }());

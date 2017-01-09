@@ -18,22 +18,16 @@ export var MdGridTile = (function () {
         this._colspan = 1;
     }
     Object.defineProperty(MdGridTile.prototype, "rowspan", {
-        get: function () {
-            return this._rowspan;
-        },
-        set: function (value) {
-            this._rowspan = coerceToNumber(value);
-        },
+        /** Amount of rows that the grid tile takes up. */
+        get: function () { return this._rowspan; },
+        set: function (value) { this._rowspan = coerceToNumber(value); },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(MdGridTile.prototype, "colspan", {
-        get: function () {
-            return this._colspan;
-        },
-        set: function (value) {
-            this._colspan = coerceToNumber(value);
-        },
+        /** Amount of columns that the grid tile takes up. */
+        get: function () { return this._colspan; },
+        set: function (value) { this._colspan = coerceToNumber(value); },
         enumerable: true,
         configurable: true
     });
@@ -53,10 +47,10 @@ export var MdGridTile = (function () {
         __metadata('design:type', Object)
     ], MdGridTile.prototype, "colspan", null);
     MdGridTile = __decorate([
-        Component({selector: 'md-grid-tile',
+        Component({selector: 'md-grid-tile, mat-grid-tile',
             host: { 'role': 'listitem' },
-            template: "<!-- TODO(kara): Revisit why this is a figure.--> <figure> <ng-content></ng-content> </figure>",
-            styles: ["md-grid-list { display: block; position: relative; } md-grid-tile { display: block; position: absolute; overflow: hidden; } md-grid-tile figure { display: flex; position: absolute; align-items: center; justify-content: center; height: 100%; top: 0; right: 0; bottom: 0; left: 0; padding: 0; margin: 0; } md-grid-tile md-grid-tile-header, md-grid-tile md-grid-tile-footer { display: flex; align-items: center; height: 48px; color: #fff; background: rgba(0, 0, 0, 0.38); overflow: hidden; padding: 0 16px; font-size: 16px; position: absolute; left: 0; right: 0; } md-grid-tile md-grid-tile-header [md-line], md-grid-tile md-grid-tile-footer [md-line] { white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis; display: block; box-sizing: border-box; } md-grid-tile md-grid-tile-header [md-line]:nth-child(n+2), md-grid-tile md-grid-tile-footer [md-line]:nth-child(n+2) { font-size: 12px; } md-grid-tile md-grid-tile-header > *, md-grid-tile md-grid-tile-footer > * { margin: 0; padding: 0; font-weight: normal; font-size: inherit; } md-grid-tile md-grid-tile-header.md-2-line, md-grid-tile md-grid-tile-footer.md-2-line { height: 68px; } md-grid-tile .md-grid-list-text { display: flex; flex-direction: column; width: 100%; box-sizing: border-box; overflow: hidden; } md-grid-tile .md-grid-list-text > * { margin: 0; padding: 0; font-weight: normal; font-size: inherit; } md-grid-tile .md-grid-list-text:empty { display: none; } md-grid-tile md-grid-tile-header { top: 0; } md-grid-tile md-grid-tile-footer { bottom: 0; } md-grid-tile [md-grid-avatar] { padding-right: 16px; } [dir='rtl'] md-grid-tile [md-grid-avatar] { padding-right: 0; padding-left: 16px; } md-grid-tile [md-grid-avatar]:empty { display: none; } /*# sourceMappingURL=grid-list.css.map */ "],
+            template: "<figure><ng-content></ng-content></figure>",
+            styles: ["md-grid-list{display:block;position:relative}md-grid-tile{display:block;position:absolute;overflow:hidden}md-grid-tile figure{display:flex;position:absolute;align-items:center;justify-content:center;height:100%;top:0;right:0;bottom:0;left:0;padding:0;margin:0}md-grid-tile md-grid-tile-footer,md-grid-tile md-grid-tile-header{display:flex;align-items:center;height:48px;color:#fff;background:rgba(0,0,0,.38);overflow:hidden;padding:0 16px;font-size:16px;position:absolute;left:0;right:0}md-grid-tile md-grid-tile-footer [md-line],md-grid-tile md-grid-tile-header [md-line]{white-space:nowrap;overflow-x:hidden;text-overflow:ellipsis;display:block;box-sizing:border-box}md-grid-tile md-grid-tile-footer [md-line]:nth-child(n+2),md-grid-tile md-grid-tile-header [md-line]:nth-child(n+2){font-size:12px}md-grid-tile .md-grid-list-text>*,md-grid-tile md-grid-tile-footer>*,md-grid-tile md-grid-tile-header>*{margin:0;padding:0;font-weight:400;font-size:inherit}md-grid-tile md-grid-tile-footer.md-2-line,md-grid-tile md-grid-tile-header.md-2-line{height:68px}md-grid-tile .md-grid-list-text{display:flex;flex-direction:column;width:100%;box-sizing:border-box;overflow:hidden}md-grid-tile .md-grid-list-text:empty,md-grid-tile [md-grid-avatar]:empty{display:none}md-grid-tile md-grid-tile-header{top:0}md-grid-tile md-grid-tile-footer{bottom:0}md-grid-tile [md-grid-avatar]{padding-right:16px}[dir=rtl] md-grid-tile [md-grid-avatar]{padding-right:0;padding-left:16px}"],
             encapsulation: ViewEncapsulation.None,
         }), 
         __metadata('design:paramtypes', [Renderer, ElementRef])
@@ -76,8 +70,8 @@ export var MdGridTileText = (function () {
         __metadata('design:type', QueryList)
     ], MdGridTileText.prototype, "_lines", void 0);
     MdGridTileText = __decorate([
-        Component({selector: 'md-grid-tile-header, md-grid-tile-footer',
-            template: "<ng-content select=\"[md-grid-avatar]\"></ng-content> <div class=\"md-grid-list-text\"><ng-content select=\"[md-line]\"></ng-content></div> <ng-content></ng-content>"
+        Component({selector: 'md-grid-tile-header, mat-grid-tile-header, md-grid-tile-footer, mat-grid-tile-footer',
+            template: "<ng-content select=\"[md-grid-avatar], [mat-grid-avatar]\"></ng-content><div class=\"md-grid-list-text\"><ng-content select=\"[md-line], [mat-line]\"></ng-content></div><ng-content></ng-content>"
         }), 
         __metadata('design:paramtypes', [Renderer, ElementRef])
     ], MdGridTileText);

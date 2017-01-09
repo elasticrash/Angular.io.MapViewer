@@ -35,7 +35,7 @@ var RetryWhenOperator = (function () {
         this.source = source;
     }
     RetryWhenOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new RetryWhenSubscriber(subscriber, this.notifier, this.source));
+        return source.subscribe(new RetryWhenSubscriber(subscriber, this.notifier, this.source));
     };
     return RetryWhenOperator;
 }());

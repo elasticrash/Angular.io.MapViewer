@@ -14,7 +14,6 @@ export declare class MdListItem implements AfterContentInit {
     _lines: QueryList<MdLine>;
     _hasAvatar: MdListAvatar;
     constructor(_renderer: Renderer, _element: ElementRef);
-    /** TODO: internal */
     ngAfterContentInit(): void;
     _handleFocus(): void;
     _handleBlur(): void;

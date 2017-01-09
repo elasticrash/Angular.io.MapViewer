@@ -35,7 +35,7 @@ var RepeatWhenOperator = (function () {
         this.source = source;
     }
     RepeatWhenOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new RepeatWhenSubscriber(subscriber, this.notifier, this.source));
+        return source.subscribe(new RepeatWhenSubscriber(subscriber, this.notifier, this.source));
     };
     return RepeatWhenOperator;
 }());

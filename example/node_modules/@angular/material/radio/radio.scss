@@ -3,6 +3,7 @@
 
 
 $md-radio-size: $md-toggle-size !default;
+$md-radio-ripple-size: $md-radio-size * 0.75;
 
 // Top-level host container.
 md-radio-button {
@@ -73,7 +74,7 @@ md-radio-button {
 }
 
 // Alignment.
-.md-radio-label-content.md-radio-align-end {
+.md-radio-label-content.md-radio-label-before {
   order: -1;
   padding-left: 0;
   padding-right: $md-toggle-padding;
@@ -89,4 +90,13 @@ md-radio-button {
   cursor: default;
 }
 
-@include md-temporary-ink-ripple(radio);
+.md-radio-ripple {
+  position: absolute;
+  left: -$md-radio-ripple-size;
+  top: -$md-radio-ripple-size;
+  right: -$md-radio-ripple-size;
+  bottom: -$md-radio-ripple-size;
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+}

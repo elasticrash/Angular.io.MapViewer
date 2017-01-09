@@ -60,7 +60,7 @@ var DelayOperator = (function () {
         this.scheduler = scheduler;
     }
     DelayOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new DelaySubscriber(subscriber, this.delay, this.scheduler));
+        return source.subscribe(new DelaySubscriber(subscriber, this.delay, this.scheduler));
     };
     return DelayOperator;
 }());

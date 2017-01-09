@@ -27,7 +27,7 @@ var ObserveOnOperator = (function () {
         this.delay = delay;
     }
     ObserveOnOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new ObserveOnSubscriber(subscriber, this.scheduler, this.delay));
+        return source.subscribe(new ObserveOnSubscriber(subscriber, this.scheduler, this.delay));
     };
     return ObserveOnOperator;
 }());

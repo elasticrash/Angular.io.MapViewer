@@ -13,6 +13,8 @@ import { MdGridTileTooWideError } from './grid-list-errors';
  * column are already occupied; zero indicates an empty cell. Moving "down" to the next row
  * decrements each value in the tracking array (indicating that the column is one cell closer to
  * being free).
+ *
+ * @docs-private
  */
 export var TileCoordinator = (function () {
     function TileCoordinator(numColumns, tiles) {
@@ -112,7 +114,10 @@ export var TileCoordinator = (function () {
     };
     return TileCoordinator;
 }());
-/** Simple data structure for tile position (row, col). */
+/**
+ * Simple data structure for tile position (row, col).
+ * @docs-private
+ */
 export var TilePosition = (function () {
     function TilePosition(row, col) {
         this.row = row;

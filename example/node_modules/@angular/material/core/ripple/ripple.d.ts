@@ -1,46 +1,63 @@
-import { ModuleWithProviders, ElementRef, OnChanges, OnDestroy, OnInit, SimpleChange } from '@angular/core';
+import { ModuleWithProviders, ElementRef, NgZone, OnChanges, OnDestroy, OnInit, SimpleChange } from '@angular/core';
+import { ViewportRuler } from '../overlay/position/viewport-ruler';
 export declare class MdRipple implements OnInit, OnDestroy, OnChanges {
     /**
      * The element that triggers the ripple when click events are received. Defaults to the
      * directive's host element.
      */
     trigger: HTMLElement | HTMLElement;
+    /** @deprecated */
+    _triggerDeprecated: HTMLElement | HTMLElement;
     /**
      * Whether the ripple always originates from the center of the host element's bounds, rather
      * than originating from the location of the click event.
      */
     centered: boolean;
+    /** @deprecated */
+    _centeredDeprecated: boolean;
     /**
      * Whether click events will not trigger the ripple. It can still be triggered by manually
      * calling start() and end().
      */
     disabled: boolean;
+    /** @deprecated */
+    _disabledDeprecated: boolean;
     /**
      * If set, the radius in pixels of foreground ripples when fully expanded. If unset, the radius
      * will be the distance from the center of the ripple to the furthest corner of the host element's
      * bounding rectangle.
      */
     maxRadius: number;
+    /** @deprecated */
+    _maxRadiusDeprecated: number;
     /**
      * If set, the normal duration of ripple animations is divided by this value. For example,
      * setting it to 0.5 will cause the animations to take twice as long.
      */
     speedFactor: number;
+    /** @deprecated */
+    _speedFactorDeprecated: number;
     /** Custom color for ripples. */
     color: string;
+    /** @deprecated */
+    _colorDeprecated: string;
     /** Custom color for the ripple background. */
     backgroundColor: string;
+    /** @deprecated */
+    _backgroundColorDeprecated: string;
     /** Whether the ripple background will be highlighted to indicated a focused state. */
     focused: boolean;
+    /** @deprecated */
+    _focusedDeprecated: boolean;
     /** Whether foreground ripples should be visible outside the component's bounds. */
     unbounded: boolean;
+    /** @deprecated */
+    _unboundedDeprecated: boolean;
     private _rippleRenderer;
-    constructor(_elementRef: ElementRef);
-    /** TODO: internal */
+    _ruler: ViewportRuler;
+    constructor(_elementRef: ElementRef, _ngZone: NgZone, _ruler: ViewportRuler);
     ngOnInit(): void;
-    /** TODO: internal */
     ngOnDestroy(): void;
-    /** TODO: internal */
     ngOnChanges(changes: {
         [propertyName: string]: SimpleChange;
     }): void;

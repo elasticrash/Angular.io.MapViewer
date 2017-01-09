@@ -1,5 +1,6 @@
 @import '../core/style/variables';
 @import '../core/style/elevation';
+@import '../core/a11y/a11y';
 
 
 $md-card-default-padding: 24px !default;
@@ -8,17 +9,17 @@ $md-card-border-radius: 2px !default;
 $md-card-header-size: 40px !default;
 
 md-card {
-  @include md-elevation(1);
+  @include md-elevation(2);
   @include md-elevation-transition;
   display: block;
   position: relative;
   padding: $md-card-default-padding;
   border-radius: $md-card-border-radius;
   font-family: $md-font-family;
-}
 
-md-card:hover {
-  @include md-elevation(2);
+  @include cdk-high-contrast {
+    outline: solid 1px;
+  }
 }
 
 .md-card-flat {

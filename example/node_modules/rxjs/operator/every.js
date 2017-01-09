@@ -24,7 +24,7 @@ var EveryOperator = (function () {
         this.source = source;
     }
     EveryOperator.prototype.call = function (observer, source) {
-        return source._subscribe(new EverySubscriber(observer, this.predicate, this.thisArg, this.source));
+        return source.subscribe(new EverySubscriber(observer, this.predicate, this.thisArg, this.source));
     };
     return EveryOperator;
 }());

@@ -22,7 +22,7 @@ export var MdTabLabel = (function (_super) {
     }
     MdTabLabel = __decorate([
         Directive({
-            selector: '[md-tab-label]',
+            selector: '[md-tab-label], [mat-tab-label]',
         }), 
         __metadata('design:paramtypes', [TemplateRef, ViewContainerRef])
     ], MdTabLabel);

@@ -31,6 +31,9 @@ $md-dense-three-line-height: 76px;
 @mixin md-list-item-base($font-size, $base-height, $avatar-height,
   $two-line-height, $three-line-height) {
 
+  // Prevents the wrapper `md-list-item` from collapsing due to it being `inline` by default.
+  display: block;
+
   .md-list-item {
     display: flex;
     flex-direction: row;
@@ -50,8 +53,16 @@ $md-dense-three-line-height: 76px;
     height: $two-line-height;
   }
 
+
   &.md-3-line .md-list-item {
     height: $three-line-height;
+  }
+
+  // list items with more than 3 lines should expand to match
+  // the height of its contained text
+  &.md-multi-line .md-list-item {
+    height: 100%;
+    padding: 8px $md-list-side-padding;
   }
 
   .md-list-text {
@@ -64,6 +75,7 @@ $md-dense-three-line-height: 76px;
   }
 
   [md-list-avatar] {
+    flex-shrink: 0;
     width: $md-list-avatar-size;
     height: $md-list-avatar-size;
     border-radius: 50%;
@@ -148,7 +160,8 @@ md-list[dense], md-nav-list[dense] {
 
 md-divider {
   display: block;
-  border-top: 1px solid;
+  border-top-style: solid;
+  border-top-width: 1px;
   margin: 0;
 }
 

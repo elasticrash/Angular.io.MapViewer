@@ -39,7 +39,7 @@ var RepeatOperator = (function () {
         this.source = source;
     }
     RepeatOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new RepeatSubscriber(subscriber, this.count, this.source));
+        return source.subscribe(new RepeatSubscriber(subscriber, this.count, this.source));
     };
     return RepeatOperator;
 }());

@@ -25,9 +25,10 @@
       // other libraries
       'rxjs': 'npm:rxjs',
       'angular-in-memory-web-api': 'npm:angular-in-memory-web-api',
-      '@angular/material': 'npm:@angular/material/material.umd.js',
+      '@angular/material': 'npm:@angular/material/bundles/material.umd.js',
       'leaflet': 'npm:leaflet',
       'moment': 'npm:moment',
+      'proj4': 'npm:proj4',
       'angular2.leaflet.components': 'npm:angular2.leaflet.components',
       //typescript
       "ts": "npm:plugin-typescript/lib/",
@@ -62,6 +63,10 @@
       },
       'moment': {
         main: './moment.js',
+        defaultExtension: 'js',
+      },
+      'proj4': {
+        main: './dist/proj4.js',
         defaultExtension: 'js',
       },
       "ts": {

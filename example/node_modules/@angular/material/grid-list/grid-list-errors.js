@@ -6,6 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 import { MdError } from '../core';
 /**
  * Exception thrown when cols property is missing from grid-list
+ * @docs-private
  */
 export var MdGridListColsError = (function (_super) {
     __extends(MdGridListColsError, _super);
@@ -16,6 +17,7 @@ export var MdGridListColsError = (function (_super) {
 }(MdError));
 /**
  * Exception thrown when a tile's colspan is longer than the number of cols in list
+ * @docs-private
  */
 export var MdGridTileTooWideError = (function (_super) {
     __extends(MdGridTileTooWideError, _super);
@@ -26,6 +28,7 @@ export var MdGridTileTooWideError = (function (_super) {
 }(MdError));
 /**
  * Exception thrown when an invalid ratio is passed in as a rowHeight
+ * @docs-private
  */
 export var MdGridListBadRatioError = (function (_super) {
     __extends(MdGridListBadRatioError, _super);

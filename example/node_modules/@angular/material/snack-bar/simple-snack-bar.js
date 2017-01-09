@@ -17,7 +17,7 @@ export var SimpleSnackBar = (function () {
     }
     /** Dismisses the snack bar. */
     SimpleSnackBar.prototype.dismiss = function () {
-        this.snackBarRef.dismiss();
+        this.snackBarRef._action();
     };
     Object.defineProperty(SimpleSnackBar.prototype, "hasAction", {
         /** If the action button should be shown. */
@@ -28,7 +28,7 @@ export var SimpleSnackBar = (function () {
     SimpleSnackBar = __decorate([
         Component({selector: 'simple-snack-bar',
             template: "<span class=\"md-simple-snackbar-message\">{{message}}</span> <button md-button class=\"md-simple-snackbar-action\" *ngIf=\"hasAction\" (click)=\"dismiss()\">{{action}}</button>",
-            styles: ["md-simple-snackbar { display: flex; justify-content: space-between; } .md-simple-snackbar-message { box-sizing: border-box; border: none; color: white; font-family: Roboto, 'Helvetica Neue', sans-serif; font-size: 14px; line-height: 20px; outline: none; text-decoration: none; word-break: break-all; } .md-simple-snackbar-action { box-sizing: border-box; color: white; float: right; font-weight: 600; line-height: 20px; margin: -5px 0 0 48px; min-width: initial; padding: 5px; text-transform: uppercase; } /*# sourceMappingURL=simple-snack-bar.css.map */ "],
+            styles: ["md-simple-snackbar{display:flex;justify-content:space-between}.md-simple-snackbar-message{box-sizing:border-box;border:none;color:#fff;font-family:Roboto,'Helvetica Neue',sans-serif;font-size:14px;line-height:20px;outline:0;text-decoration:none;word-break:break-all}.md-simple-snackbar-action{box-sizing:border-box;color:#fff;float:right;font-weight:600;line-height:20px;margin:-5px 0 0 48px;min-width:initial;padding:5px;text-transform:uppercase}"],
         }), 
         __metadata('design:paramtypes', [])
     ], SimpleSnackBar);

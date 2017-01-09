@@ -13,6 +13,8 @@ import { MdGridTile } from './grid-tile';
  * column are already occupied; zero indicates an empty cell. Moving "down" to the next row
  * decrements each value in the tracking array (indicating that the column is one cell closer to
  * being free).
+ *
+ * @docs-private
  */
 export declare class TileCoordinator {
     /** Tracking array (see class description). */
@@ -43,7 +45,10 @@ export declare class TileCoordinator {
     /** Update the tile tracker to account for the given tile in the given space. */
     private _markTilePosition(start, tile);
 }
-/** Simple data structure for tile position (row, col). */
+/**
+ * Simple data structure for tile position (row, col).
+ * @docs-private
+ */
 export declare class TilePosition {
     row: number;
     col: number;

@@ -6,17 +6,19 @@ var __extends = (this && this.__extends) || function (d, b) {
 import { MdError } from '../core';
 /**
  * Exception thrown when menu trigger doesn't have a valid md-menu instance
+ * @docs-private
  */
 export var MdMenuMissingError = (function (_super) {
     __extends(MdMenuMissingError, _super);
     function MdMenuMissingError() {
-        _super.call(this, "md-menu-trigger: must pass in an md-menu instance.\n\n    Example:\n      <md-menu #menu=\"mdMenu\"></md-menu>\n      <button [md-menu-trigger-for]=\"menu\"></button>\n    ");
+        _super.call(this, "md-menu-trigger: must pass in an md-menu instance.\n\n    Example:\n      <md-menu #menu=\"mdMenu\"></md-menu>\n      <button [mdMenuTriggerFor]=\"menu\"></button>\n    ");
     }
     return MdMenuMissingError;
 }(MdError));
 /**
  * Exception thrown when menu's x-position value isn't valid.
  * In other words, it doesn't match 'before' or 'after'.
+ * @docs-private
  */
 export var MdMenuInvalidPositionX = (function (_super) {
     __extends(MdMenuInvalidPositionX, _super);
@@ -28,6 +30,7 @@ export var MdMenuInvalidPositionX = (function (_super) {
 /**
  * Exception thrown when menu's y-position value isn't valid.
  * In other words, it doesn't match 'above' or 'below'.
+ * @docs-private
  */
 export var MdMenuInvalidPositionY = (function (_super) {
     __extends(MdMenuInvalidPositionY, _super);

@@ -63,7 +63,7 @@ var DebounceTimeOperator = (function () {
         this.scheduler = scheduler;
     }
     DebounceTimeOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new DebounceTimeSubscriber(subscriber, this.dueTime, this.scheduler));
+        return source.subscribe(new DebounceTimeSubscriber(subscriber, this.dueTime, this.scheduler));
     };
     return DebounceTimeOperator;
 }());

@@ -1,13 +1,13 @@
 /**
  * Converts values into strings. Falsy values become empty strings.
- * TODO: internal
+ * @docs-private
  */
 export function coerceToString(value) {
     return "" + (value || '');
 }
 /**
  * Converts a value that might be a string into a number.
- * TODO: internal
+ * @docs-private
  */
 export function coerceToNumber(value) {
     return typeof value === 'string' ? parseInt(value, 10) : value;

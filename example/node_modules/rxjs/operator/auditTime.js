@@ -59,7 +59,7 @@ var AuditTimeOperator = (function () {
         this.scheduler = scheduler;
     }
     AuditTimeOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new AuditTimeSubscriber(subscriber, this.duration, this.scheduler));
+        return source.subscribe(new AuditTimeSubscriber(subscriber, this.duration, this.scheduler));
     };
     return AuditTimeOperator;
 }());

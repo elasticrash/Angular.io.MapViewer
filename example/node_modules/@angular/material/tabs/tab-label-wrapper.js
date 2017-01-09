@@ -7,23 +7,45 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Directive, ElementRef } from '@angular/core';
+import { Directive, ElementRef, Renderer, Input } from '@angular/core';
+import { coerceBooleanProperty } from '../core/coercion/boolean-property';
 /** Used in the `md-tab-group` view to display tab labels */
 export var MdTabLabelWrapper = (function () {
-    function MdTabLabelWrapper(elementRef) {
+    function MdTabLabelWrapper(elementRef, _renderer) {
         this.elementRef = elementRef;
+        this._renderer = _renderer;
+        /** Whether the tab label is disabled.  */
+        this._disabled = false;
     }
-    /**
-     * Sets focus on the wrapper element
-     */
+    Object.defineProperty(MdTabLabelWrapper.prototype, "disabled", {
+        /** Whether the element is disabled. */
+        get: function () { return this._disabled; },
+        set: function (value) { this._disabled = coerceBooleanProperty(value); },
+        enumerable: true,
+        configurable: true
+    });
+    /** Sets focus on the wrapper element */
     MdTabLabelWrapper.prototype.focus = function () {
-        this.elementRef.nativeElement.focus();
+        this._renderer.invokeElementMethod(this.elementRef.nativeElement, 'focus');
     };
+    MdTabLabelWrapper.prototype.getOffsetLeft = function () {
+        return this.elementRef.nativeElement.offsetLeft;
+    };
+    MdTabLabelWrapper.prototype.getOffsetWidth = function () {
+        return this.elementRef.nativeElement.offsetWidth;
+    };
+    __decorate([
+        Input(), 
+        __metadata('design:type', Object)
+    ], MdTabLabelWrapper.prototype, "disabled", null);
     MdTabLabelWrapper = __decorate([
         Directive({
-            selector: '[md-tab-label-wrapper]'
+            selector: '[md-tab-label-wrapper], [mat-tab-label-wrapper]',
+            host: {
+                '[class.md-tab-disabled]': 'disabled'
+            }
         }), 
-        __metadata('design:paramtypes', [ElementRef])
+        __metadata('design:paramtypes', [ElementRef, Renderer])
     ], MdTabLabelWrapper);
     return MdTabLabelWrapper;
 }());

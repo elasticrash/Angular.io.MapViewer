@@ -53,7 +53,7 @@ var SampleTimeOperator = (function () {
         this.scheduler = scheduler;
     }
     SampleTimeOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new SampleTimeSubscriber(subscriber, this.period, this.scheduler));
+        return source.subscribe(new SampleTimeSubscriber(subscriber, this.period, this.scheduler));
     };
     return SampleTimeOperator;
 }());

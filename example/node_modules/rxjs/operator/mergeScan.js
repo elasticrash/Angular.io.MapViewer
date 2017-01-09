@@ -28,7 +28,7 @@ var MergeScanOperator = (function () {
         this.concurrent = concurrent;
     }
     MergeScanOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new MergeScanSubscriber(subscriber, this.project, this.seed, this.concurrent));
+        return source.subscribe(new MergeScanSubscriber(subscriber, this.project, this.seed, this.concurrent));
     };
     return MergeScanOperator;
 }());

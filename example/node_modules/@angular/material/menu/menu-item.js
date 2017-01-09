@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Directive, ElementRef, Input, HostBinding, Renderer } from '@angular/core';
+import { Component, ElementRef, Input, HostBinding, Renderer } from '@angular/core';
 /**
  * This directive is intended to be used inside an md-menu tag.
  * It exists mostly to set the role attribute.
@@ -22,9 +22,8 @@ export var MdMenuItem = (function () {
     };
     Object.defineProperty(MdMenuItem.prototype, "disabled", {
         // this is necessary to support anchors
-        get: function () {
-            return this._disabled;
-        },
+        /** Whether the menu item is disabled. */
+        get: function () { return this._disabled; },
         set: function (value) {
             this._disabled = (value === false || value === undefined) ? null : true;
         },
@@ -32,15 +31,19 @@ export var MdMenuItem = (function () {
         configurable: true
     });
     Object.defineProperty(MdMenuItem.prototype, "isAriaDisabled", {
-        get: function () {
-            return String(this.disabled);
-        },
+        /** Sets the aria-disabled property on the menu item. */
+        get: function () { return String(!!this.disabled); },
         enumerable: true,
         configurable: true
     });
-    /**
-     * TODO: internal
-     */
+    Object.defineProperty(MdMenuItem.prototype, "_tabindex", {
+        get: function () { return this.disabled ? '-1' : '0'; },
+        enumerable: true,
+        configurable: true
+    });
+    MdMenuItem.prototype._getHostElement = function () {
+        return this._elementRef.nativeElement;
+    };
     MdMenuItem.prototype._checkDisabled = function (event) {
         if (this.disabled) {
             event.preventDefault();
@@ -57,13 +60,13 @@ export var MdMenuItem = (function () {
         __metadata('design:type', String)
     ], MdMenuItem.prototype, "isAriaDisabled", null);
     MdMenuItem = __decorate([
-        Directive({
-            selector: '[md-menu-item]',
+        Component({selector: '[md-menu-item], [mat-menu-item]',
             host: {
                 'role': 'menuitem',
                 '(click)': '_checkDisabled($event)',
-                'tabindex': '-1'
+                '[attr.tabindex]': '_tabindex'
             },
+            template: "<ng-content></ng-content><div class=\"md-menu-ripple\" *ngIf=\"!disabled\" md-ripple mdRippleBackgroundColor=\"rgba(0,0,0,0)\" [mdRippleTrigger]=\"_getHostElement()\"></div>",
             exportAs: 'mdMenuItem'
         }), 
         __metadata('design:paramtypes', [Renderer, ElementRef])
