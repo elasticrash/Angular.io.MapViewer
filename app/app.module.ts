@@ -19,7 +19,7 @@ import { GameResolver } from './game/game.resolver';
 
 
 @NgModule({
-  imports: [BrowserModule, MaterialModule.forRoot(),
+  imports: [BrowserModule, MaterialModule,
     RouterModule.forRoot([
       { path: 'mm-map', component: AppComponent1 },
       { path: '', component: AppComponent2 },

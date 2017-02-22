@@ -14,7 +14,7 @@
 		</leaflet-group>
 		<leaflet-group [name]="'circles'">
 			<circle-element [lat]=52.62 [lon]=-1.12 [radius]=180 [onclick]="'hello I am a circle-element'"> </circle-element>
-			<circle-element [lat]=52.63 [lon]=-1.13 [radius]=180 [Options]="{color:'#576887', weight:6}">this is from ng-content</circle-element>
+			<circle-marker-element [lat]=52.63 [lon]=-1.13 [Options]="{color:'#576887', weight:6}">this is from ng-content</circle-marker-element>
 		</leaflet-group>
 		<leaflet-group [name]="'popup'">
 			<popup-element [lat]=52.65 [lon]=-1.30 [content]="'Good Popup'"></popup-element>
