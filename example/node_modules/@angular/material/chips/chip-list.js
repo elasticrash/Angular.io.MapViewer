@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { ChangeDetectionStrategy, Component, ContentChildren, ElementRef, Input, NgModule, ViewEncapsulation } from '@angular/core';
 import { MdChip } from './chip';
-import { ListKeyManager } from '../core/a11y/list-key-manager';
+import { FocusKeyManager } from '../core/a11y/focus-key-manager';
 import { coerceBooleanProperty } from '../core/coercion/boolean-property';
 import { SPACE, LEFT_ARROW, RIGHT_ARROW } from '../core/keyboard/keycodes';
 /**
@@ -32,7 +32,7 @@ export var MdChipList = (function () {
     }
     MdChipList.prototype.ngAfterContentInit = function () {
         var _this = this;
-        this._keyManager = new ListKeyManager(this.chips).withFocusWrap();
+        this._keyManager = new FocusKeyManager(this.chips).withWrap();
         // Go ahead and subscribe all of the initial chips
         this._subscribeChips(this.chips);
         // When the list changes, re-subscribe
@@ -60,13 +60,13 @@ export var MdChipList = (function () {
      */
     MdChipList.prototype.focus = function () {
         // TODO: ARIA says this should focus the first `selected` chip.
-        this._keyManager.focusFirstItem();
+        this._keyManager.setFirstItemActive();
     };
     /** Passes relevant key presses to our key manager. */
     MdChipList.prototype._keydown = function (event) {
         var target = event.target;
         // If they are on a chip, check for space/left/right, otherwise pass to our key manager
-        if (target && target.classList.contains('md-chip')) {
+        if (target && target.classList.contains('mat-chip')) {
             switch (event.keyCode) {
                 case SPACE:
                     // If we are selectable, toggle the focused chip
@@ -77,11 +77,11 @@ export var MdChipList = (function () {
                     event.preventDefault();
                     break;
                 case LEFT_ARROW:
-                    this._keyManager.focusPreviousItem();
+                    this._keyManager.setPreviousItemActive();
                     event.preventDefault();
                     break;
                 case RIGHT_ARROW:
-                    this._keyManager.focusNextItem();
+                    this._keyManager.setNextItemActive();
                     event.preventDefault();
                     break;
                 default:
@@ -95,7 +95,7 @@ export var MdChipList = (function () {
         if (!this.selectable) {
             return;
         }
-        var focusedIndex = this._keyManager.focusedItemIndex;
+        var focusedIndex = this._keyManager.activeItemIndex;
         if (this._isValidIndex(focusedIndex)) {
             var focusedChip = this.chips.toArray()[focusedIndex];
             if (focusedChip) {
@@ -131,7 +131,7 @@ export var MdChipList = (function () {
         chip.onFocus.subscribe(function () {
             var chipIndex = _this.chips.toArray().indexOf(chip);
             if (_this._isValidIndex(chipIndex)) {
-                _this._keyManager.updateFocusedItemIndex(chipIndex);
+                _this._keyManager.updateActiveItemIndex(chipIndex);
             }
         });
         // On destroy, remove the item from our list, and check focus
@@ -140,10 +140,10 @@ export var MdChipList = (function () {
             if (_this._isValidIndex(chipIndex)) {
                 // Check whether the chip is the last item
                 if (chipIndex < _this.chips.length - 1) {
-                    _this._keyManager.setFocus(chipIndex);
+                    _this._keyManager.setActiveItem(chipIndex);
                 }
                 else if (chipIndex - 1 >= 0) {
-                    _this._keyManager.setFocus(chipIndex - 1);
+                    _this._keyManager.setActiveItem(chipIndex - 1);
                 }
             }
             _this._subscribed.delete(chip);
@@ -165,13 +165,13 @@ export var MdChipList = (function () {
         __metadata('design:type', Boolean)
     ], MdChipList.prototype, "selectable", null);
     MdChipList = __decorate([
-        Component({selector: 'md-chip-list',
+        Component({selector: 'md-chip-list, mat-chip-list',
             template: "<div class=\"md-chip-list-wrapper\"><ng-content></ng-content></div>",
             host: {
                 // Properties
                 'tabindex': '0',
                 'role': 'listbox',
-                'class': 'md-chip-list',
+                '[class.mat-chip-list]': 'true',
                 // Events
                 '(focus)': 'focus()',
                 '(keydown)': '_keydown($event)'
@@ -179,7 +179,7 @@ export var MdChipList = (function () {
             queries: {
                 chips: new ContentChildren(MdChip)
             },
-            styles: [".md-chip-list-wrapper{display:flex;flex-direction:row;flex-wrap:wrap;align-items:flex-start}.md-chip-list-wrapper .md-chip:not(.md-basic-chip){margin:0 3px}.md-chip-list-wrapper .md-chip:not(.md-basic-chip):first-child{margin-left:0;margin-right:3px}.md-chip-list-wrapper .md-chip:not(.md-basic-chip):last-child,[dir=rtl] .md-chip-list-wrapper .md-chip:not(.md-basic-chip):first-child{margin-left:3px;margin-right:0}[dir=rtl] .md-chip-list-wrapper .md-chip:not(.md-basic-chip):last-child{margin-left:0;margin-right:3px}.md-chip:not(.md-basic-chip){display:inline-block;padding:8px 12px;border-radius:24px;font-size:13px;line-height:16px}.md-chip-list-stacked .md-chip-list-wrapper{display:block}.md-chip-list-stacked .md-chip-list-wrapper .md-chip:not(.md-basic-chip){display:block;margin:0 0 8px}[dir=rtl] .md-chip-list-stacked .md-chip-list-wrapper .md-chip:not(.md-basic-chip){margin:0 0 8px}.md-chip-list-stacked .md-chip-list-wrapper .md-chip:not(.md-basic-chip):last-child,[dir=rtl] .md-chip-list-stacked .md-chip-list-wrapper .md-chip:not(.md-basic-chip):last-child{margin-bottom:0}"],
+            styles: [".mat-chip-list-wrapper{display:flex;flex-direction:row;flex-wrap:wrap;align-items:flex-start}.mat-chip-list-wrapper .mat-chip:not(.mat-basic-chip){margin:0 3px}.mat-chip-list-wrapper .mat-chip:not(.mat-basic-chip):first-child{margin-left:0;margin-right:3px}.mat-chip-list-wrapper .mat-chip:not(.mat-basic-chip):last-child,[dir=rtl] .mat-chip-list-wrapper .mat-chip:not(.mat-basic-chip):first-child{margin-left:3px;margin-right:0}[dir=rtl] .mat-chip-list-wrapper .mat-chip:not(.mat-basic-chip):last-child{margin-left:0;margin-right:3px}.mat-chip:not(.mat-basic-chip){display:inline-block;padding:8px 12px;border-radius:24px;font-size:13px;line-height:16px}.mat-chip-list-stacked .mat-chip-list-wrapper{display:block}.mat-chip-list-stacked .mat-chip-list-wrapper .mat-chip:not(.mat-basic-chip){display:block;margin:0 0 8px}[dir=rtl] .mat-chip-list-stacked .mat-chip-list-wrapper .mat-chip:not(.mat-basic-chip){margin:0 0 8px}.mat-chip-list-stacked .mat-chip-list-wrapper .mat-chip:not(.mat-basic-chip):last-child,[dir=rtl] .mat-chip-list-stacked .mat-chip-list-wrapper .mat-chip:not(.mat-basic-chip):last-child{margin-bottom:0}"],
             encapsulation: ViewEncapsulation.None,
             changeDetection: ChangeDetectionStrategy.OnPush
         }), 
@@ -190,6 +190,7 @@ export var MdChipList = (function () {
 export var MdChipsModule = (function () {
     function MdChipsModule() {
     }
+    /** @deprecated */
     MdChipsModule.forRoot = function () {
         return {
             ngModule: MdChipsModule,
@@ -206,5 +207,4 @@ export var MdChipsModule = (function () {
     ], MdChipsModule);
     return MdChipsModule;
 }());
-
 //# sourceMappingURL=chip-list.js.map

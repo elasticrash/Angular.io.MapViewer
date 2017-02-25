@@ -10,29 +10,28 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MdSelect } from './select';
-import { MdOption } from './option';
-import { DefaultStyleCompatibilityModeModule, OVERLAY_PROVIDERS, MdRippleModule, OverlayModule } from '../core';
+import { MdOptionModule } from '../core/option/option';
+import { CompatibilityModule, OverlayModule } from '../core';
 export * from './select';
-export { MdOption } from './option';
 export { fadeInContent, transformPanel, transformPlaceholder } from './select-animations';
 export var MdSelectModule = (function () {
     function MdSelectModule() {
     }
+    /** @deprecated */
     MdSelectModule.forRoot = function () {
         return {
             ngModule: MdSelectModule,
-            providers: [OVERLAY_PROVIDERS]
+            providers: []
         };
     };
     MdSelectModule = __decorate([
         NgModule({
-            imports: [CommonModule, OverlayModule, MdRippleModule, DefaultStyleCompatibilityModeModule],
-            exports: [MdSelect, MdOption, DefaultStyleCompatibilityModeModule],
-            declarations: [MdSelect, MdOption],
+            imports: [CommonModule, OverlayModule, MdOptionModule, CompatibilityModule],
+            exports: [MdSelect, MdOptionModule, CompatibilityModule],
+            declarations: [MdSelect],
         }), 
         __metadata('design:paramtypes', [])
     ], MdSelectModule);
     return MdSelectModule;
 }());
-
 //# sourceMappingURL=index.js.map

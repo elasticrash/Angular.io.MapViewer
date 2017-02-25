@@ -31,8 +31,9 @@ export declare class MdSlider implements ControlValueAccessor {
     /** @deprecated */
     _thumbLabelDeprecated: boolean;
     private _controlValueAccessorChangeFn;
-    /** The last value for which a change event was emitted. */
-    private _lastEmittedValue;
+    /** The last values for which a change or input event was emitted. */
+    private _lastChangeValue;
+    private _lastInputValue;
     /** onTouch function registered via registerOnTouch (ControlValueAccessor). */
     onTouched: () => any;
     /**
@@ -45,6 +46,8 @@ export declare class MdSlider implements ControlValueAccessor {
      * Used to shrink and grow the thumb as according to the Material Design spec.
      */
     _isActive: boolean;
+    /** Decimal places to round to, based on the step amount. */
+    private _roundLabelTo;
     private _step;
     /** The values at which the thumb will snap. */
     step: number;
@@ -66,7 +69,7 @@ export declare class MdSlider implements ControlValueAccessor {
     /** Value of the slider. */
     value: number;
     private _min;
-    /** The miniumum value that the slider can have. */
+    /** The minimum value that the slider can have. */
     min: number;
     private _max;
     /** The maximum value that the slider can have. */
@@ -77,6 +80,8 @@ export declare class MdSlider implements ControlValueAccessor {
     /** Whether the slider is vertical. */
     vertical: any;
     private _vertical;
+    /** The value to be used for display purposes. */
+    readonly displayValue: string | number;
     /**
      * Whether the axis of the slider is inverted.
      * (i.e. whether moving the thumb in the positive x or y direction decreases the slider's value).
@@ -87,6 +92,17 @@ export declare class MdSlider implements ControlValueAccessor {
      * from the right or bottom edge of the slider as opposed to the top or left.
      */
     readonly invertMouseCoords: any;
+    /** Whether the slider is at its minimum value. */
+    readonly _isMinValue: boolean;
+    /**
+     * The amount of space to leave between the slider thumb and the track fill & track background
+     * elements.
+     */
+    readonly _thumbGap: number;
+    /** CSS styles for the track background element. */
+    readonly trackBackgroundStyles: {
+        [key: string]: string;
+    };
     /** CSS styles for the track fill element. */
     readonly trackFillStyles: {
         [key: string]: string;
@@ -106,6 +122,8 @@ export declare class MdSlider implements ControlValueAccessor {
     readonly direction: string;
     /** Event emitted when the slider value has changed. */
     change: EventEmitter<MdSliderChange>;
+    /** Event emitted when the slider thumb moves. */
+    input: EventEmitter<MdSliderChange>;
     constructor(_dir: Dir, elementRef: ElementRef);
     _onMouseenter(): void;
     _onClick(event: MouseEvent): void;
@@ -114,14 +132,19 @@ export declare class MdSlider implements ControlValueAccessor {
     _onSlideEnd(): void;
     _onBlur(): void;
     _onKeydown(event: KeyboardEvent): void;
+    _onKeyup(): void;
     /** Increments the slider by the given number of steps (negative number decrements). */
     private _increment(numSteps);
     /** Calculate the new value from the new physical location. The value will always be snapped. */
     private _updateValueFromPosition(pos);
     /** Emits a change event if the current value is different from the last emitted value. */
     private _emitValueIfChanged();
+    /** Emits an input event when the current value is different from the last emitted value. */
+    private _emitInputEvent();
     /** Updates the amount of space between ticks as a percentage of the width of the slider. */
     private _updateTickIntervalPercent();
+    /** Creates a slider change object from the specified value. */
+    private _createChangeEvent(value?);
     /** Calculates the percentage of the slider that a value is. */
     private _calculatePercentage(value);
     /** Calculates the value a percentage of the slider corresponds to. */
@@ -172,5 +195,6 @@ export declare class SliderRenderer {
     addFocus(): void;
 }
 export declare class MdSliderModule {
+    /** @deprecated */
     static forRoot(): ModuleWithProviders;
 }

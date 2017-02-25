@@ -29,7 +29,9 @@ import { DefaultUrlHandlingStrategy } from './url_handling_strategy';
 import { UrlTree, containsTree, createEmptyUrlTree } from './url_tree';
 import { andObservables, forEach, merge, waitForMap, wrapIntoObservable } from './utils/collection';
 /**
- *  *
+ * \@whatItDoes Represents an event triggered when a navigation starts.
+ *
+ * \@stable
  */
 export var NavigationStart = (function () {
     /**
@@ -41,19 +43,28 @@ export var NavigationStart = (function () {
         this.url = url;
     }
     /**
+     * \@docsNotRequired
      * @return {?}
      */
     NavigationStart.prototype.toString = function () { return "NavigationStart(id: " + this.id + ", url: '" + this.url + "')"; };
     return NavigationStart;
 }());
 function NavigationStart_tsickle_Closure_declarations() {
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     NavigationStart.prototype.id;
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     NavigationStart.prototype.url;
 }
 /**
- *  *
+ * \@whatItDoes Represents an event triggered when a navigation ends successfully.
+ *
+ * \@stable
  */
 export var NavigationEnd = (function () {
     /**
@@ -67,6 +78,7 @@ export var NavigationEnd = (function () {
         this.urlAfterRedirects = urlAfterRedirects;
     }
     /**
+     * \@docsNotRequired
      * @return {?}
      */
     NavigationEnd.prototype.toString = function () {
@@ -75,15 +87,26 @@ export var NavigationEnd = (function () {
     return NavigationEnd;
 }());
 function NavigationEnd_tsickle_Closure_declarations() {
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     NavigationEnd.prototype.id;
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     NavigationEnd.prototype.url;
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     NavigationEnd.prototype.urlAfterRedirects;
 }
 /**
- *  *
+ * \@whatItDoes Represents an event triggered when a navigation is canceled.
+ *
+ * \@stable
  */
 export var NavigationCancel = (function () {
     /**
@@ -97,21 +120,33 @@ export var NavigationCancel = (function () {
         this.reason = reason;
     }
     /**
+     * \@docsNotRequired
      * @return {?}
      */
     NavigationCancel.prototype.toString = function () { return "NavigationCancel(id: " + this.id + ", url: '" + this.url + "')"; };
     return NavigationCancel;
 }());
 function NavigationCancel_tsickle_Closure_declarations() {
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     NavigationCancel.prototype.id;
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     NavigationCancel.prototype.url;
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     NavigationCancel.prototype.reason;
 }
 /**
- *  *
+ * \@whatItDoes Represents an event triggered when a navigation fails due to an unexpected error.
+ *
+ * \@stable
  */
 export var NavigationError = (function () {
     /**
@@ -125,6 +160,7 @@ export var NavigationError = (function () {
         this.error = error;
     }
     /**
+     * \@docsNotRequired
      * @return {?}
      */
     NavigationError.prototype.toString = function () {
@@ -133,15 +169,26 @@ export var NavigationError = (function () {
     return NavigationError;
 }());
 function NavigationError_tsickle_Closure_declarations() {
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     NavigationError.prototype.id;
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     NavigationError.prototype.url;
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     NavigationError.prototype.error;
 }
 /**
- *  *
+ * \@whatItDoes Represents an event triggered when routes are recognized.
+ *
+ * \@stable
  */
 export var RoutesRecognized = (function () {
     /**
@@ -157,6 +204,7 @@ export var RoutesRecognized = (function () {
         this.state = state;
     }
     /**
+     * \@docsNotRequired
      * @return {?}
      */
     RoutesRecognized.prototype.toString = function () {
@@ -165,13 +213,25 @@ export var RoutesRecognized = (function () {
     return RoutesRecognized;
 }());
 function RoutesRecognized_tsickle_Closure_declarations() {
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     RoutesRecognized.prototype.id;
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     RoutesRecognized.prototype.url;
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     RoutesRecognized.prototype.urlAfterRedirects;
-    /** @type {?} */
+    /**
+     * \@docsNotRequired
+     * @type {?}
+     */
     RoutesRecognized.prototype.state;
 }
 /**
@@ -182,7 +242,15 @@ function defaultErrorHandler(error) {
     throw error;
 }
 /**
- *  Does not detach any subtrees. Reuses routes as long as their route config is the same.
+ * \@internal
+ * @param {?} snapshot
+ * @return {?}
+ */
+function defaultRouterHook(snapshot) {
+    return of(null);
+}
+/**
+ * Does not detach any subtrees. Reuses routes as long as their route config is the same.
  */
 export var DefaultRouteReuseStrategy = (function () {
     function DefaultRouteReuseStrategy() {
@@ -219,10 +287,13 @@ export var DefaultRouteReuseStrategy = (function () {
     return DefaultRouteReuseStrategy;
 }());
 /**
- *  *
-  * See {@link Routes} for more details and examples.
-  * *
-  * *
+ * \@whatItDoes Provides the navigation and url manipulation capabilities.
+ *
+ * See {\@link Routes} for more details and examples.
+ *
+ * \@ngModule RouterModule
+ *
+ * \@stable
  */
 export var Router = (function () {
     /**
@@ -256,6 +327,15 @@ export var Router = (function () {
          */
         this.navigated = false;
         /**
+         * Used by RouterModule. This allows us to
+         * pause the navigation either before preactivation or after it.
+         * @internal
+         */
+        this.hooks = {
+            beforePreactivation: defaultRouterHook,
+            afterPreactivation: defaultRouterHook
+        };
+        /**
          * Extracts and merges URLs. Used for Angular 1 to Angular 2 migrations.
          */
         this.urlHandlingStrategy = new DefaultUrlHandlingStrategy();
@@ -268,7 +348,8 @@ export var Router = (function () {
         this.processNavigations();
     }
     /**
-     *  TODO: this should be removed once the constructor of the router made internal
+     * \@internal
+     * TODO: this should be removed once the constructor of the router made internal
      * @param {?} rootComponentType
      * @return {?}
      */
@@ -279,15 +360,17 @@ export var Router = (function () {
         this.currentRouterState.root.component = this.rootComponentType;
     };
     /**
-     *  Sets up the location change listener and performs the initial navigation.
+     * Sets up the location change listener and performs the initial navigation.
      * @return {?}
      */
     Router.prototype.initialNavigation = function () {
         this.setUpLocationChangeListener();
-        this.navigateByUrl(this.location.path(true), { replaceUrl: true });
+        if (this.navigationId === 0) {
+            this.navigateByUrl(this.location.path(true), { replaceUrl: true });
+        }
     };
     /**
-     *  Sets up the location change listener.
+     * Sets up the location change listener.
      * @return {?}
      */
     Router.prototype.setUpLocationChangeListener = function () {
@@ -304,7 +387,7 @@ export var Router = (function () {
     };
     Object.defineProperty(Router.prototype, "routerState", {
         /**
-         *  The current route state
+         * The current route state
          * @return {?}
          */
         get: function () { return this.currentRouterState; },
@@ -313,7 +396,7 @@ export var Router = (function () {
     });
     Object.defineProperty(Router.prototype, "url", {
         /**
-         *  The current url
+         * The current url
          * @return {?}
          */
         get: function () { return this.serializeUrl(this.currentUrlTree); },
@@ -322,7 +405,7 @@ export var Router = (function () {
     });
     Object.defineProperty(Router.prototype, "events", {
         /**
-         *  An observable of router events
+         * An observable of router events
          * @return {?}
          */
         get: function () { return this.routerEvents; },
@@ -330,18 +413,18 @@ export var Router = (function () {
         configurable: true
     });
     /**
-     *  Resets the configuration used for navigation and generating links.
-      * *
-      * ### Usage
-      * *
-      * ```
-      * router.resetConfig([
-      * { path: 'team/:id', component: TeamCmp, children: [
-      * { path: 'simple', component: SimpleCmp },
-      * { path: 'user/:name', component: UserCmp }
-      * ]}
-      * ]);
-      * ```
+     * Resets the configuration used for navigation and generating links.
+     *
+     * ### Usage
+     *
+     * ```
+     * router.resetConfig([
+     *  { path: 'team/:id', component: TeamCmp, children: [
+     *    { path: 'simple', component: SimpleCmp },
+     *    { path: 'user/:name', component: UserCmp }
+     *  ]}
+     * ]);
+     * ```
      * @param {?} config
      * @return {?}
      */
@@ -350,11 +433,12 @@ export var Router = (function () {
         this.config = config;
     };
     /**
+     * \@docsNotRequired
      * @return {?}
      */
     Router.prototype.ngOnDestroy = function () { this.dispose(); };
     /**
-     *  Disposes of the router
+     * Disposes of the router
      * @return {?}
      */
     Router.prototype.dispose = function () {
@@ -364,45 +448,45 @@ export var Router = (function () {
         }
     };
     /**
-     *  Applies an array of commands to the current url tree and creates a new url tree.
-      * *
-      * When given an activate route, applies the given commands starting from the route.
-      * When not given a route, applies the given command starting from the root.
-      * *
-      * ### Usage
-      * *
-      * ```
-      * // create /team/33/user/11
-      * router.createUrlTree(['/team', 33, 'user', 11]);
-      * *
-      * // create /team/33;expand=true/user/11
-      * router.createUrlTree(['/team', 33, {expand: true}, 'user', 11]);
-      * *
-      * // you can collapse static segments like this (this works only with the first passed-in value):
-      * router.createUrlTree(['/team/33/user', userId]);
-      * *
-      * // If the first segment can contain slashes, and you do not want the router to split it, you
-      * // can do the following:
-      * *
-      * router.createUrlTree([{segmentPath: '/one/two'}]);
-      * *
-      * // create /team/33/(user/11//right:chat)
-      * router.createUrlTree(['/team', 33, {outlets: {primary: 'user/11', right: 'chat'}}]);
-      * *
-      * // remove the right secondary node
-      * router.createUrlTree(['/team', 33, {outlets: {primary: 'user/11', right: null}}]);
-      * *
-      * // assuming the current url is `/team/33/user/11` and the route points to `user/11`
-      * *
-      * // navigate to /team/33/user/11/details
-      * router.createUrlTree(['details'], {relativeTo: route});
-      * *
-      * // navigate to /team/33/user/22
-      * router.createUrlTree(['../22'], {relativeTo: route});
-      * *
-      * // navigate to /team/44/user/22
-      * router.createUrlTree(['../../team/44/user/22'], {relativeTo: route});
-      * ```
+     * Applies an array of commands to the current url tree and creates a new url tree.
+     *
+     * When given an activate route, applies the given commands starting from the route.
+     * When not given a route, applies the given command starting from the root.
+     *
+     * ### Usage
+     *
+     * ```
+     * // create /team/33/user/11
+     * router.createUrlTree(['/team', 33, 'user', 11]);
+     *
+     * // create /team/33;expand=true/user/11
+     * router.createUrlTree(['/team', 33, {expand: true}, 'user', 11]);
+     *
+     * // you can collapse static segments like this (this works only with the first passed-in value):
+     * router.createUrlTree(['/team/33/user', userId]);
+     *
+     * // If the first segment can contain slashes, and you do not want the router to split it, you
+     * // can do the following:
+     *
+     * router.createUrlTree([{segmentPath: '/one/two'}]);
+     *
+     * // create /team/33/(user/11//right:chat)
+     * router.createUrlTree(['/team', 33, {outlets: {primary: 'user/11', right: 'chat'}}]);
+     *
+     * // remove the right secondary node
+     * router.createUrlTree(['/team', 33, {outlets: {primary: 'user/11', right: null}}]);
+     *
+     * // assuming the current url is `/team/33/user/11` and the route points to `user/11`
+     *
+     * // navigate to /team/33/user/11/details
+     * router.createUrlTree(['details'], {relativeTo: route});
+     *
+     * // navigate to /team/33/user/22
+     * router.createUrlTree(['../22'], {relativeTo: route});
+     *
+     * // navigate to /team/44/user/22
+     * router.createUrlTree(['../../team/44/user/22'], {relativeTo: route});
+     * ```
      * @param {?} commands
      * @param {?=} __1
      * @return {?}
@@ -415,24 +499,24 @@ export var Router = (function () {
         return createUrlTree(a, this.currentUrlTree, commands, q, f);
     };
     /**
-     *  Navigate based on the provided url. This navigation is always absolute.
-      * *
-      * Returns a promise that:
-      * - resolves to 'true' when navigation succeeds,
-      * - resolves to 'false' when navigation fails,
-      * - is rejected when an error happens.
-      * *
-      * ### Usage
-      * *
-      * ```
-      * router.navigateByUrl("/team/33/user/11");
-      * *
-      * // Navigate without updating the URL
-      * router.navigateByUrl("/team/33/user/11", { skipLocationChange: true });
-      * ```
-      * *
-      * In opposite to `navigate`, `navigateByUrl` takes a whole URL
-      * and does not apply any delta to the current one.
+     * Navigate based on the provided url. This navigation is always absolute.
+     *
+     * Returns a promise that:
+     * - resolves to 'true' when navigation succeeds,
+     * - resolves to 'false' when navigation fails,
+     * - is rejected when an error happens.
+     *
+     * ### Usage
+     *
+     * ```
+     * router.navigateByUrl("/team/33/user/11");
+     *
+     * // Navigate without updating the URL
+     * router.navigateByUrl("/team/33/user/11", { skipLocationChange: true });
+     * ```
+     *
+     * In opposite to `navigate`, `navigateByUrl` takes a whole URL
+     * and does not apply any delta to the current one.
      * @param {?} url
      * @param {?=} extras
      * @return {?}
@@ -446,50 +530,51 @@ export var Router = (function () {
         return this.scheduleNavigation(this.urlHandlingStrategy.merge(urlTree, this.rawUrlTree), 'imperative', extras);
     };
     /**
-     *  Navigate based on the provided array of commands and a starting point.
-      * If no starting route is provided, the navigation is absolute.
-      * *
-      * Returns a promise that:
-      * - resolves to 'true' when navigation succeeds,
-      * - resolves to 'false' when navigation fails,
-      * - is rejected when an error happens.
-      * *
-      * ### Usage
-      * *
-      * ```
-      * router.navigate(['team', 33, 'user', 11], {relativeTo: route});
-      * *
-      * // Navigate without updating the URL
-      * router.navigate(['team', 33, 'user', 11], {relativeTo: route, skipLocationChange: true});
-      * ```
-      * *
-      * In opposite to `navigateByUrl`, `navigate` always takes a delta that is applied to the current
-      * URL.
+     * Navigate based on the provided array of commands and a starting point.
+     * If no starting route is provided, the navigation is absolute.
+     *
+     * Returns a promise that:
+     * - resolves to 'true' when navigation succeeds,
+     * - resolves to 'false' when navigation fails,
+     * - is rejected when an error happens.
+     *
+     * ### Usage
+     *
+     * ```
+     * router.navigate(['team', 33, 'user', 11], {relativeTo: route});
+     *
+     * // Navigate without updating the URL
+     * router.navigate(['team', 33, 'user', 11], {relativeTo: route, skipLocationChange: true});
+     * ```
+     *
+     * In opposite to `navigateByUrl`, `navigate` always takes a delta that is applied to the current
+     * URL.
      * @param {?} commands
      * @param {?=} extras
      * @return {?}
      */
     Router.prototype.navigate = function (commands, extras) {
         if (extras === void 0) { extras = { skipLocationChange: false }; }
+        validateCommands(commands);
         if (typeof extras.queryParams === 'object' && extras.queryParams !== null) {
             extras.queryParams = this.removeEmptyProps(extras.queryParams);
         }
         return this.navigateByUrl(this.createUrlTree(commands, extras), extras);
     };
     /**
-     *  Serializes a {@link UrlTree} into a string
+     * Serializes a {\@link UrlTree} into a string
      * @param {?} url
      * @return {?}
      */
     Router.prototype.serializeUrl = function (url) { return this.urlSerializer.serialize(url); };
     /**
-     *  Parses a string into a {@link UrlTree}
+     * Parses a string into a {\@link UrlTree}
      * @param {?} url
      * @return {?}
      */
     Router.prototype.parseUrl = function (url) { return this.urlSerializer.parse(url); };
     /**
-     *  Returns whether the url is activated
+     * Returns whether the url is activated
      * @param {?} url
      * @param {?} exact
      * @return {?}
@@ -628,16 +713,19 @@ export var Router = (function () {
             else {
                 urlAndSnapshot$ = of({ appliedUrl: url, snapshot: precreatedState });
             }
+            var /** @type {?} */ beforePreactivationDone$ = mergeMap.call(urlAndSnapshot$, function (p) {
+                return map.call(_this.hooks.beforePreactivation(p.snapshot), function () { return p; });
+            });
             // run preactivation: guards and data resolvers
             var /** @type {?} */ preActivation;
-            var /** @type {?} */ preactivationTraverse$ = map.call(urlAndSnapshot$, function (_a) {
+            var /** @type {?} */ preactivationTraverse$ = map.call(beforePreactivationDone$, function (_a) {
                 var appliedUrl = _a.appliedUrl, snapshot = _a.snapshot;
                 preActivation =
                     new PreActivation(snapshot, _this.currentRouterState.snapshot, _this.injector);
                 preActivation.traverse(_this.outletMap);
                 return { appliedUrl: appliedUrl, snapshot: snapshot };
             });
-            var /** @type {?} */ preactivationCheckGuards = mergeMap.call(preactivationTraverse$, function (_a) {
+            var /** @type {?} */ preactivationCheckGuards$ = mergeMap.call(preactivationTraverse$, function (_a) {
                 var appliedUrl = _a.appliedUrl, snapshot = _a.snapshot;
                 if (_this.navigationId !== id)
                     return of(false);
@@ -645,7 +733,7 @@ export var Router = (function () {
                     return { appliedUrl: appliedUrl, snapshot: snapshot, shouldActivate: shouldActivate };
                 });
             });
-            var /** @type {?} */ preactivationResolveData$ = mergeMap.call(preactivationCheckGuards, function (p) {
+            var /** @type {?} */ preactivationResolveData$ = mergeMap.call(preactivationCheckGuards$, function (p) {
                 if (_this.navigationId !== id)
                     return of(false);
                 if (p.shouldActivate) {
@@ -655,9 +743,12 @@ export var Router = (function () {
                     return of(p);
                 }
             });
+            var /** @type {?} */ preactivationDone$ = mergeMap.call(preactivationResolveData$, function (p) {
+                return map.call(_this.hooks.afterPreactivation(p.snapshot), function () { return p; });
+            });
             // create router state
             // this operation has side effects => route state is being affected
-            var /** @type {?} */ routerState$ = map.call(preactivationResolveData$, function (_a) {
+            var /** @type {?} */ routerState$ = map.call(preactivationDone$, function (_a) {
                 var appliedUrl = _a.appliedUrl, snapshot = _a.snapshot, shouldActivate = _a.shouldActivate;
                 if (shouldActivate) {
                     var /** @type {?} */ state = createRouterState(_this.routeReuseStrategy, snapshot, _this.currentRouterState);
@@ -696,8 +787,8 @@ export var Router = (function () {
                 navigationIsSuccessful = true;
             })
                 .then(function () {
-                _this.navigated = true;
                 if (navigationIsSuccessful) {
+                    _this.navigated = true;
                     _this.routerEvents.next(new NavigationEnd(id, _this.serializeUrl(url), _this.serializeUrl(_this.currentUrlTree)));
                     resolvePromise(true);
                 }
@@ -757,8 +848,8 @@ function Router_tsickle_Closure_declarations() {
     Router.prototype.configLoader;
     /**
      * Error handler that is invoked when a navigation errors.
-     * *
-     * See {@link ErrorHandler} for more information.
+     *
+     * See {\@link ErrorHandler} for more information.
      * @type {?}
      */
     Router.prototype.errorHandler;
@@ -767,6 +858,13 @@ function Router_tsickle_Closure_declarations() {
      * @type {?}
      */
     Router.prototype.navigated;
+    /**
+     * Used by RouterModule. This allows us to
+     * pause the navigation either before preactivation or after it.
+     * \@internal
+     * @type {?}
+     */
+    Router.prototype.hooks;
     /**
      * Extracts and merges URLs. Used for Angular 1 to Angular 2 migrations.
      * @type {?}
@@ -1011,7 +1109,7 @@ export var PreActivation = (function () {
             .filter(function (_) { return _ !== null; });
         return andObservables(map.call(from(canActivateChildGuards), function (d) {
             var /** @type {?} */ obs = map.call(from(d.guards), function (c) {
-                var /** @type {?} */ guard = _this.getToken(c, c.node);
+                var /** @type {?} */ guard = _this.getToken(c, d.node);
                 var /** @type {?} */ observable;
                 if (guard.canActivateChild) {
                     observable = wrapIntoObservable(guard.canActivateChild(future, _this.future));
@@ -1379,5 +1477,17 @@ function getOutlet(outletMap, route) {
         }
     }
     return outlet;
+}
+/**
+ * @param {?} commands
+ * @return {?}
+ */
+function validateCommands(commands) {
+    for (var /** @type {?} */ i = 0; i < commands.length; i++) {
+        var /** @type {?} */ cmd = commands[i];
+        if (cmd == null) {
+            throw new Error("The requested path contains " + cmd + " segment at index " + i);
+        }
+    }
 }
 //# sourceMappingURL=router.js.map

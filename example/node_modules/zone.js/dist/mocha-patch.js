@@ -11,6 +11,13 @@
     (factory());
 }(this, (function () { 'use strict';
 
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 (function (context) {
     var Mocha = context.Mocha;
     if (typeof Mocha === 'undefined') {
@@ -41,7 +48,7 @@
         it: Mocha.it
     };
     function modifyArguments(args, syncTest, asyncTest) {
-        var _loop_1 = function (i) {
+        var _loop_1 = function(i) {
             var arg = args[i];
             if (typeof arg === 'function') {
                 // The `done` callback is only passed through if the function expects at

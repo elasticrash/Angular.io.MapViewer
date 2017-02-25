@@ -45,7 +45,7 @@ var mergeAll_1 = require('./mergeAll');
  *
  * @param {Observable} other An input Observable to concatenate after the source
  * Observable. More than one input Observables may be given as argument.
- * @param {Scheduler} [scheduler=null] An optional Scheduler to schedule each
+ * @param {Scheduler} [scheduler=null] An optional IScheduler to schedule each
  * Observable subscription on.
  * @return {Observable} All values of each passed Observable merged into a
  * single Observable, in order, in serial fashion.
@@ -103,7 +103,7 @@ exports.concat = concat;
  * @param {Observable} input1 An input Observable to concatenate with others.
  * @param {Observable} input2 An input Observable to concatenate with others.
  * More than one input Observables may be given as argument.
- * @param {Scheduler} [scheduler=null] An optional Scheduler to schedule each
+ * @param {Scheduler} [scheduler=null] An optional IScheduler to schedule each
  * Observable subscription on.
  * @return {Observable} All values of each passed Observable merged into a
  * single Observable, in order, in serial fashion.

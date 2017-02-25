@@ -43,7 +43,7 @@ var combineLatest_1 = require('../operator/combineLatest');
  * source Observable. More than one input Observables may be given as argument.
  * @param {function} [project] An optional function to project the values from
  * the combined latest values into a new value on the output Observable.
- * @param {Scheduler} [scheduler=null] The Scheduler to use for subscribing to
+ * @param {Scheduler} [scheduler=null] The IScheduler to use for subscribing to
  * each input Observable.
  * @return {Observable} An Observable of projected values from the most recent
  * values from each input Observable, or an array of the most recent values from

@@ -7,39 +7,81 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Injector, Injectable } from '@angular/core';
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Injector, Injectable, Optional, SkipSelf, TemplateRef } from '@angular/core';
+import { Subject } from 'rxjs/Subject';
 import { Overlay, OverlayState, ComponentPortal } from '../core';
 import { extendObject } from '../core/util/object-extend';
+import { ESCAPE } from '../core/keyboard/keycodes';
 import { DialogInjector } from './dialog-injector';
 import { MdDialogConfig } from './dialog-config';
 import { MdDialogRef } from './dialog-ref';
 import { MdDialogContainer } from './dialog-container';
-// TODO(jelbourn): add support for opening with a TemplateRef
+import { TemplatePortal } from '../core/portal/portal';
 // TODO(jelbourn): animations
 /**
  * Service to open Material Design modal dialogs.
  */
 export var MdDialog = (function () {
-    function MdDialog(_overlay, _injector) {
+    function MdDialog(_overlay, _injector, _parentDialog) {
         this._overlay = _overlay;
         this._injector = _injector;
-        /** Keeps track of the currently-open dialogs. */
-        this._openDialogs = [];
+        this._parentDialog = _parentDialog;
+        this._openDialogsAtThisLevel = [];
+        this._afterAllClosedAtThisLevel = new Subject();
+        this._afterOpenAtThisLevel = new Subject();
+        this._boundKeydown = this._handleKeydown.bind(this);
+        /** Gets an observable that is notified when a dialog has been opened. */
+        this.afterOpen = this._afterOpen.asObservable();
+        /** Gets an observable that is notified when all open dialog have finished closing. */
+        this.afterAllClosed = this._afterAllClosed.asObservable();
     }
+    Object.defineProperty(MdDialog.prototype, "_openDialogs", {
+        /** Keeps track of the currently-open dialogs. */
+        get: function () {
+            return this._parentDialog ? this._parentDialog._openDialogs : this._openDialogsAtThisLevel;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MdDialog.prototype, "_afterOpen", {
+        /** Subject for notifying the user that all open dialogs have finished closing. */
+        get: function () {
+            return this._parentDialog ? this._parentDialog._afterOpen : this._afterOpenAtThisLevel;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MdDialog.prototype, "_afterAllClosed", {
+        /** Subject for notifying the user that a dialog has opened. */
+        get: function () {
+            return this._parentDialog ?
+                this._parentDialog._afterAllClosed : this._afterAllClosedAtThisLevel;
+        },
+        enumerable: true,
+        configurable: true
+    });
     /**
      * Opens a modal dialog containing the given component.
-     * @param component Type of the component to load into the load.
+     * @param componentOrTemplateRef Type of the component to load into the dialog,
+     *     or a TemplateRef to instantiate as the dialog content.
      * @param config Extra configuration options.
      * @returns Reference to the newly-opened dialog.
      */
-    MdDialog.prototype.open = function (component, config) {
+    MdDialog.prototype.open = function (componentOrTemplateRef, config) {
         var _this = this;
         config = _applyConfigDefaults(config);
         var overlayRef = this._createOverlay(config);
         var dialogContainer = this._attachDialogContainer(overlayRef, config);
-        var dialogRef = this._attachDialogContent(component, dialogContainer, overlayRef);
+        var dialogRef = this._attachDialogContent(componentOrTemplateRef, dialogContainer, overlayRef, config);
+        if (!this._openDialogs.length && !this._parentDialog) {
+            document.addEventListener('keydown', this._boundKeydown);
+        }
         this._openDialogs.push(dialogRef);
         dialogRef.afterClosed().subscribe(function () { return _this._removeOpenDialog(dialogRef); });
+        this._afterOpen.next(dialogRef);
         return dialogRef;
     };
     /**
@@ -79,16 +121,18 @@ export var MdDialog = (function () {
     };
     /**
      * Attaches the user-provided component to the already-created MdDialogContainer.
-     * @param component The type of component being loaded into the dialog.
+     * @param componentOrTemplateRef The type of component being loaded into the dialog,
+     *     or a TemplateRef to instantiate as the content.
      * @param dialogContainer Reference to the wrapping MdDialogContainer.
      * @param overlayRef Reference to the overlay in which the dialog resides.
+     * @param config The dialog configuration.
      * @returns A promise resolving to the MdDialogRef that should be returned to the user.
      */
-    MdDialog.prototype._attachDialogContent = function (component, dialogContainer, overlayRef) {
+    MdDialog.prototype._attachDialogContent = function (componentOrTemplateRef, dialogContainer, overlayRef, config) {
         // Create a reference to the dialog we're creating in order to give the user a handle
         // to modify and close it.
-        var dialogRef = new MdDialogRef(overlayRef);
-        if (!dialogContainer.dialogConfig.disableClose) {
+        var dialogRef = new MdDialogRef(overlayRef, config);
+        if (!config.disableClose) {
             // When the dialog backdrop is clicked, we want to close it.
             overlayRef.backdropClick().first().subscribe(function () { return dialogRef.close(); });
         }
@@ -97,10 +141,15 @@ export var MdDialog = (function () {
         // We create an injector specifically for the component we're instantiating so that it can
         // inject the MdDialogRef. This allows a component loaded inside of a dialog to close itself
         // and, optionally, to return a value.
-        var dialogInjector = new DialogInjector(dialogRef, this._injector);
-        var contentPortal = new ComponentPortal(component, null, dialogInjector);
-        var contentRef = dialogContainer.attachComponentPortal(contentPortal);
-        dialogRef.componentInstance = contentRef.instance;
+        var userInjector = config && config.viewContainerRef && config.viewContainerRef.injector;
+        var dialogInjector = new DialogInjector(userInjector || this._injector, dialogRef, config.data);
+        if (componentOrTemplateRef instanceof TemplateRef) {
+            dialogContainer.attachTemplatePortal(new TemplatePortal(componentOrTemplateRef, null));
+        }
+        else {
+            var contentRef = dialogContainer.attachComponentPortal(new ComponentPortal(componentOrTemplateRef, null, dialogInjector));
+            dialogRef.componentInstance = contentRef.instance;
+        }
         return dialogRef;
     };
     /**
@@ -137,11 +186,28 @@ export var MdDialog = (function () {
         var index = this._openDialogs.indexOf(dialogRef);
         if (index > -1) {
             this._openDialogs.splice(index, 1);
+            // no open dialogs are left, call next on afterAllClosed Subject
+            if (!this._openDialogs.length) {
+                this._afterAllClosed.next();
+                document.removeEventListener('keydown', this._boundKeydown);
+            }
+        }
+    };
+    /**
+     * Handles global key presses while there are open dialogs. Closes the
+     * top dialog when the user presses escape.
+     */
+    MdDialog.prototype._handleKeydown = function (event) {
+        var topDialog = this._openDialogs[this._openDialogs.length - 1];
+        if (event.keyCode === ESCAPE && topDialog && !topDialog.config.disableClose) {
+            topDialog.close();
         }
     };
     MdDialog = __decorate([
-        Injectable(), 
-        __metadata('design:paramtypes', [Overlay, Injector])
+        Injectable(),
+        __param(2, Optional()),
+        __param(2, SkipSelf()), 
+        __metadata('design:paramtypes', [Overlay, Injector, MdDialog])
     ], MdDialog);
     return MdDialog;
 }());
@@ -153,5 +219,4 @@ export var MdDialog = (function () {
 function _applyConfigDefaults(dialogConfig) {
     return extendObject(new MdDialogConfig(), dialogConfig);
 }
-
 //# sourceMappingURL=dialog.js.map

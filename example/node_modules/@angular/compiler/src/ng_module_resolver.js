@@ -16,7 +16,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { NgModule } from '@angular/core';
 import { ListWrapper } from './facade/collection';
-import { isPresent, stringify } from './facade/lang';
+import { stringify } from './facade/lang';
 import { CompilerInjectable } from './injectable';
 import { ReflectorReader, reflector } from './private_import_core';
 /**
@@ -27,7 +27,7 @@ function _isNgModuleMetadata(obj) {
     return obj instanceof NgModule;
 }
 /**
- *  Resolves types to {@link NgModule}.
+ * Resolves types to {\@link NgModule}.
  */
 export var NgModuleResolver = (function () {
     /**
@@ -50,7 +50,7 @@ export var NgModuleResolver = (function () {
     NgModuleResolver.prototype.resolve = function (type, throwIfNotFound) {
         if (throwIfNotFound === void 0) { throwIfNotFound = true; }
         var /** @type {?} */ ngModuleMeta = ListWrapper.findLast(this._reflector.annotations(type), _isNgModuleMetadata);
-        if (isPresent(ngModuleMeta)) {
+        if (ngModuleMeta) {
             return ngModuleMeta;
         }
         else {

@@ -10,16 +10,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Component, ContentChildren, ElementRef, EventEmitter, Input, Optional, Output, QueryList, Renderer, ViewEncapsulation, ViewChild } from '@angular/core';
-import { MdOption } from './option';
+import { Component, ContentChildren, ElementRef, EventEmitter, Input, Optional, Output, QueryList, Renderer, Self, ViewEncapsulation, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { MdOption } from '../core/option/option';
 import { ENTER, SPACE } from '../core/keyboard/keycodes';
-import { ListKeyManager } from '../core/a11y/list-key-manager';
+import { FocusKeyManager } from '../core/a11y/focus-key-manager';
 import { Dir } from '../core/rtl/dir';
 import { transformPlaceholder, transformPanel, fadeInContent } from './select-animations';
 import { NgControl } from '@angular/forms';
 import { coerceBooleanProperty } from '../core/coercion/boolean-property';
 import { ConnectedOverlayDirective } from '../core/overlay/overlay-directives';
 import { ViewportRuler } from '../core/overlay/position/viewport-ruler';
+import 'rxjs/add/operator/startWith';
 /**
  * The following style constants are necessary to save here in order
  * to properly calculate the alignment of the selected option over
@@ -51,11 +52,20 @@ export var SELECT_PANEL_PADDING_Y = 16;
  * this value or more away from the viewport boundary.
  */
 export var SELECT_PANEL_VIEWPORT_PADDING = 8;
+/** Change event object that is emitted when the select value has changed. */
+export var MdSelectChange = (function () {
+    function MdSelectChange(source, value) {
+        this.source = source;
+        this.value = value;
+    }
+    return MdSelectChange;
+}());
 export var MdSelect = (function () {
-    function MdSelect(_element, _renderer, _viewportRuler, _dir, _control) {
+    function MdSelect(_element, _renderer, _viewportRuler, _changeDetectorRef, _dir, _control) {
         this._element = _element;
         this._renderer = _renderer;
         this._viewportRuler = _viewportRuler;
+        this._changeDetectorRef = _changeDetectorRef;
         this._dir = _dir;
         this._control = _control;
         /** Whether or not the overlay panel is open. */
@@ -78,6 +88,8 @@ export var MdSelect = (function () {
         this._optionIds = '';
         /** The value of the select panel's transform-origin property. */
         this._transformOrigin = 'top';
+        /** Whether the panel's animation is done. */
+        this._panelDoneAnimating = false;
         /**
          * The x-offset of the overlay panel in relation to the trigger's top start corner.
          * This must be adjusted to align the selected option text over the trigger text when
@@ -114,6 +126,8 @@ export var MdSelect = (function () {
         this.onOpen = new EventEmitter();
         /** Event emitted when the select has been closed. */
         this.onClose = new EventEmitter();
+        /** Event emitted when the selected value has been changed by the user. */
+        this.change = new EventEmitter();
         if (this._control) {
             this._control.valueAccessor = this;
         }
@@ -149,13 +163,23 @@ export var MdSelect = (function () {
     MdSelect.prototype.ngAfterContentInit = function () {
         var _this = this;
         this._initKeyManager();
-        this._resetOptions();
-        this._changeSubscription = this.options.changes.subscribe(function () { return _this._resetOptions(); });
+        this._changeSubscription = this.options.changes.startWith(null).subscribe(function () {
+            _this._resetOptions();
+            if (_this._control) {
+                // Defer setting the value in order to avoid the "Expression
+                // has changed after it was checked" errors from Angular.
+                Promise.resolve(null).then(function () { return _this._setSelectionByValue(_this._control.value); });
+            }
+        });
     };
     MdSelect.prototype.ngOnDestroy = function () {
         this._dropSubscriptions();
-        this._changeSubscription.unsubscribe();
-        this._tabSubscription.unsubscribe();
+        if (this._changeSubscription) {
+            this._changeSubscription.unsubscribe();
+        }
+        if (this._tabSubscription) {
+            this._tabSubscription.unsubscribe();
+        }
     };
     /** Toggles the overlay panel open or closed. */
     MdSelect.prototype.toggle = function () {
@@ -163,7 +187,7 @@ export var MdSelect = (function () {
     };
     /** Opens the overlay panel. */
     MdSelect.prototype.open = function () {
-        if (this.disabled) {
+        if (this.disabled || !this.options.length) {
             return;
         }
         this._calculateOverlayPosition();
@@ -185,16 +209,10 @@ export var MdSelect = (function () {
      * @param value New value to be written to the model.
      */
     MdSelect.prototype.writeValue = function (value) {
-        var _this = this;
-        if (!this.options) {
-            // In reactive forms, writeValue() will be called synchronously before
-            // the select's child options have been created. It's necessary to call
-            // writeValue() again after the options have been created to ensure any
-            // initial view value is set.
-            Promise.resolve(null).then(function () { return _this.writeValue(value); });
-            return;
+        if (this.options) {
+            this._setSelectionByValue(value);
+            this._changeDetectorRef.markForCheck();
         }
-        this._setSelectionByValue(value);
     };
     /**
      * Saves a callback function to be invoked when the select's value
@@ -257,8 +275,8 @@ export var MdSelect = (function () {
         }
     };
     /**
-     * When the panel is finished animating, emits an event and focuses
-     * an option if the panel is open.
+     * When the panel element is finished transforming in (though not fading in), it
+     * emits an event and focuses an option if the panel is open.
      */
     MdSelect.prototype._onPanelDone = function () {
         if (this.panelOpen) {
@@ -268,6 +286,13 @@ export var MdSelect = (function () {
         else {
             this.onClose.emit();
         }
+    };
+    /**
+     * When the panel content is done fading in, the _panelDoneAnimating property is
+     * set so the proper class can be added to the panel.
+     */
+    MdSelect.prototype._onFadeInDone = function () {
+        this._panelDoneAnimating = this.panelOpen;
     };
     /**
      * Calls the touched callback only if the panel is closed. Otherwise, the trigger will
@@ -288,7 +313,7 @@ export var MdSelect = (function () {
      * present in the DOM.
      */
     MdSelect.prototype._setScrollTop = function () {
-        var scrollContainer = this.overlayDir.overlayRef.overlayElement.querySelector('.md-select-panel');
+        var scrollContainer = this.overlayDir.overlayRef.overlayElement.querySelector('.mat-select-panel');
         scrollContainer.scrollTop = this._scrollTop;
     };
     /**
@@ -317,7 +342,7 @@ export var MdSelect = (function () {
     /** Sets up a key manager to listen to keyboard events on the overlay panel. */
     MdSelect.prototype._initKeyManager = function () {
         var _this = this;
-        this._keyManager = new ListKeyManager(this.options);
+        this._keyManager = new FocusKeyManager(this.options);
         this._tabSubscription = this._keyManager.tabOut.subscribe(function () {
             _this.close();
         });
@@ -332,9 +357,9 @@ export var MdSelect = (function () {
     MdSelect.prototype._listenToOptions = function () {
         var _this = this;
         this.options.forEach(function (option) {
-            var sub = option.onSelect.subscribe(function (isUserInput) {
-                if (isUserInput) {
-                    _this._onChange(option.value);
+            var sub = option.onSelect.subscribe(function (event) {
+                if (event.isUserInput && _this._selected !== option) {
+                    _this._emitChangeEvent(option);
                 }
                 _this._onSelect(option);
             });
@@ -345,6 +370,11 @@ export var MdSelect = (function () {
     MdSelect.prototype._dropSubscriptions = function () {
         this._subscriptions.forEach(function (sub) { return sub.unsubscribe(); });
         this._subscriptions = [];
+    };
+    /** Emits an event when the user selects an option. */
+    MdSelect.prototype._emitChangeEvent = function (option) {
+        this._onChange(option.value);
+        this.change.emit(new MdSelectChange(this, option.value));
     };
     /** Records option IDs to pass to the aria-owns property. */
     MdSelect.prototype._setOptionIds = function () {
@@ -382,10 +412,10 @@ export var MdSelect = (function () {
      */
     MdSelect.prototype._focusCorrectOption = function () {
         if (this.selected) {
-            this._keyManager.setFocus(this._getOptionIndex(this.selected));
+            this._keyManager.setActiveItem(this._getOptionIndex(this.selected));
         }
         else {
-            this._keyManager.focusFirstItem();
+            this._keyManager.setFirstItemActive();
         }
     };
     /** Focuses the host element when the panel closes. */
@@ -560,16 +590,20 @@ export var MdSelect = (function () {
     ], MdSelect.prototype, "required", null);
     __decorate([
         Output(), 
-        __metadata('design:type', Object)
+        __metadata('design:type', EventEmitter)
     ], MdSelect.prototype, "onOpen", void 0);
     __decorate([
         Output(), 
-        __metadata('design:type', Object)
+        __metadata('design:type', EventEmitter)
     ], MdSelect.prototype, "onClose", void 0);
+    __decorate([
+        Output(), 
+        __metadata('design:type', EventEmitter)
+    ], MdSelect.prototype, "change", void 0);
     MdSelect = __decorate([
         Component({selector: 'md-select, mat-select',
-            template: "<div class=\"md-select-trigger\" cdk-overlay-origin (click)=\"toggle()\" #origin=\"cdkOverlayOrigin\" #trigger><span class=\"md-select-placeholder\" [class.md-floating-placeholder]=\"this.selected\" [@transformPlaceholder]=\"_placeholderState\" [style.width.px]=\"_selectedValueWidth\">{{ placeholder }} </span><span class=\"md-select-value\" *ngIf=\"selected\">{{ selected?.viewValue }} </span><span class=\"md-select-arrow\"></span></div><template cdk-connected-overlay [origin]=\"origin\" [open]=\"panelOpen\" hasBackdrop (backdropClick)=\"close()\" backdropClass=\"cdk-overlay-transparent-backdrop\" [positions]=\"_positions\" [minWidth]=\"_triggerWidth\" [offsetY]=\"_offsetY\" [offsetX]=\"_offsetX\" (attach)=\"_setScrollTop()\"><div class=\"md-select-panel\" [@transformPanel]=\"'showing'\" (@transformPanel.done)=\"_onPanelDone()\" (keydown)=\"_keyManager.onKeydown($event)\" [style.transformOrigin]=\"_transformOrigin\"><div class=\"md-select-content\" [@fadeInContent]=\"'showing'\"><ng-content></ng-content></div></div></template>",
-            styles: [".md-select-value,md-option{white-space:nowrap;text-overflow:ellipsis}md-select{display:inline-block;outline:0}.md-select-trigger{display:flex;justify-content:space-between;align-items:center;height:30px;min-width:112px;cursor:pointer;position:relative;box-sizing:border-box}[aria-disabled=true] .md-select-trigger{background-image:linear-gradient(to right,rgba(0,0,0,.26) 0,rgba(0,0,0,.26) 33%,transparent 0);background-size:4px 1px;background-repeat:repeat-x;border-bottom:transparent;background-position:0 bottom;cursor:default;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.md-select-placeholder{position:relative;padding:0 2px;transform-origin:left top}.md-select-placeholder.md-floating-placeholder{top:-22px;left:-2px;transform:scale(.75)}[dir=rtl] .md-select-placeholder{transform-origin:right top}[dir=rtl] .md-select-placeholder.md-floating-placeholder{left:2px}[aria-required=true] .md-select-placeholder::after{content:'*'}.md-select-value{position:absolute;overflow-x:hidden;left:0;top:6px}[dir=rtl] .md-select-value{left:auto;right:0}.md-select-arrow{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid;margin:0 4px}.md-select-panel{box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12);min-width:112px;max-width:280px;overflow:auto;-webkit-overflow-scrolling:touch;padding-top:0;padding-bottom:0;max-height:256px}@media screen and (-ms-high-contrast:active){.md-select-panel{outline:solid 1px}.md-option-ripple{opacity:.5}}md-option{overflow-x:hidden;display:flex;flex-direction:row;align-items:center;height:48px;padding:0 16px;font-size:16px;font-family:Roboto,\"Helvetica Neue\",sans-serif;text-align:start;text-decoration:none;position:relative;cursor:pointer;outline:0}md-option[disabled]{cursor:default}md-option md-icon{margin-right:16px}[dir=rtl] md-option md-icon{margin-left:16px}md-option[aria-disabled=true]{cursor:default;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.md-option-ripple{position:absolute;top:0;left:0;bottom:0;right:0}"],
+            template: "<div class=\"mat-select-trigger\" cdk-overlay-origin (click)=\"toggle()\" #origin=\"cdkOverlayOrigin\" #trigger><span class=\"mat-select-placeholder\" [class.mat-floating-placeholder]=\"this.selected\" [@transformPlaceholder]=\"_placeholderState\" [style.width.px]=\"_selectedValueWidth\">{{ placeholder }} </span><span class=\"mat-select-value\" *ngIf=\"selected\"><span class=\"mat-select-value-text\">{{ selected?.viewValue }}</span> </span><span class=\"mat-select-arrow\"></span> <span class=\"mat-select-underline\"></span></div><template cdk-connected-overlay [origin]=\"origin\" [open]=\"panelOpen\" hasBackdrop (backdropClick)=\"close()\" backdropClass=\"cdk-overlay-transparent-backdrop\" [positions]=\"_positions\" [minWidth]=\"_triggerWidth\" [offsetY]=\"_offsetY\" [offsetX]=\"_offsetX\" (attach)=\"_setScrollTop()\"><div class=\"mat-select-panel\" [@transformPanel]=\"'showing'\" (@transformPanel.done)=\"_onPanelDone()\" (keydown)=\"_keyManager.onKeydown($event)\" [style.transformOrigin]=\"_transformOrigin\" [class.mat-select-panel-done-animating]=\"_panelDoneAnimating\"><div class=\"mat-select-content\" [@fadeInContent]=\"'showing'\" (@fadeInContent.done)=\"_onFadeInDone()\"><ng-content></ng-content></div></div></template>",
+            styles: [".mat-select{display:inline-block;outline:0;font-family:Roboto,\"Helvetica Neue\",sans-serif}.mat-select-trigger{display:flex;align-items:center;height:30px;min-width:112px;cursor:pointer;position:relative;box-sizing:border-box;font-size:16px}[aria-disabled=true] .mat-select-trigger{cursor:default;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.mat-select-underline{position:absolute;bottom:0;left:0;right:0;height:1px}[aria-disabled=true] .mat-select-underline{background-image:linear-gradient(to right,rgba(0,0,0,.26) 0,rgba(0,0,0,.26) 33%,transparent 0);background-size:4px 1px;background-repeat:repeat-x;background-color:transparent;background-position:0 bottom}.mat-select-placeholder{position:relative;padding:0 2px;transform-origin:left top;flex-grow:1}.mat-select-placeholder.mat-floating-placeholder{top:-22px;left:-2px;text-align:left;transform:scale(.75)}[dir=rtl] .mat-select-placeholder{transform-origin:right top}[dir=rtl] .mat-select-placeholder.mat-floating-placeholder{left:2px;text-align:right}[aria-required=true] .mat-select-placeholder::after{content:'*'}.mat-select-value{position:absolute;max-width:calc(100% - 18px);flex-grow:1;top:0;left:0;bottom:0;display:flex;align-items:center}[dir=rtl] .mat-select-value{left:auto;right:0}.mat-select-value-text{white-space:nowrap;overflow-x:hidden;text-overflow:ellipsis;line-height:30px}.mat-select-arrow{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid;margin:0 4px}.mat-select-panel{box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12);min-width:112px;max-width:280px;overflow:auto;-webkit-overflow-scrolling:touch;padding-top:0;padding-bottom:0;max-height:256px}@media screen and (-ms-high-contrast:active){.mat-select-panel{outline:solid 1px}}"],
             encapsulation: ViewEncapsulation.None,
             host: {
                 'role': 'listbox',
@@ -579,7 +613,8 @@ export var MdSelect = (function () {
                 '[attr.aria-disabled]': 'disabled.toString()',
                 '[attr.aria-invalid]': '_control?.invalid || "false"',
                 '[attr.aria-owns]': '_optionIds',
-                '[class.md-select-disabled]': 'disabled',
+                '[class.mat-select-disabled]': 'disabled',
+                '[class.mat-select]': 'true',
                 '(keydown)': '_handleKeydown($event)',
                 '(blur)': '_onBlur()'
             },
@@ -590,9 +625,10 @@ export var MdSelect = (function () {
             ],
             exportAs: 'mdSelect',
         }),
-        __param(3, Optional()),
-        __param(4, Optional()), 
-        __metadata('design:paramtypes', [ElementRef, Renderer, ViewportRuler, Dir, NgControl])
+        __param(4, Optional()),
+        __param(5, Self()),
+        __param(5, Optional()), 
+        __metadata('design:paramtypes', [ElementRef, Renderer, ViewportRuler, ChangeDetectorRef, Dir, NgControl])
     ], MdSelect);
     return MdSelect;
 }());
@@ -600,5 +636,4 @@ export var MdSelect = (function () {
 function clampValue(min, n, max) {
     return Math.min(Math.max(min, n), max);
 }
-
 //# sourceMappingURL=select.js.map

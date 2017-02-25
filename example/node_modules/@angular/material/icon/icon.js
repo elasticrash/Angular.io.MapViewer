@@ -12,9 +12,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { NgModule, ChangeDetectionStrategy, Component, ElementRef, Input, Renderer, ViewEncapsulation } from '@angular/core';
-import { HttpModule } from '@angular/http';
-import { MdError, DefaultStyleCompatibilityModeModule } from '../core';
+import { NgModule, ChangeDetectionStrategy, Component, ElementRef, Input, Renderer, ViewEncapsulation, Optional, SkipSelf } from '@angular/core';
+import { HttpModule, Http } from '@angular/http';
+import { DomSanitizer } from '@angular/platform-browser';
+import { MdError, CompatibilityModule } from '../core';
 import { MdIconRegistry } from './icon-registry';
 export { MdIconRegistry } from './icon-registry';
 /** Exception thrown when an invalid icon name is passed to an md-icon component. */
@@ -80,7 +81,7 @@ export var MdIcon = (function () {
     };
     MdIcon.prototype._setElementColor = function (color, isAdd) {
         if (color != null && color != '') {
-            this._renderer.setElementClass(this._elementRef.nativeElement, "md-" + color, isAdd);
+            this._renderer.setElementClass(this._elementRef.nativeElement, "mat-" + color, isAdd);
         }
     };
     /**
@@ -140,7 +141,8 @@ export var MdIcon = (function () {
     };
     MdIcon.prototype._updateAriaLabel = function () {
         var ariaLabel = this._getAriaLabel();
-        if (ariaLabel) {
+        if (ariaLabel && ariaLabel !== this._previousAriaLabel) {
+            this._previousAriaLabel = ariaLabel;
             this._renderer.setElementAttribute(this._elementRef.nativeElement, 'aria-label', ariaLabel);
         }
     };
@@ -230,9 +232,10 @@ export var MdIcon = (function () {
     MdIcon = __decorate([
         Component({template: '<ng-content></ng-content>',
             selector: 'md-icon, mat-icon',
-            styles: ["md-icon{background-repeat:no-repeat;display:inline-block;fill:currentColor;height:24px;width:24px}"],
+            styles: [".mat-icon{background-repeat:no-repeat;display:inline-block;fill:currentColor;height:24px;width:24px}"],
             host: {
                 'role': 'img',
+                '[class.mat-icon]': 'true',
             },
             encapsulation: ViewEncapsulation.None,
             changeDetection: ChangeDetectionStrategy.OnPush,
@@ -241,24 +244,35 @@ export var MdIcon = (function () {
     ], MdIcon);
     return MdIcon;
 }());
+export function ICON_REGISTRY_PROVIDER_FACTORY(parentRegistry, http, sanitizer) {
+    return parentRegistry || new MdIconRegistry(http, sanitizer);
+}
+;
+export var ICON_REGISTRY_PROVIDER = {
+    // If there is already an MdIconRegistry available, use that. Otherwise, provide a new one.
+    provide: MdIconRegistry,
+    deps: [[new Optional(), new SkipSelf(), MdIconRegistry], Http, DomSanitizer],
+    useFactory: ICON_REGISTRY_PROVIDER_FACTORY,
+};
 export var MdIconModule = (function () {
     function MdIconModule() {
     }
+    /** @deprecated */
     MdIconModule.forRoot = function () {
         return {
             ngModule: MdIconModule,
-            providers: [MdIconRegistry],
+            providers: [],
         };
     };
     MdIconModule = __decorate([
         NgModule({
-            imports: [HttpModule, DefaultStyleCompatibilityModeModule],
-            exports: [MdIcon, DefaultStyleCompatibilityModeModule],
+            imports: [HttpModule, CompatibilityModule],
+            exports: [MdIcon, CompatibilityModule],
             declarations: [MdIcon],
+            providers: [ICON_REGISTRY_PROVIDER],
         }), 
         __metadata('design:paramtypes', [])
     ], MdIconModule);
     return MdIconModule;
 }());
-
 //# sourceMappingURL=icon.js.map

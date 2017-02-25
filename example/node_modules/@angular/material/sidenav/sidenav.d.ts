@@ -1,6 +1,7 @@
-import { ModuleWithProviders, AfterContentInit, ElementRef, QueryList, EventEmitter, Renderer } from '@angular/core';
+import { ModuleWithProviders, AfterContentInit, ElementRef, QueryList, EventEmitter, Renderer, NgZone } from '@angular/core';
 import { Dir, MdError } from '../core';
 import { FocusTrap } from '../core/a11y/focus-trap';
+import 'rxjs/add/operator/first';
 /** Exception thrown when two MdSidenav are matching the same side. */
 export declare class MdDuplicatedSidenavError extends MdError {
     constructor(align: string);
@@ -31,6 +32,9 @@ export declare class MdSidenav implements AfterContentInit {
     align: "start" | "end";
     /** Mode of the sidenav; whether 'over' or 'side'. */
     mode: 'over' | 'push' | 'side';
+    /** Whether the sidenav can be closed with the escape key or not. */
+    disableClose: boolean;
+    private _disableClose;
     /** Whether the sidenav is opened. */
     _opened: boolean;
     /** Event emitted when the sidenav is being opened. Use this to synchronize animations. */
@@ -109,13 +113,14 @@ export declare class MdSidenavContainer implements AfterContentInit {
     private _dir;
     private _element;
     private _renderer;
+    private _ngZone;
     _sidenavs: QueryList<MdSidenav>;
     /** The sidenav child with the `start` alignment. */
     readonly start: MdSidenav;
     /** The sidenav child with the `end` alignment. */
     readonly end: MdSidenav;
     /** Event emitted when the sidenav backdrop is clicked. */
-    onBackdropClicked: EventEmitter<void>;
+    backdropClick: EventEmitter<void>;
     /** The sidenav at the start/end alignment, independent of direction. */
     private _start;
     private _end;
@@ -127,7 +132,9 @@ export declare class MdSidenavContainer implements AfterContentInit {
      */
     private _left;
     private _right;
-    constructor(_dir: Dir, _element: ElementRef, _renderer: Renderer);
+    /** Whether to enable open/close trantions. */
+    _enableTransitions: boolean;
+    constructor(_dir: Dir, _element: ElementRef, _renderer: Renderer, _ngZone: NgZone);
     ngAfterContentInit(): void;
     /**
      * Subscribes to sidenav events in order to set a class on the main container element when the
@@ -140,7 +147,7 @@ export declare class MdSidenavContainer implements AfterContentInit {
      * changes.
      */
     private _watchSidenavAlign(sidenav);
-    /** Toggles the 'md-sidenav-opened' class on the main 'md-sidenav-container' element. */
+    /** Toggles the 'mat-sidenav-opened' class on the main 'md-sidenav-container' element. */
     private _setContainerClass(sidenav, bool);
     /** Sets the valid state of the drawers. */
     private _setDrawersValid(valid);
@@ -178,5 +185,6 @@ export declare class MdSidenavContainer implements AfterContentInit {
     };
 }
 export declare class MdSidenavModule {
+    /** @deprecated */
     static forRoot(): ModuleWithProviders;
 }

@@ -1,4 +1,6 @@
-import { Injector } from '@angular/core';
+import { Injector, TemplateRef } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import { Overlay, ComponentType } from '../core';
 import { MdDialogConfig } from './dialog-config';
 import { MdDialogRef } from './dialog-ref';
@@ -8,16 +10,30 @@ import { MdDialogRef } from './dialog-ref';
 export declare class MdDialog {
     private _overlay;
     private _injector;
+    private _parentDialog;
+    private _openDialogsAtThisLevel;
+    private _afterAllClosedAtThisLevel;
+    private _afterOpenAtThisLevel;
+    private _boundKeydown;
     /** Keeps track of the currently-open dialogs. */
-    private _openDialogs;
-    constructor(_overlay: Overlay, _injector: Injector);
+    readonly _openDialogs: MdDialogRef<any>[];
+    /** Subject for notifying the user that all open dialogs have finished closing. */
+    readonly _afterOpen: Subject<MdDialogRef<any>>;
+    /** Subject for notifying the user that a dialog has opened. */
+    readonly _afterAllClosed: Subject<void>;
+    /** Gets an observable that is notified when a dialog has been opened. */
+    afterOpen: Observable<MdDialogRef<any>>;
+    /** Gets an observable that is notified when all open dialog have finished closing. */
+    afterAllClosed: Observable<void>;
+    constructor(_overlay: Overlay, _injector: Injector, _parentDialog: MdDialog);
     /**
      * Opens a modal dialog containing the given component.
-     * @param component Type of the component to load into the load.
+     * @param componentOrTemplateRef Type of the component to load into the dialog,
+     *     or a TemplateRef to instantiate as the dialog content.
      * @param config Extra configuration options.
      * @returns Reference to the newly-opened dialog.
      */
-    open<T>(component: ComponentType<T>, config?: MdDialogConfig): MdDialogRef<T>;
+    open<T>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>, config?: MdDialogConfig): MdDialogRef<T>;
     /**
      * Closes all of the currently-open dialogs.
      */
@@ -37,12 +53,14 @@ export declare class MdDialog {
     private _attachDialogContainer(overlay, config);
     /**
      * Attaches the user-provided component to the already-created MdDialogContainer.
-     * @param component The type of component being loaded into the dialog.
+     * @param componentOrTemplateRef The type of component being loaded into the dialog,
+     *     or a TemplateRef to instantiate as the content.
      * @param dialogContainer Reference to the wrapping MdDialogContainer.
      * @param overlayRef Reference to the overlay in which the dialog resides.
+     * @param config The dialog configuration.
      * @returns A promise resolving to the MdDialogRef that should be returned to the user.
      */
-    private _attachDialogContent<T>(component, dialogContainer, overlayRef);
+    private _attachDialogContent<T>(componentOrTemplateRef, dialogContainer, overlayRef, config?);
     /**
      * Creates an overlay state from a dialog config.
      * @param dialogConfig The dialog configuration.
@@ -54,4 +72,9 @@ export declare class MdDialog {
      * @param dialogRef Dialog to be removed.
      */
     private _removeOpenDialog(dialogRef);
+    /**
+     * Handles global key presses while there are open dialogs. Closes the
+     * top dialog when the user presses escape.
+     */
+    private _handleKeydown(event);
 }

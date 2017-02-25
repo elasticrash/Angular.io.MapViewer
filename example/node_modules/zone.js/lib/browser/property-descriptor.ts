@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {isBrowser, isNode, patchClass, patchOnProperties, zoneSymbol} from '../common/utils';
+import {isBrowser, isMix, isNode, patchClass, patchOnProperties, zoneSymbol} from '../common/utils';
 
 import * as webSocketPatch from './websocket';
 
@@ -15,7 +15,7 @@ const eventNames =
         .split(' ');
 
 export function propertyDescriptorPatch(_global) {
-  if (isNode) {
+  if (isNode && !isMix) {
     return;
   }
 
@@ -48,7 +48,7 @@ export function propertyDescriptorPatch(_global) {
 }
 
 function canPatchViaPropertyDescriptor() {
-  if (isBrowser && !Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'onclick') &&
+  if ((isBrowser || isMix) && !Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'onclick') &&
       typeof Element !== 'undefined') {
     // WebKit https://bugs.webkit.org/show_bug.cgi?id=134364
     // IDL interface attributes are not configurable
@@ -56,14 +56,23 @@ function canPatchViaPropertyDescriptor() {
     if (desc && !desc.configurable) return false;
   }
 
+  const xhrDesc = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'onreadystatechange');
+
+  // add enumerable and configurable here because in opera
+  // by default XMLHttpRequest.prototype.onreadystatechange is undefined
+  // without adding enumerable and configurable will cause onreadystatechange
+  // non-configurable
   Object.defineProperty(XMLHttpRequest.prototype, 'onreadystatechange', {
+    enumerable: true,
+    configurable: true,
     get: function() {
       return true;
     }
   });
   const req = new XMLHttpRequest();
   const result = !!req.onreadystatechange;
-  Object.defineProperty(XMLHttpRequest.prototype, 'onreadystatechange', {});
+  // restore original desc
+  Object.defineProperty(XMLHttpRequest.prototype, 'onreadystatechange', xhrDesc || {});
   return result;
 };
 

@@ -67,12 +67,14 @@ export declare class MdCheckbox implements ControlValueAccessor {
     private _disabled;
     /** Whether the checkbox is disabled. */
     disabled: boolean;
-    /** @docs-private */
-    tabindex: number;
+    /** Tabindex value that is passed to the underlying input element. */
+    tabIndex: number;
     /** Name value will be applied to the input element if present */
     name: string;
     /** Event emitted when the checkbox's `checked` value changes. */
     change: EventEmitter<MdCheckboxChange>;
+    /** Event emitted when the checkbox's `indeterminate` value changes. */
+    indeterminateChange: EventEmitter<boolean>;
     /** The native `<input type="checkbox"> element */
     _inputElement: ElementRef;
     /**
@@ -151,5 +153,6 @@ export declare class MdCheckbox implements ControlValueAccessor {
     _getHostElement(): any;
 }
 export declare class MdCheckboxModule {
+    /** @deprecated */
     static forRoot(): ModuleWithProviders;
 }

@@ -49,17 +49,24 @@ export var MdHint = (function () {
     function MdHint() {
         // Whether to align the hint label at the start or end of the line.
         this.align = 'start';
+        // Unique ID for the hint. Used for the aria-describedby on the input.
+        this.id = "md-input-hint-" + nextUniqueId++;
     }
     __decorate([
         Input(), 
         __metadata('design:type', Object)
     ], MdHint.prototype, "align", void 0);
+    __decorate([
+        Input(), 
+        __metadata('design:type', String)
+    ], MdHint.prototype, "id", void 0);
     MdHint = __decorate([
         Directive({
             selector: 'md-hint, mat-hint',
             host: {
-                'class': 'md-hint',
-                '[class.md-right]': 'align == "end"',
+                '[class.mat-hint]': 'true',
+                '[class.mat-right]': 'align == "end"',
+                '[attr.id]': 'id',
             }
         }), 
         __metadata('design:paramtypes', [])
@@ -69,19 +76,20 @@ export var MdHint = (function () {
 /** The input directive, used to mark the input that `MdInputContainer` is wrapping. */
 export var MdInputDirective = (function () {
     function MdInputDirective(_elementRef, _renderer, _ngControl) {
-        var _this = this;
         this._elementRef = _elementRef;
         this._renderer = _renderer;
         this._ngControl = _ngControl;
-        this._disabled = false;
-        this._placeholder = '';
-        this._required = false;
+        /** Variables used as cache for getters and setters. */
         this._type = 'text';
+        this._placeholder = '';
+        this._disabled = false;
+        this._required = false;
+        /** Whether the element is focused or not. */
+        this.focused = false;
         /**
          * Emits an event when the placeholder changes so that the `md-input-container` can re-validate.
          */
         this._placeholderChange = new EventEmitter();
-        this.focused = false;
         this._neverEmptyInputTypes = [
             'date',
             'datetime',
@@ -92,16 +100,15 @@ export var MdInputDirective = (function () {
         ].filter(function (t) { return getSupportedInputTypes().has(t); });
         // Force setter to be called in case id was not specified.
         this.id = this.id;
-        if (this._ngControl && this._ngControl.valueChanges) {
-            this._ngControl.valueChanges.subscribe(function (value) {
-                _this.value = value;
-            });
-        }
     }
     Object.defineProperty(MdInputDirective.prototype, "disabled", {
         /** Whether the element is disabled. */
-        get: function () { return this._disabled; },
-        set: function (value) { this._disabled = coerceBooleanProperty(value); },
+        get: function () {
+            return this._ngControl ? this._ngControl.disabled : this._disabled;
+        },
+        set: function (value) {
+            this._disabled = coerceBooleanProperty(value);
+        },
         enumerable: true,
         configurable: true
     });
@@ -117,7 +124,7 @@ export var MdInputDirective = (function () {
         /** Placeholder attribute of the element. */
         get: function () { return this._placeholder; },
         set: function (value) {
-            if (this._placeholder != value) {
+            if (this._placeholder !== value) {
                 this._placeholder = value;
                 this._placeholderChange.emit(this._placeholder);
             }
@@ -138,12 +145,32 @@ export var MdInputDirective = (function () {
         set: function (value) {
             this._type = value || 'text';
             this._validateType();
+            // When using Angular inputs, developers are no longer able to set the properties on the native
+            // input element. To ensure that bindings for `type` work, we need to sync the setter
+            // with the native property. Textarea elements don't support the type property or attribute.
+            if (!this._isTextarea() && getSupportedInputTypes().has(this._type)) {
+                this._renderer.setElementProperty(this._elementRef.nativeElement, 'type', this._type);
+            }
         },
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(MdInputDirective.prototype, "value", {
+        /** The input element's value. */
+        get: function () { return this._elementRef.nativeElement.value; },
+        set: function (value) { this._elementRef.nativeElement.value = value; },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(MdInputDirective.prototype, "empty", {
-        get: function () { return (this.value == null || this.value === '') && !this._isNeverEmpty(); },
+        get: function () {
+            return !this._isNeverEmpty() &&
+                (this.value == null || this.value === '') &&
+                // Check if the input contains bad input. If so, we know that it only appears empty because
+                // the value failed to parse. From the user's perspective it is not empty.
+                // TODO(mmalerba): Add e2e test for bad input case.
+                !this._isBadInput();
+        },
         enumerable: true,
         configurable: true
     });
@@ -152,21 +179,34 @@ export var MdInputDirective = (function () {
         enumerable: true,
         configurable: true
     });
-    MdInputDirective.prototype.ngAfterContentInit = function () {
-        this.value = this._elementRef.nativeElement.value;
-    };
     /** Focuses the input element. */
     MdInputDirective.prototype.focus = function () { this._renderer.invokeElementMethod(this._elementRef.nativeElement, 'focus'); };
     MdInputDirective.prototype._onFocus = function () { this.focused = true; };
     MdInputDirective.prototype._onBlur = function () { this.focused = false; };
-    MdInputDirective.prototype._onInput = function () { this.value = this._elementRef.nativeElement.value; };
+    MdInputDirective.prototype._onInput = function () {
+        // This is a noop function and is used to let Angular know whenever the value changes.
+        // Angular will run a new change detection each time the `input` event has been dispatched.
+        // It's necessary that Angular recognizes the value change, because when floatingLabel
+        // is set to false and Angular forms aren't used, the placeholder won't recognize the
+        // value changes and will not disappear.
+        // Listening to the input event wouldn't be necessary when the input is using the
+        // FormsModule or ReactiveFormsModule, because Angular forms also listens to input events.
+    };
     /** Make sure the input is a supported type. */
     MdInputDirective.prototype._validateType = function () {
-        if (MD_INPUT_INVALID_TYPES.indexOf(this._type) != -1) {
+        if (MD_INPUT_INVALID_TYPES.indexOf(this._type) !== -1) {
             throw new MdInputContainerUnsupportedTypeError(this._type);
         }
     };
-    MdInputDirective.prototype._isNeverEmpty = function () { return this._neverEmptyInputTypes.indexOf(this._type) != -1; };
+    MdInputDirective.prototype._isNeverEmpty = function () { return this._neverEmptyInputTypes.indexOf(this._type) !== -1; };
+    MdInputDirective.prototype._isBadInput = function () {
+        return this._elementRef.nativeElement.validity.badInput;
+    };
+    /** Determines if the component host is a textarea. If not recognizable it returns false. */
+    MdInputDirective.prototype._isTextarea = function () {
+        var nativeElement = this._elementRef.nativeElement;
+        return nativeElement ? nativeElement.nodeName.toLowerCase() === 'textarea' : false;
+    };
     __decorate([
         Input(), 
         __metadata('design:type', Object)
@@ -193,10 +233,16 @@ export var MdInputDirective = (function () {
     ], MdInputDirective.prototype, "_placeholderChange", void 0);
     MdInputDirective = __decorate([
         Directive({
-            selector: 'input[md-input], textarea[md-input], input[mat-input], textarea[mat-input]',
+            selector: "input[mdInput], textarea[mdInput], input[matInput], textarea[matInput]",
             host: {
-                'class': 'md-input-element',
+                '[class.mat-input-element]': 'true',
+                // Native input properties that are overwritten by Angular inputs need to be synced with
+                // the native input element. Otherwise property bindings for those don't work.
                 '[id]': 'id',
+                '[placeholder]': 'placeholder',
+                '[disabled]': 'disabled',
+                '[required]': 'required',
+                '[attr.aria-describedby]': 'ariaDescribedby',
                 '(blur)': '_onBlur()',
                 '(focus)': '_onFocus()',
                 '(input)': '_onInput()',
@@ -218,22 +264,39 @@ export var MdInputContainer = (function () {
         /** Color of the input divider, based on the theme. */
         this.dividerColor = 'primary';
         this._hintLabel = '';
-        this._floatingPlaceholder = true;
+        // Unique id for the hint label.
+        this._hintLabelId = "md-input-hint-" + nextUniqueId++;
+        this._floatPlaceholder = 'auto';
     }
+    Object.defineProperty(MdInputContainer.prototype, "_shouldAlwaysFloat", {
+        /** Whether the floating label should always float or not. */
+        get: function () { return this._floatPlaceholder === 'always'; },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    Object.defineProperty(MdInputContainer.prototype, "_canPlaceholderFloat", {
+        /** Whether the placeholder can float or not. */
+        get: function () { return this._floatPlaceholder !== 'never'; },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(MdInputContainer.prototype, "hintLabel", {
         /** Text for the input hint. */
         get: function () { return this._hintLabel; },
         set: function (value) {
             this._hintLabel = value;
-            this._validateHints();
+            this._processHints();
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(MdInputContainer.prototype, "floatingPlaceholder", {
-        /** Text or the floating placeholder. */
-        get: function () { return this._floatingPlaceholder; },
-        set: function (value) { this._floatingPlaceholder = coerceBooleanProperty(value); },
+    Object.defineProperty(MdInputContainer.prototype, "floatPlaceholder", {
+        /** Whether the placeholder should always float, never float or float as the user types. */
+        get: function () { return this._floatPlaceholder; },
+        set: function (value) {
+            this._floatPlaceholder = value || 'auto';
+        },
         enumerable: true,
         configurable: true
     });
@@ -242,27 +305,21 @@ export var MdInputContainer = (function () {
         if (!this._mdInputChild) {
             throw new MdInputContainerMissingMdInputError();
         }
-        this._validateHints();
+        this._processHints();
         this._validatePlaceholders();
         // Re-validate when things change.
-        this._hintChildren.changes.subscribe(function () {
-            _this._validateHints();
-        });
-        this._mdInputChild._placeholderChange.subscribe(function () {
-            _this._validatePlaceholders();
-        });
+        this._hintChildren.changes.subscribe(function () { return _this._processHints(); });
+        this._mdInputChild._placeholderChange.subscribe(function () { return _this._validatePlaceholders(); });
     };
-    MdInputContainer.prototype._isUntouched = function () { return this._hasNgControl() && this._mdInputChild._ngControl.untouched; };
-    MdInputContainer.prototype._isTouched = function () { return this._hasNgControl() && this._mdInputChild._ngControl.touched; };
-    MdInputContainer.prototype._isPristine = function () { return this._hasNgControl() && this._mdInputChild._ngControl.pristine; };
-    MdInputContainer.prototype._isDirty = function () { return this._hasNgControl() && this._mdInputChild._ngControl.dirty; };
-    MdInputContainer.prototype._isValid = function () { return this._hasNgControl() && this._mdInputChild._ngControl.valid; };
-    MdInputContainer.prototype._isInvalid = function () { return this._hasNgControl() && this._mdInputChild._ngControl.invalid; };
-    MdInputContainer.prototype._isPending = function () { return this._hasNgControl() && this._mdInputChild._ngControl.pending; };
+    /** Determines whether a class from the NgControl should be forwarded to the host element. */
+    MdInputContainer.prototype._shouldForward = function (prop) {
+        var control = this._mdInputChild ? this._mdInputChild._ngControl : null;
+        return control && control[prop];
+    };
     /** Whether the input has a placeholder. */
     MdInputContainer.prototype._hasPlaceholder = function () { return !!(this._mdInputChild.placeholder || this._placeholderChild); };
+    /** Focuses the underlying input. */
     MdInputContainer.prototype._focusInput = function () { this._mdInputChild.focus(); };
-    MdInputContainer.prototype._hasNgControl = function () { return !!(this._mdInputChild && this._mdInputChild._ngControl); };
     /**
      * Ensure that there is only one placeholder (either `input` attribute or child element with the
      * `md-placeholder` attribute.
@@ -271,6 +328,13 @@ export var MdInputContainer = (function () {
         if (this._mdInputChild.placeholder && this._placeholderChild) {
             throw new MdInputContainerPlaceholderConflictError();
         }
+    };
+    /**
+     * Does any extra processing that is required when handling the hints.
+     */
+    MdInputContainer.prototype._processHints = function () {
+        this._validateHints();
+        this._syncAriaDescribedby();
     };
     /**
      * Ensure that there is a maximum of one of each `<md-hint>` alignment specified, with the
@@ -297,6 +361,27 @@ export var MdInputContainer = (function () {
             });
         }
     };
+    /**
+     * Sets the child input's `aria-describedby` to a space-separated list of the ids
+     * of the currently-specified hints, as well as a generated id for the hint label.
+     */
+    MdInputContainer.prototype._syncAriaDescribedby = function () {
+        var ids = [];
+        var startHint = this._hintChildren ?
+            this._hintChildren.find(function (hint) { return hint.align === 'start'; }) : null;
+        var endHint = this._hintChildren ?
+            this._hintChildren.find(function (hint) { return hint.align === 'end'; }) : null;
+        if (startHint) {
+            ids.push(startHint.id);
+        }
+        else if (this._hintLabel) {
+            ids.push(this._hintLabelId);
+        }
+        if (endHint) {
+            ids.push(endHint.id);
+        }
+        this._mdInputChild.ariaDescribedby = ids.join(' ');
+    };
     __decorate([
         Input(), 
         __metadata('design:type', Object)
@@ -311,8 +396,8 @@ export var MdInputContainer = (function () {
     ], MdInputContainer.prototype, "hintLabel", null);
     __decorate([
         Input(), 
-        __metadata('design:type', Boolean)
-    ], MdInputContainer.prototype, "floatingPlaceholder", null);
+        __metadata('design:type', Object)
+    ], MdInputContainer.prototype, "floatPlaceholder", null);
     __decorate([
         ContentChild(MdInputDirective), 
         __metadata('design:type', MdInputDirective)
@@ -327,19 +412,19 @@ export var MdInputContainer = (function () {
     ], MdInputContainer.prototype, "_hintChildren", void 0);
     MdInputContainer = __decorate([
         Component({selector: 'md-input-container, mat-input-container',
-            template: "<div class=\"md-input-wrapper\"><div class=\"md-input-table\"><div class=\"md-input-prefix\"><ng-content select=\"[md-prefix]\"></ng-content></div><div class=\"md-input-infix\" [class.md-end]=\"align == 'end'\"><ng-content selector=\"input, textarea\"></ng-content><label class=\"md-input-placeholder\" [attr.for]=\"_mdInputChild.id\" [class.md-empty]=\"_mdInputChild.empty\" [class.md-focused]=\"_mdInputChild.focused\" [class.md-float]=\"floatingPlaceholder\" [class.md-accent]=\"dividerColor == 'accent'\" [class.md-warn]=\"dividerColor == 'warn'\" *ngIf=\"_hasPlaceholder()\"><ng-content select=\"md-placeholder\"></ng-content>{{_mdInputChild.placeholder}} <span class=\"md-placeholder-required\" *ngIf=\"_mdInputChild.required\">*</span></label></div><div class=\"md-input-suffix\"><ng-content select=\"[md-suffix]\"></ng-content></div></div><div class=\"md-input-underline\" [class.md-disabled]=\"_mdInputChild.disabled\"><span class=\"md-input-ripple\" [class.md-focused]=\"_mdInputChild.focused\" [class.md-accent]=\"dividerColor == 'accent'\" [class.md-warn]=\"dividerColor == 'warn'\"></span></div><div *ngIf=\"hintLabel != ''\" class=\"md-hint\">{{hintLabel}}</div><ng-content select=\"md-hint\"></ng-content></div>",
-            styles: ["md-input,md-textarea{display:inline-block;position:relative;font-family:Roboto,\"Helvetica Neue\",sans-serif;line-height:normal;text-align:left}.md-input-element.md-end,[dir=rtl] md-input,[dir=rtl] md-textarea{text-align:right}.md-input-wrapper{margin:16px 0}.md-input-table{display:inline-table;flex-flow:column;vertical-align:bottom;width:100%}.md-input-table>*{display:table-cell}.md-input-infix{position:relative}.md-input-element{font:inherit;background:0 0;color:currentColor;border:none;outline:0;padding:0;width:100%}[dir=rtl] .md-input-element.md-end{text-align:left}.md-input-element:-moz-ui-invalid{box-shadow:none}.md-input-element:-webkit-autofill+.md-input-placeholder.md-float{display:block;padding-bottom:5px;transform:translateY(-100%) scale(.75);width:133.33333%}.md-input-placeholder{position:absolute;left:0;top:0;font-size:100%;pointer-events:none;z-index:1;width:100%;display:none;white-space:nowrap;text-overflow:ellipsis;overflow-x:hidden;transform:translateY(0);transform-origin:bottom left;transition:transform .4s cubic-bezier(.25,.8,.25,1),scale .4s cubic-bezier(.25,.8,.25,1),color .4s cubic-bezier(.25,.8,.25,1),width .4s cubic-bezier(.25,.8,.25,1)}.md-input-placeholder.md-empty{display:block;cursor:text}.md-input-placeholder.md-float.md-focused,.md-input-placeholder.md-float:not(.md-empty){display:block;padding-bottom:5px;transform:translateY(-100%) scale(.75);width:133.33333%}[dir=rtl] .md-input-placeholder{transform-origin:bottom right;left:auto;right:0}.md-input-underline{position:absolute;height:1px;width:100%;margin-top:4px;border-top-width:1px;border-top-style:solid}.md-input-underline.md-disabled{background-image:linear-gradient(to right,rgba(0,0,0,.26) 0,rgba(0,0,0,.26) 33%,transparent 0);background-size:4px 1px;background-repeat:repeat-x;border-top:0;background-position:0}.md-input-underline .md-input-ripple{position:absolute;height:2px;z-index:1;top:-1px;width:100%;transform-origin:top;opacity:0;transform:scaleY(0);transition:transform .4s cubic-bezier(.25,.8,.25,1),opacity .4s cubic-bezier(.25,.8,.25,1)}.md-input-underline .md-input-ripple.md-focused{opacity:1;transform:scaleY(1)}.md-hint{display:block;position:absolute;font-size:75%;bottom:-.5em}.md-hint.md-right{right:0}[dir=rtl] .md-hint{right:0;left:auto}[dir=rtl] .md-hint.md-right{right:auto;left:0}",
-"md-input-container{display:inline-block;position:relative;font-family:Roboto,\"Helvetica Neue\",sans-serif;line-height:normal;text-align:left}.md-end .md-input-element,[dir=rtl] md-input-container{text-align:right}.md-input-element::-webkit-input-placeholder{color:transparent}.md-input-element::-moz-placeholder{color:transparent}.md-input-element:-ms-input-placeholder{color:transparent}.md-input-element::placeholder{color:transparent}[dir=rtl] .md-end .md-input-element{text-align:left}"],
+            template: "<div class=\"mat-input-wrapper\"><div class=\"mat-input-table\"><div class=\"mat-input-prefix\"><ng-content select=\"[mdPrefix], [matPrefix], [md-prefix]\"></ng-content></div><div class=\"mat-input-infix\" [class.mat-end]=\"align == 'end'\"><ng-content selector=\"input, textarea\"></ng-content><span class=\"mat-input-placeholder-wrapper\"><label class=\"mat-input-placeholder\" [attr.for]=\"_mdInputChild.id\" [class.mat-empty]=\"_mdInputChild.empty && !_shouldAlwaysFloat\" [class.mat-focused]=\"_mdInputChild.focused\" [class.mat-float]=\"_canPlaceholderFloat\" [class.mat-accent]=\"dividerColor == 'accent'\" [class.mat-warn]=\"dividerColor == 'warn'\" *ngIf=\"_hasPlaceholder()\"><ng-content select=\"md-placeholder, mat-placeholder\"></ng-content>{{_mdInputChild.placeholder}} <span class=\"mat-placeholder-required\" *ngIf=\"_mdInputChild.required\">*</span></label></span></div><div class=\"mat-input-suffix\"><ng-content select=\"[mdSuffix], [matSuffix], [md-suffix]\"></ng-content></div></div><div class=\"mat-input-underline\" [class.mat-disabled]=\"_mdInputChild.disabled\"><span class=\"mat-input-ripple\" [class.mat-focused]=\"_mdInputChild.focused\" [class.mat-accent]=\"dividerColor == 'accent'\" [class.mat-warn]=\"dividerColor == 'warn'\"></span></div><div *ngIf=\"hintLabel != ''\" [attr.id]=\"_hintLabelId\" class=\"mat-hint\">{{hintLabel}}</div><ng-content select=\"md-hint, mat-hint\"></ng-content></div>",
+            styles: [".mat-input-container{display:inline-block;position:relative;font-family:Roboto,\"Helvetica Neue\",sans-serif;line-height:normal;text-align:left}.mat-end .mat-input-element,[dir=rtl] .mat-input-container{text-align:right}.mat-input-wrapper{margin:1em 0;padding-bottom:6px}.mat-input-table{display:inline-table;flex-flow:column;vertical-align:bottom;width:100%}.mat-input-table>*{display:table-cell}.mat-input-infix{position:relative}.mat-input-element{font:inherit;background:0 0;color:currentColor;border:none;outline:0;padding:0;width:100%}.mat-input-placeholder,.mat-input-placeholder-wrapper{padding-top:1em;pointer-events:none;position:absolute}[dir=rtl] .mat-end .mat-input-element{text-align:left}.mat-input-element:-moz-ui-invalid{box-shadow:none}.mat-input-element:-webkit-autofill+.mat-input-placeholder.mat-float{display:block;transform:translateY(-1.35em) scale(.75);width:133.33333%}.mat-input-element::placeholder{color:transparent}.mat-input-element::-moz-placeholder{color:transparent}.mat-input-element::-webkit-input-placeholder{color:transparent}.mat-input-element:-ms-input-placeholder{color:transparent}.mat-input-placeholder{left:0;top:0;font-size:100%;z-index:1;width:100%;display:none;white-space:nowrap;text-overflow:ellipsis;overflow-x:hidden;transform:translateY(0);transform-origin:bottom left;transition:transform .4s cubic-bezier(.25,.8,.25,1),color .4s cubic-bezier(.25,.8,.25,1),width .4s cubic-bezier(.25,.8,.25,1)}.mat-input-placeholder.mat-empty{display:block;cursor:text}.mat-input-placeholder.mat-float.mat-focused,.mat-input-placeholder.mat-float:not(.mat-empty){display:block;transform:translateY(-1.35em) scale(.75);width:133.33333%}[dir=rtl] .mat-input-placeholder{transform-origin:bottom right;left:auto;right:0}.mat-input-placeholder-wrapper{left:0;top:-1em;width:100%;overflow:hidden}.mat-input-placeholder-wrapper::after{content:'';display:inline-table}.mat-input-underline{position:absolute;height:1px;width:100%;margin-top:4px;border-top-width:1px;border-top-style:solid}.mat-input-underline.mat-disabled{background-image:linear-gradient(to right,rgba(0,0,0,.26) 0,rgba(0,0,0,.26) 33%,transparent 0);background-size:4px 1px;background-repeat:repeat-x;border-top:0;background-position:0}.mat-input-underline .mat-input-ripple{position:absolute;height:2px;z-index:1;top:-1px;width:100%;transform-origin:top;opacity:0;transform:scaleY(0);transition:transform .4s cubic-bezier(.25,.8,.25,1),opacity .4s cubic-bezier(.25,.8,.25,1)}.mat-input-underline .mat-input-ripple.mat-focused{opacity:1;transform:scaleY(1)}.mat-hint{display:block;position:absolute;font-size:75%;bottom:0}.mat-hint.mat-right{right:0}[dir=rtl] .mat-hint{right:0;left:auto}[dir=rtl] .mat-hint.mat-right{right:auto;left:0}.mat-input-prefix,.mat-input-suffix{width:.1px;white-space:nowrap}"],
             host: {
+                '[class.mat-input-container]': 'true',
                 // Remove align attribute to prevent it from interfering with layout.
                 '[attr.align]': 'null',
-                '[class.ng-untouched]': '_isUntouched()',
-                '[class.ng-touched]': '_isTouched()',
-                '[class.ng-pristine]': '_isPristine()',
-                '[class.ng-dirty]': '_isDirty()',
-                '[class.ng-valid]': '_isValid()',
-                '[class.ng-invalid]': '_isInvalid()',
-                '[class.ng-pending]': '_isPending()',
+                '[class.ng-untouched]': '_shouldForward("untouched")',
+                '[class.ng-touched]': '_shouldForward("touched")',
+                '[class.ng-pristine]': '_shouldForward("pristine")',
+                '[class.ng-dirty]': '_shouldForward("dirty")',
+                '[class.ng-valid]': '_shouldForward("valid")',
+                '[class.ng-invalid]': '_shouldForward("invalid")',
+                '[class.ng-pending]': '_shouldForward("pending")',
                 '(click)': '_focusInput()',
             },
             encapsulation: ViewEncapsulation.None,
@@ -348,5 +433,4 @@ export var MdInputContainer = (function () {
     ], MdInputContainer);
     return MdInputContainer;
 }());
-
 //# sourceMappingURL=input-container.js.map

@@ -1,4 +1,4 @@
-import { ElementRef, NgZone, OnDestroy } from '@angular/core';
+import { ElementRef, NgZone } from '@angular/core';
 import { MdInkBar } from '../ink-bar';
 import { MdRipple } from '../../core/ripple/ripple';
 import { ViewportRuler } from '../../core/overlay/position/viewport-ruler';
@@ -7,31 +7,29 @@ import { ViewportRuler } from '../../core/overlay/position/viewport-ruler';
  * Provides anchored navigation with animated ink bar.
  */
 export declare class MdTabNavBar {
+    _activeLinkChanged: boolean;
+    _activeLinkElement: ElementRef;
     _inkBar: MdInkBar;
-    /** Animates the ink bar to the position of the active link element. */
-    updateActiveLink(element: HTMLElement): void;
+    /** Notifies the component that the active link has been changed. */
+    updateActiveLink(element: ElementRef): void;
+    /** Checks if the active link has been changed and, if so, will update the ink bar. */
+    ngAfterContentChecked(): void;
 }
 /**
  * Link inside of a `md-tab-nav-bar`.
  */
 export declare class MdTabLink {
     private _mdTabNavBar;
-    private _element;
+    private _elementRef;
     private _isActive;
     /** Whether the link is active. */
     active: boolean;
-    constructor(_mdTabNavBar: MdTabNavBar, _element: ElementRef);
+    constructor(_mdTabNavBar: MdTabNavBar, _elementRef: ElementRef);
 }
 /**
  * Simple directive that extends the ripple and matches the selector of the MdTabLink. This
  * adds the ripple behavior to nav bar labels.
  */
-export declare class MdTabLinkRipple extends MdRipple implements OnDestroy {
-    private _element;
-    private _ngZone;
-    constructor(_element: ElementRef, _ngZone: NgZone, _ruler: ViewportRuler);
-    /**
-     * In certain cases the parent destroy handler may not get called. See Angular issue #11606.
-     */
-    ngOnDestroy(): void;
+export declare class MdTabLinkRipple extends MdRipple {
+    constructor(elementRef: ElementRef, ngZone: NgZone, ruler: ViewportRuler);
 }

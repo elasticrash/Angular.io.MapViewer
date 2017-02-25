@@ -49,10 +49,12 @@ export var MdInkBar = (function () {
     MdInkBar = __decorate([
         Directive({
             selector: 'md-ink-bar, mat-ink-bar',
+            host: {
+                '[class.mat-ink-bar]': 'true',
+            },
         }), 
         __metadata('design:paramtypes', [Renderer, ElementRef])
     ], MdInkBar);
     return MdInkBar;
 }());
-
 //# sourceMappingURL=ink-bar.js.map

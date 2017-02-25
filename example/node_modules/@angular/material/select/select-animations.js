@@ -3,7 +3,7 @@ import { animate, state, style, transition, trigger } from '@angular/core';
  * The following are all the animations for the md-select component, with each
  * const containing the metadata for one animation.
  *
- * The values below match the implementation of the Material 1 md-select animation.
+ * The values below match the implementation of the AngularJS Material md-select animation.
  */
 /**
  * This animation shrinks the placeholder text to 75% of its normal size and translates
@@ -62,5 +62,4 @@ export var fadeInContent = trigger('fadeInContent', [
         animate("150ms 100ms cubic-bezier(0.55, 0, 0.55, 0.2)")
     ])
 ]);
-
 //# sourceMappingURL=select-animations.js.map

@@ -1,10 +1,11 @@
-import { AfterContentInit, ElementRef, EventEmitter, OnDestroy, QueryList, Renderer } from '@angular/core';
-import { MdOption } from './option';
-import { ListKeyManager } from '../core/a11y/list-key-manager';
+import { AfterContentInit, ElementRef, EventEmitter, OnDestroy, QueryList, Renderer, ChangeDetectorRef } from '@angular/core';
+import { MdOption } from '../core/option/option';
+import { FocusKeyManager } from '../core/a11y/focus-key-manager';
 import { Dir } from '../core/rtl/dir';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
 import { ConnectedOverlayDirective } from '../core/overlay/overlay-directives';
 import { ViewportRuler } from '../core/overlay/position/viewport-ruler';
+import 'rxjs/add/operator/startWith';
 /**
  * The following style constants are necessary to save here in order
  * to properly calculate the alignment of the selected option over
@@ -36,10 +37,17 @@ export declare const SELECT_PANEL_PADDING_Y: number;
  * this value or more away from the viewport boundary.
  */
 export declare const SELECT_PANEL_VIEWPORT_PADDING: number;
+/** Change event object that is emitted when the select value has changed. */
+export declare class MdSelectChange {
+    source: MdSelect;
+    value: any;
+    constructor(source: MdSelect, value: any);
+}
 export declare class MdSelect implements AfterContentInit, ControlValueAccessor, OnDestroy {
     private _element;
     private _renderer;
     private _viewportRuler;
+    private _changeDetectorRef;
     private _dir;
     _control: NgControl;
     /** Whether or not the overlay panel is open. */
@@ -73,7 +81,7 @@ export declare class MdSelect implements AfterContentInit, ControlValueAccessor,
      */
     _selectedValueWidth: number;
     /** Manages keyboard events for options in the panel. */
-    _keyManager: ListKeyManager;
+    _keyManager: FocusKeyManager;
     /** View -> model callback called when value changes */
     _onChange: (value: any) => void;
     /** View -> model callback called when select has been touched */
@@ -82,6 +90,8 @@ export declare class MdSelect implements AfterContentInit, ControlValueAccessor,
     _optionIds: string;
     /** The value of the select panel's transform-origin property. */
     _transformOrigin: string;
+    /** Whether the panel's animation is done. */
+    _panelDoneAnimating: boolean;
     /**
      * The x-offset of the overlay panel in relation to the trigger's top start corner.
      * This must be adjusted to align the selected option text over the trigger text when
@@ -119,10 +129,12 @@ export declare class MdSelect implements AfterContentInit, ControlValueAccessor,
     /** Whether the component is required. */
     required: any;
     /** Event emitted when the select has been opened. */
-    onOpen: EventEmitter<{}>;
+    onOpen: EventEmitter<void>;
     /** Event emitted when the select has been closed. */
-    onClose: EventEmitter<{}>;
-    constructor(_element: ElementRef, _renderer: Renderer, _viewportRuler: ViewportRuler, _dir: Dir, _control: NgControl);
+    onClose: EventEmitter<void>;
+    /** Event emitted when the selected value has been changed by the user. */
+    change: EventEmitter<MdSelectChange>;
+    constructor(_element: ElementRef, _renderer: Renderer, _viewportRuler: ViewportRuler, _changeDetectorRef: ChangeDetectorRef, _dir: Dir, _control: NgControl);
     ngAfterContentInit(): void;
     ngOnDestroy(): void;
     /** Toggles the overlay panel open or closed. */
@@ -173,10 +185,15 @@ export declare class MdSelect implements AfterContentInit, ControlValueAccessor,
     /** Ensures the panel opens if activated by the keyboard. */
     _handleKeydown(event: KeyboardEvent): void;
     /**
-     * When the panel is finished animating, emits an event and focuses
-     * an option if the panel is open.
+     * When the panel element is finished transforming in (though not fading in), it
+     * emits an event and focuses an option if the panel is open.
      */
     _onPanelDone(): void;
+    /**
+     * When the panel content is done fading in, the _panelDoneAnimating property is
+     * set so the proper class can be added to the panel.
+     */
+    _onFadeInDone(): void;
     /**
      * Calls the touched callback only if the panel is closed. Otherwise, the trigger will
      * "blur" to the panel when it opens, causing a false positive.
@@ -206,6 +223,8 @@ export declare class MdSelect implements AfterContentInit, ControlValueAccessor,
     private _listenToOptions();
     /** Unsubscribes from all option subscriptions. */
     private _dropSubscriptions();
+    /** Emits an event when the user selects an option. */
+    private _emitChangeEvent(option);
     /** Records option IDs to pass to the aria-owns property. */
     private _setOptionIds();
     /** When a new option is selected, deselects the others and closes the panel. */

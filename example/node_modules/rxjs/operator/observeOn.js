@@ -46,11 +46,15 @@ var ObserveOnSubscriber = (function (_super) {
         this.delay = delay;
     }
     ObserveOnSubscriber.dispatch = function (arg) {
-        var notification = arg.notification, destination = arg.destination;
+        var notification = arg.notification, destination = arg.destination, subscription = arg.subscription;
         notification.observe(destination);
+        if (subscription) {
+            subscription.unsubscribe();
+        }
     };
     ObserveOnSubscriber.prototype.scheduleMessage = function (notification) {
-        this.add(this.scheduler.schedule(ObserveOnSubscriber.dispatch, this.delay, new ObserveOnMessage(notification, this.destination)));
+        var message = new ObserveOnMessage(notification, this.destination);
+        message.subscription = this.add(this.scheduler.schedule(ObserveOnSubscriber.dispatch, this.delay, message));
     };
     ObserveOnSubscriber.prototype._next = function (value) {
         this.scheduleMessage(Notification_1.Notification.createNext(value));

@@ -15,7 +15,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import * as chars from '../chars';
-import { NumberWrapper, isPresent } from '../facade/lang';
+import { NumberWrapper } from '../facade/lang';
 import { CompilerInjectable } from '../injectable';
 export var TokenType = {};
 TokenType.Character = 0;
@@ -329,8 +329,8 @@ var _Scanner = (function () {
         return newOperatorToken(start, str);
     };
     /**
-     *  Tokenize a 2/3 char long operator
-      * *
+     * Tokenize a 2/3 char long operator
+     *
      * @param {?} start start index in the expression
      * @param {?} one first symbol (always part of the operator)
      * @param {?} twoCode code point for the second symbol
@@ -346,7 +346,7 @@ var _Scanner = (function () {
             this.advance();
             str += two;
         }
-        if (isPresent(threeCode) && this.peek == threeCode) {
+        if (threeCode != null && this.peek == threeCode) {
             this.advance();
             str += three;
         }

@@ -63,12 +63,11 @@ export var MdTab = (function () {
         __metadata('design:paramtypes', [Boolean])
     ], MdTab.prototype, "disabled", null);
     MdTab = __decorate([
-        Component({selector: 'md-tab',
+        Component({selector: 'md-tab, mat-tab',
             template: "<template><ng-content></ng-content></template>",
         }), 
         __metadata('design:paramtypes', [ViewContainerRef])
     ], MdTab);
     return MdTab;
 }());
-
 //# sourceMappingURL=tab.js.map

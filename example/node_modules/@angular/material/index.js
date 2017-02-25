@@ -1,5 +1,6 @@
 export * from './core';
 export * from './module';
+export * from './autocomplete/index';
 export * from './button/index';
 export * from './button-toggle/index';
 export * from './card/index';
@@ -23,5 +24,4 @@ export * from './tabs/index';
 export * from './tabs/tab-nav-bar/index';
 export * from './toolbar/index';
 export * from './tooltip/index';
-
 //# sourceMappingURL=index.js.map

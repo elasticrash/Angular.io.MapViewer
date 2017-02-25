@@ -8,17 +8,18 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { NgModule } from '@angular/core';
-import { OverlayModule, PortalModule, OVERLAY_PROVIDERS, A11yModule, InteractivityChecker, Platform, DefaultStyleCompatibilityModeModule } from '../core';
+import { OverlayModule, PortalModule, A11yModule, CompatibilityModule } from '../core';
 import { MdDialog } from './dialog';
 import { MdDialogContainer } from './dialog-container';
 import { MdDialogClose, MdDialogContent, MdDialogTitle, MdDialogActions } from './dialog-content-directives';
 export var MdDialogModule = (function () {
     function MdDialogModule() {
     }
+    /** @deprecated */
     MdDialogModule.forRoot = function () {
         return {
             ngModule: MdDialogModule,
-            providers: [MdDialog, OVERLAY_PROVIDERS, InteractivityChecker, Platform],
+            providers: [],
         };
     };
     MdDialogModule = __decorate([
@@ -27,7 +28,7 @@ export var MdDialogModule = (function () {
                 OverlayModule,
                 PortalModule,
                 A11yModule,
-                DefaultStyleCompatibilityModeModule
+                CompatibilityModule,
             ],
             exports: [
                 MdDialogContainer,
@@ -35,14 +36,17 @@ export var MdDialogModule = (function () {
                 MdDialogTitle,
                 MdDialogContent,
                 MdDialogActions,
-                DefaultStyleCompatibilityModeModule
+                CompatibilityModule,
             ],
             declarations: [
                 MdDialogContainer,
                 MdDialogClose,
                 MdDialogTitle,
                 MdDialogActions,
-                MdDialogContent
+                MdDialogContent,
+            ],
+            providers: [
+                MdDialog,
             ],
             entryComponents: [MdDialogContainer],
         }), 
@@ -55,5 +59,5 @@ export * from './dialog-container';
 export * from './dialog-content-directives';
 export * from './dialog-config';
 export * from './dialog-ref';
-
+export { MD_DIALOG_DATA } from './dialog-injector';
 //# sourceMappingURL=index.js.map

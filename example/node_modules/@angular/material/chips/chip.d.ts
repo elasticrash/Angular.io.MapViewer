@@ -1,5 +1,5 @@
 import { ElementRef, EventEmitter, OnDestroy, OnInit, Renderer } from '@angular/core';
-import { Focusable } from '../core/a11y/list-key-manager';
+import { Focusable } from '../core/a11y/focus-key-manager';
 export interface MdChipEvent {
     chip: MdChip;
 }
@@ -48,6 +48,6 @@ export declare class MdChip implements Focusable, OnInit, OnDestroy {
     private _addDefaultCSSClass();
     /** Updates the private _color variable and the native element. */
     private _updateColor(newColor);
-    /** Sets the md-color on the native element. */
+    /** Sets the mat-color on the native element. */
     private _setElementColor(color, isAdd);
 }

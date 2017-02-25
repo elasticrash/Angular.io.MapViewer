@@ -42,7 +42,7 @@ var isScheduler_1 = require('../util/isScheduler');
  * Observable. More than one input Observables may be given as argument.
  * @param {number} [concurrent=Number.POSITIVE_INFINITY] Maximum number of input
  * Observables being subscribed to concurrently.
- * @param {Scheduler} [scheduler=null] The Scheduler to use for managing
+ * @param {Scheduler} [scheduler=null] The IScheduler to use for managing
  * concurrency of input Observables.
  * @return {Observable} an Observable that emits items that are the result of
  * every input Observable.
@@ -110,7 +110,7 @@ exports.merge = merge;
  * @param {...Observable} observables Input Observables to merge together.
  * @param {number} [concurrent=Number.POSITIVE_INFINITY] Maximum number of input
  * Observables being subscribed to concurrently.
- * @param {Scheduler} [scheduler=null] The Scheduler to use for managing
+ * @param {Scheduler} [scheduler=null] The IScheduler to use for managing
  * concurrency of input Observables.
  * @return {Observable} an Observable that emits items that are the result of
  * every input Observable.

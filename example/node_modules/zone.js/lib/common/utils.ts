@@ -50,6 +50,10 @@ export const isNode: boolean =
 export const isBrowser: boolean =
     !isNode && !isWebWorker && !!(typeof window !== 'undefined' && window['HTMLElement']);
 
+// we are in electron of nw, so we are both browser and nodejs
+export const isMix: boolean = typeof process !== 'undefined' &&
+    {}.toString.call(process) === '[object process]' && !isWebWorker &&
+    !!(typeof window !== 'undefined' && window['HTMLElement']);
 
 export function patchProperty(obj, prop) {
   const desc = Object.getOwnPropertyDescriptor(obj, prop) || {enumerable: true, configurable: true};
@@ -101,14 +105,15 @@ export function patchProperty(obj, prop) {
     // because the onclick function is internal raw uncompiled handler
     // the onclick will be evaluated when first time event was triggered or
     // the property is accessed, https://github.com/angular/zone.js/issues/525
-    // so we should use original native get to retrive the handler
+    // so we should use original native get to retrieve the handler
     if (r === null) {
-      let oriDesc = Object.getOwnPropertyDescriptor(obj, 'original' + prop);
-      if (oriDesc && oriDesc.get) {
-        r = oriDesc.get.apply(this, arguments);
+      if (originalDesc && originalDesc.get) {
+        r = originalDesc.get.apply(this, arguments);
         if (r) {
           desc.set.apply(this, [r]);
-          this.removeAttribute(prop);
+          if (typeof this['removeAttribute'] === 'function') {
+            this.removeAttribute(prop);
+          }
         }
       }
     }
@@ -152,10 +157,9 @@ export interface ListenerTaskMeta extends TaskData {
   handler: NestedEventListenerOrEventListenerObject;
   target: any;
   name: string;
-  invokeAddFunc: (addFnSymbol: any, delegate: Task|NestedEventListenerOrEventListenerObject) => any,
-                                              invokeRemoveFunc:
-                                                  (removeFnSymbol: any, delegate: Task|
-                                                   NestedEventListenerOrEventListenerObject) => any
+  invokeAddFunc: (addFnSymbol: any, delegate: Task|NestedEventListenerOrEventListenerObject) => any;
+  invokeRemoveFunc:
+      (removeFnSymbol: any, delegate: Task|NestedEventListenerOrEventListenerObject) => any;
 }
 
 function findExistingRegisteredTask(
@@ -210,34 +214,32 @@ function attachRegisteredEvent(target: any, eventTask: Task, isPrepend: boolean)
   }
 }
 
-const defaultListenerMetaCreator =
-    (self: any, args: any[]) => {
-      return {
-        useCapturing: args[2],
-        eventName: args[0],
-        handler: args[1],
-        target: self || _global,
-        name: args[0],
-        invokeAddFunc: function(
-            addFnSymbol: any, delegate: Task|NestedEventListenerOrEventListenerObject) {
-          if (delegate && (<Task>delegate).invoke) {
-            return this.target[addFnSymbol](
-                this.eventName, (<Task>delegate).invoke, this.useCapturing);
-          } else {
-            return this.target[addFnSymbol](this.eventName, delegate, this.useCapturing);
-          }
-        },
-        invokeRemoveFunc: function(
-            removeFnSymbol: any, delegate: Task|NestedEventListenerOrEventListenerObject) {
-          if (delegate && (<Task>delegate).invoke) {
-            return this.target[removeFnSymbol](
-                this.eventName, (<Task>delegate).invoke, this.useCapturing);
-          } else {
-            return this.target[removeFnSymbol](this.eventName, delegate, this.useCapturing);
-          }
-        }
-      };
+const defaultListenerMetaCreator = (self: any, args: any[]) => {
+  return {
+    useCapturing: args[2],
+    eventName: args[0],
+    handler: args[1],
+    target: self || _global,
+    name: args[0],
+    invokeAddFunc: function(
+        addFnSymbol: any, delegate: Task|NestedEventListenerOrEventListenerObject) {
+      if (delegate && (<Task>delegate).invoke) {
+        return this.target[addFnSymbol](this.eventName, (<Task>delegate).invoke, this.useCapturing);
+      } else {
+        return this.target[addFnSymbol](this.eventName, delegate, this.useCapturing);
+      }
+    },
+    invokeRemoveFunc: function(
+        removeFnSymbol: any, delegate: Task|NestedEventListenerOrEventListenerObject) {
+      if (delegate && (<Task>delegate).invoke) {
+        return this.target[removeFnSymbol](
+            this.eventName, (<Task>delegate).invoke, this.useCapturing);
+      } else {
+        return this.target[removeFnSymbol](this.eventName, delegate, this.useCapturing);
+      }
     }
+  };
+};
 
 export function makeZoneAwareAddListener(
     addFnName: string, removeFnName: string, useCapturingParam: boolean = true,
@@ -273,13 +275,13 @@ export function makeZoneAwareAddListener(
     } else if (data.handler && (<EventListenerObject>data.handler).handleEvent) {
       delegate = (event) => (<EventListenerObject>data.handler).handleEvent(event);
     }
-    var validZoneHandler = false;
+    let validZoneHandler = false;
     try {
       // In cross site contexts (such as WebDriver frameworks like Selenium),
       // accessing the handler object here will cause an exception to be thrown which
       // will fail tests prematurely.
       validZoneHandler = data.handler && data.handler.toString() === '[object FunctionWrapper]';
-    } catch (e) {
+    } catch (error) {
       // Returning nothing here is fine, because objects in a cross-site context are unusable
       return;
     }
@@ -456,7 +458,7 @@ export function patchClass(className) {
 export function createNamedFn(name: string, delegate: (self: any, args: any[]) => any): Function {
   try {
     return (Function('f', `return function ${name}(){return f(this, arguments)}`))(delegate);
-  } catch (e) {
+  } catch (error) {
     // if we fail, we must be CSP, just return delegate.
     return function() {
       return delegate(this, <any>arguments);
@@ -483,4 +485,70 @@ export function patchMethod(
     proto[name] = createNamedFn(name, patchFn(delegate, delegateName, name));
   }
   return delegate;
+}
+
+export interface MacroTaskMeta extends TaskData {
+  name: string;
+  target: any;
+  callbackIndex: number;
+  args: any[];
+}
+
+// TODO: @JiaLiPassion, support cancel task later if necessary
+export function patchMacroTask(
+    obj: any, funcName: string, metaCreator: (self: any, args: any[]) => MacroTaskMeta) {
+  let setNative = null;
+
+  function scheduleTask(task: Task) {
+    const data = <MacroTaskMeta>task.data;
+    data.args[data.callbackIndex] = function() {
+      task.invoke.apply(this, arguments);
+    };
+    setNative.apply(data.target, data.args);
+    return task;
+  }
+
+  setNative = patchMethod(obj, funcName, (delegate: Function) => function(self: any, args: any[]) {
+    const meta = metaCreator(self, args);
+    if (meta.callbackIndex >= 0 && typeof args[meta.callbackIndex] === 'function') {
+      const task = Zone.current.scheduleMacroTask(
+          meta.name, args[meta.callbackIndex], meta, scheduleTask, null);
+      return task;
+    } else {
+      // cause an error by calling it directly.
+      return delegate.apply(self, args);
+    }
+  });
+}
+
+export interface MicroTaskMeta extends TaskData {
+  name: string;
+  target: any;
+  callbackIndex: number;
+  args: any[];
+}
+export function patchMicroTask(
+    obj: any, funcName: string, metaCreator: (self: any, args: any[]) => MicroTaskMeta) {
+  let setNative = null;
+
+  function scheduleTask(task: Task) {
+    const data = <MacroTaskMeta>task.data;
+    data.args[data.callbackIndex] = function() {
+      task.invoke.apply(this, arguments);
+    };
+    setNative.apply(data.target, data.args);
+    return task;
+  }
+
+  setNative = patchMethod(obj, funcName, (delegate: Function) => function(self: any, args: any[]) {
+    const meta = metaCreator(self, args);
+    if (meta.callbackIndex >= 0 && typeof args[meta.callbackIndex] === 'function') {
+      const task =
+          Zone.current.scheduleMicroTask(meta.name, args[meta.callbackIndex], meta, scheduleTask);
+      return task;
+    } else {
+      // cause an error by calling it directly.
+      return delegate.apply(self, args);
+    }
+  });
 }

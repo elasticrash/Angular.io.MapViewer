@@ -11,8 +11,7 @@ import { ChangeDetectorRef, ChangeDetectionStrategy, Component, ElementRef, Even
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { coerceBooleanProperty } from '../core/coercion/boolean-property';
-import { MdRippleModule, DefaultStyleCompatibilityModeModule } from '../core';
-import { ViewportRuler } from '../core/overlay/position/viewport-ruler';
+import { MdRippleModule, CompatibilityModule } from '../core';
 /** Monotonically increasing integer used to auto-generate unique ids for checkbox components. */
 var nextId = 0;
 /**
@@ -73,12 +72,14 @@ export var MdCheckbox = (function () {
         /** Whether the label should appear after or before the checkbox. Defaults to 'after' */
         this.labelPosition = 'after';
         this._disabled = false;
-        /** @docs-private */
-        this.tabindex = 0;
+        /** Tabindex value that is passed to the underlying input element. */
+        this.tabIndex = 0;
         /** Name value will be applied to the input element if present */
         this.name = null;
         /** Event emitted when the checkbox's `checked` value changes. */
         this.change = new EventEmitter();
+        /** Event emitted when the checkbox's `indeterminate` value changes. */
+        this.indeterminateChange = new EventEmitter();
         /**
          * Called when the checkbox is blurred. Needed to properly implement ControlValueAccessor.
          * @docs-private
@@ -147,7 +148,10 @@ export var MdCheckbox = (function () {
         },
         set: function (checked) {
             if (checked != this.checked) {
-                this._indeterminate = false;
+                if (this._indeterminate) {
+                    this._indeterminate = false;
+                    this.indeterminateChange.emit(this._indeterminate);
+                }
                 this._checked = checked;
                 this._transitionCheckState(this._checked ? TransitionCheckState.Checked : TransitionCheckState.Unchecked);
                 this._changeDetectorRef.markForCheck();
@@ -170,12 +174,16 @@ export var MdCheckbox = (function () {
             return this._indeterminate;
         },
         set: function (indeterminate) {
+            var changed = indeterminate != this._indeterminate;
             this._indeterminate = indeterminate;
             if (this._indeterminate) {
                 this._transitionCheckState(TransitionCheckState.Indeterminate);
             }
             else {
                 this._transitionCheckState(this.checked ? TransitionCheckState.Checked : TransitionCheckState.Unchecked);
+            }
+            if (changed) {
+                this.indeterminateChange.emit(this._indeterminate);
             }
         },
         enumerable: true,
@@ -195,7 +203,7 @@ export var MdCheckbox = (function () {
     };
     MdCheckbox.prototype._setElementColor = function (color, isAdd) {
         if (color != null && color != '') {
-            this._renderer.setElementClass(this._elementRef.nativeElement, "md-" + color, isAdd);
+            this._renderer.setElementClass(this._elementRef.nativeElement, "mat-" + color, isAdd);
         }
     };
     MdCheckbox.prototype._isRippleDisabled = function () {
@@ -325,7 +333,7 @@ export var MdCheckbox = (function () {
                 animSuffix = newState === TransitionCheckState.Checked ?
                     'indeterminate-checked' : 'indeterminate-unchecked';
         }
-        return "md-checkbox-anim-" + animSuffix;
+        return "mat-checkbox-anim-" + animSuffix;
     };
     MdCheckbox.prototype._getHostElement = function () {
         return this._elementRef.nativeElement;
@@ -365,7 +373,7 @@ export var MdCheckbox = (function () {
     __decorate([
         Input(), 
         __metadata('design:type', Number)
-    ], MdCheckbox.prototype, "tabindex", void 0);
+    ], MdCheckbox.prototype, "tabIndex", void 0);
     __decorate([
         Input(), 
         __metadata('design:type', String)
@@ -374,6 +382,10 @@ export var MdCheckbox = (function () {
         Output(), 
         __metadata('design:type', EventEmitter)
     ], MdCheckbox.prototype, "change", void 0);
+    __decorate([
+        Output(), 
+        __metadata('design:type', EventEmitter)
+    ], MdCheckbox.prototype, "indeterminateChange", void 0);
     __decorate([
         ViewChild('input'), 
         __metadata('design:type', ElementRef)
@@ -392,14 +404,15 @@ export var MdCheckbox = (function () {
     ], MdCheckbox.prototype, "color", null);
     MdCheckbox = __decorate([
         Component({selector: 'md-checkbox, mat-checkbox',
-            template: "<label class=\"md-checkbox-layout\"><div class=\"md-checkbox-inner-container\"><input #input class=\"md-checkbox-input cdk-visually-hidden\" type=\"checkbox\" [id]=\"inputId\" [required]=\"required\" [checked]=\"checked\" [disabled]=\"disabled\" [name]=\"name\" [tabIndex]=\"tabindex\" [indeterminate]=\"indeterminate\" [attr.aria-label]=\"ariaLabel\" [attr.aria-labelledby]=\"ariaLabelledby\" (focus)=\"_onInputFocus()\" (blur)=\"_onInputBlur()\" (change)=\"_onInteractionEvent($event)\" (click)=\"_onInputClick($event)\"><div md-ripple *ngIf=\"!_isRippleDisabled()\" class=\"md-checkbox-ripple\" [mdRippleTrigger]=\"_getHostElement()\" [mdRippleCentered]=\"true\" [mdRippleSpeedFactor]=\"0.3\" mdRippleBackgroundColor=\"rgba(0, 0, 0, 0)\"></div><div class=\"md-checkbox-frame\"></div><div class=\"md-checkbox-background\"><svg version=\"1.1\" class=\"md-checkbox-checkmark\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" xml:space=\"preserve\"><path class=\"md-checkbox-checkmark-path\" fill=\"none\" stroke=\"white\" d=\"M4.1,12.7 9,17.6 20.3,6.3\"/></svg><div class=\"md-checkbox-mixedmark\"></div></div></div><span class=\"md-checkbox-label\"><ng-content></ng-content></span></label>",
-            styles: [".md-checkbox-frame,.md-checkbox-unchecked .md-checkbox-background{background-color:transparent}@keyframes md-checkbox-fade-in-background{0%{opacity:0}50%{opacity:1}}@keyframes md-checkbox-fade-out-background{0%,50%{opacity:1}100%{opacity:0}}@keyframes md-checkbox-unchecked-checked-checkmark-path{0%,50%{stroke-dashoffset:22.91026}50%{animation-timing-function:cubic-bezier(0,0,.2,.1)}100%{stroke-dashoffset:0}}@keyframes md-checkbox-unchecked-indeterminate-mixedmark{0%,68.2%{transform:scaleX(0)}68.2%{animation-timing-function:cubic-bezier(0,0,0,1)}100%{transform:scaleX(1)}}@keyframes md-checkbox-checked-unchecked-checkmark-path{from{animation-timing-function:cubic-bezier(.4,0,1,1);stroke-dashoffset:0}to{stroke-dashoffset:-22.91026}}@keyframes md-checkbox-checked-indeterminate-checkmark{from{animation-timing-function:cubic-bezier(0,0,.2,.1);opacity:1;transform:rotate(0)}to{opacity:0;transform:rotate(45deg)}}@keyframes md-checkbox-indeterminate-checked-checkmark{from{animation-timing-function:cubic-bezier(.14,0,0,1);opacity:0;transform:rotate(45deg)}to{opacity:1;transform:rotate(360deg)}}@keyframes md-checkbox-checked-indeterminate-mixedmark{from{animation-timing-function:cubic-bezier(0,0,.2,.1);opacity:0;transform:rotate(-45deg)}to{opacity:1;transform:rotate(0)}}@keyframes md-checkbox-indeterminate-checked-mixedmark{from{animation-timing-function:cubic-bezier(.14,0,0,1);opacity:1;transform:rotate(0)}to{opacity:0;transform:rotate(315deg)}}@keyframes md-checkbox-indeterminate-unchecked-mixedmark{0%{animation-timing-function:linear;opacity:1;transform:scaleX(1)}100%,32.8%{opacity:0;transform:scaleX(0)}}.md-checkbox-background,.md-checkbox-checkmark,.md-checkbox-frame{bottom:0;left:0;position:absolute;right:0;top:0}.md-checkbox-checkmark,.md-checkbox-mixedmark{width:calc(100% - 4px)}.md-checkbox-background,.md-checkbox-frame{border-radius:2px;box-sizing:border-box;pointer-events:none}md-checkbox{cursor:pointer;transition:background .4s cubic-bezier(.25,.8,.25,1),box-shadow 280ms cubic-bezier(.4,0,.2,1)}.md-checkbox-layout{cursor:inherit;align-items:baseline;vertical-align:middle;display:inline-flex}.md-checkbox-inner-container{display:inline-block;height:20px;line-height:0;margin:auto 8px auto auto;order:0;position:relative;vertical-align:middle;white-space:nowrap;width:20px;flex-shrink:0}[dir=rtl] .md-checkbox-inner-container{margin-left:8px;margin-right:auto}.md-checkbox-layout .md-checkbox-label{line-height:24px}.md-checkbox-frame{border:2px solid;transition:border-color 90ms cubic-bezier(0,0,.2,.1);will-change:border-color}.md-checkbox-background{align-items:center;display:inline-flex;justify-content:center;transition:background-color 90ms cubic-bezier(0,0,.2,.1),opacity 90ms cubic-bezier(0,0,.2,.1);will-change:background-color,opacity}.md-checkbox-checkmark{width:100%}.md-checkbox-checkmark-path{stroke-dashoffset:22.91026;stroke-dasharray:22.91026;stroke-width:2.67px}.md-checkbox-checked .md-checkbox-checkmark-path,.md-checkbox-indeterminate .md-checkbox-checkmark-path{stroke-dashoffset:0}.md-checkbox-mixedmark{height:2px;opacity:0;transform:scaleX(0) rotate(0)}.md-checkbox-label-before .md-checkbox-inner-container{order:1;margin-left:8px;margin-right:auto}[dir=rtl] .md-checkbox-label-before .md-checkbox-inner-container{margin-left:auto;margin-right:8px}.md-checkbox-checked .md-checkbox-checkmark{opacity:1}.md-checkbox-checked .md-checkbox-mixedmark{transform:scaleX(1) rotate(-45deg)}.md-checkbox-indeterminate .md-checkbox-checkmark{opacity:0;transform:rotate(45deg)}.md-checkbox-indeterminate .md-checkbox-mixedmark{opacity:1;transform:scaleX(1) rotate(0)}.md-checkbox-disabled{cursor:default}.md-checkbox-anim-unchecked-checked .md-checkbox-background{animation:180ms linear 0s md-checkbox-fade-in-background}.md-checkbox-anim-unchecked-checked .md-checkbox-checkmark-path{animation:180ms linear 0s md-checkbox-unchecked-checked-checkmark-path}.md-checkbox-anim-unchecked-indeterminate .md-checkbox-background{animation:180ms linear 0s md-checkbox-fade-in-background}.md-checkbox-anim-unchecked-indeterminate .md-checkbox-mixedmark{animation:90ms linear 0s md-checkbox-unchecked-indeterminate-mixedmark}.md-checkbox-anim-checked-unchecked .md-checkbox-background{animation:180ms linear 0s md-checkbox-fade-out-background}.md-checkbox-anim-checked-unchecked .md-checkbox-checkmark-path{animation:90ms linear 0s md-checkbox-checked-unchecked-checkmark-path}.md-checkbox-anim-checked-indeterminate .md-checkbox-checkmark{animation:90ms linear 0s md-checkbox-checked-indeterminate-checkmark}.md-checkbox-anim-checked-indeterminate .md-checkbox-mixedmark{animation:90ms linear 0s md-checkbox-checked-indeterminate-mixedmark}.md-checkbox-anim-indeterminate-checked .md-checkbox-checkmark{animation:.5s linear 0s md-checkbox-indeterminate-checked-checkmark}.md-checkbox-anim-indeterminate-checked .md-checkbox-mixedmark{animation:.5s linear 0s md-checkbox-indeterminate-checked-mixedmark}.md-checkbox-anim-indeterminate-unchecked .md-checkbox-background{animation:180ms linear 0s md-checkbox-fade-out-background}.md-checkbox-anim-indeterminate-unchecked .md-checkbox-mixedmark{animation:.3s linear 0s md-checkbox-indeterminate-unchecked-mixedmark}.md-checkbox-input{bottom:0;left:50%}.md-checkbox-ripple{position:absolute;left:-15px;top:-15px;right:-15px;bottom:-15px;border-radius:50%;z-index:1;pointer-events:none}"],
+            template: "<label class=\"mat-checkbox-layout\"><div class=\"mat-checkbox-inner-container\"><input #input class=\"mat-checkbox-input cdk-visually-hidden\" type=\"checkbox\" [id]=\"inputId\" [required]=\"required\" [checked]=\"checked\" [disabled]=\"disabled\" [name]=\"name\" [tabIndex]=\"tabIndex\" [indeterminate]=\"indeterminate\" [attr.aria-label]=\"ariaLabel\" [attr.aria-labelledby]=\"ariaLabelledby\" (focus)=\"_onInputFocus()\" (blur)=\"_onInputBlur()\" (change)=\"_onInteractionEvent($event)\" (click)=\"_onInputClick($event)\"><div md-ripple *ngIf=\"!_isRippleDisabled()\" class=\"mat-checkbox-ripple\" [mdRippleTrigger]=\"_getHostElement()\" [mdRippleCentered]=\"true\" [mdRippleSpeedFactor]=\"0.3\"></div><div class=\"mat-checkbox-frame\"></div><div class=\"mat-checkbox-background\"><svg version=\"1.1\" class=\"mat-checkbox-checkmark\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" xml:space=\"preserve\"><path class=\"mat-checkbox-checkmark-path\" fill=\"none\" stroke=\"white\" d=\"M4.1,12.7 9,17.6 20.3,6.3\"/></svg><div class=\"mat-checkbox-mixedmark\"></div></div></div><span class=\"mat-checkbox-label\"><ng-content></ng-content></span></label>",
+            styles: [".mat-checkbox-frame,.mat-checkbox-unchecked .mat-checkbox-background{background-color:transparent}@keyframes mat-checkbox-fade-in-background{0%{opacity:0}50%{opacity:1}}@keyframes mat-checkbox-fade-out-background{0%,50%{opacity:1}100%{opacity:0}}@keyframes mat-checkbox-unchecked-checked-checkmark-path{0%,50%{stroke-dashoffset:22.91026}50%{animation-timing-function:cubic-bezier(0,0,.2,.1)}100%{stroke-dashoffset:0}}@keyframes mat-checkbox-unchecked-indeterminate-mixedmark{0%,68.2%{transform:scaleX(0)}68.2%{animation-timing-function:cubic-bezier(0,0,0,1)}100%{transform:scaleX(1)}}@keyframes mat-checkbox-checked-unchecked-checkmark-path{from{animation-timing-function:cubic-bezier(.4,0,1,1);stroke-dashoffset:0}to{stroke-dashoffset:-22.91026}}@keyframes mat-checkbox-checked-indeterminate-checkmark{from{animation-timing-function:cubic-bezier(0,0,.2,.1);opacity:1;transform:rotate(0)}to{opacity:0;transform:rotate(45deg)}}@keyframes mat-checkbox-indeterminate-checked-checkmark{from{animation-timing-function:cubic-bezier(.14,0,0,1);opacity:0;transform:rotate(45deg)}to{opacity:1;transform:rotate(360deg)}}@keyframes mat-checkbox-checked-indeterminate-mixedmark{from{animation-timing-function:cubic-bezier(0,0,.2,.1);opacity:0;transform:rotate(-45deg)}to{opacity:1;transform:rotate(0)}}@keyframes mat-checkbox-indeterminate-checked-mixedmark{from{animation-timing-function:cubic-bezier(.14,0,0,1);opacity:1;transform:rotate(0)}to{opacity:0;transform:rotate(315deg)}}@keyframes mat-checkbox-indeterminate-unchecked-mixedmark{0%{animation-timing-function:linear;opacity:1;transform:scaleX(1)}100%,32.8%{opacity:0;transform:scaleX(0)}}.mat-checkbox-background,.mat-checkbox-checkmark,.mat-checkbox-frame{bottom:0;left:0;position:absolute;right:0;top:0}.mat-checkbox-checkmark,.mat-checkbox-mixedmark{width:calc(100% - 4px)}.mat-checkbox-background,.mat-checkbox-frame{border-radius:2px;box-sizing:border-box;pointer-events:none}.mat-checkbox{cursor:pointer;font-family:Roboto,\"Helvetica Neue\",sans-serif;transition:background .4s cubic-bezier(.25,.8,.25,1),box-shadow 280ms cubic-bezier(.4,0,.2,1)}.mat-checkbox-layout{cursor:inherit;align-items:baseline;vertical-align:middle;display:inline-flex}.mat-checkbox-inner-container{display:inline-block;height:20px;line-height:0;margin:auto 8px auto auto;order:0;position:relative;vertical-align:middle;white-space:nowrap;width:20px;flex-shrink:0}[dir=rtl] .mat-checkbox-inner-container{margin-left:8px;margin-right:auto}.mat-checkbox-layout .mat-checkbox-label{line-height:24px}.mat-checkbox-frame{transition:border-color 90ms cubic-bezier(0,0,.2,.1);border-width:2px;border-style:solid}.mat-checkbox-background{align-items:center;display:inline-flex;justify-content:center;transition:background-color 90ms cubic-bezier(0,0,.2,.1),opacity 90ms cubic-bezier(0,0,.2,.1)}.mat-checkbox-checkmark{width:100%}.mat-checkbox-checkmark-path{stroke-dashoffset:22.91026;stroke-dasharray:22.91026;stroke-width:2.67px}.mat-checkbox-checked .mat-checkbox-checkmark-path,.mat-checkbox-indeterminate .mat-checkbox-checkmark-path{stroke-dashoffset:0}.mat-checkbox-mixedmark{height:2px;opacity:0;transform:scaleX(0) rotate(0)}.mat-checkbox-label-before .mat-checkbox-inner-container{order:1;margin-left:8px;margin-right:auto}[dir=rtl] .mat-checkbox-label-before .mat-checkbox-inner-container{margin-left:auto;margin-right:8px}.mat-checkbox-checked .mat-checkbox-checkmark{opacity:1}.mat-checkbox-checked .mat-checkbox-mixedmark{transform:scaleX(1) rotate(-45deg)}.mat-checkbox-indeterminate .mat-checkbox-checkmark{opacity:0;transform:rotate(45deg)}.mat-checkbox-indeterminate .mat-checkbox-mixedmark{opacity:1;transform:scaleX(1) rotate(0)}.mat-checkbox-disabled{cursor:default}.mat-checkbox-anim-unchecked-checked .mat-checkbox-background{animation:180ms linear 0s mat-checkbox-fade-in-background}.mat-checkbox-anim-unchecked-checked .mat-checkbox-checkmark-path{animation:180ms linear 0s mat-checkbox-unchecked-checked-checkmark-path}.mat-checkbox-anim-unchecked-indeterminate .mat-checkbox-background{animation:180ms linear 0s mat-checkbox-fade-in-background}.mat-checkbox-anim-unchecked-indeterminate .mat-checkbox-mixedmark{animation:90ms linear 0s mat-checkbox-unchecked-indeterminate-mixedmark}.mat-checkbox-anim-checked-unchecked .mat-checkbox-background{animation:180ms linear 0s mat-checkbox-fade-out-background}.mat-checkbox-anim-checked-unchecked .mat-checkbox-checkmark-path{animation:90ms linear 0s mat-checkbox-checked-unchecked-checkmark-path}.mat-checkbox-anim-checked-indeterminate .mat-checkbox-checkmark{animation:90ms linear 0s mat-checkbox-checked-indeterminate-checkmark}.mat-checkbox-anim-checked-indeterminate .mat-checkbox-mixedmark{animation:90ms linear 0s mat-checkbox-checked-indeterminate-mixedmark}.mat-checkbox-anim-indeterminate-checked .mat-checkbox-checkmark{animation:.5s linear 0s mat-checkbox-indeterminate-checked-checkmark}.mat-checkbox-anim-indeterminate-checked .mat-checkbox-mixedmark{animation:.5s linear 0s mat-checkbox-indeterminate-checked-mixedmark}.mat-checkbox-anim-indeterminate-unchecked .mat-checkbox-background{animation:180ms linear 0s mat-checkbox-fade-out-background}.mat-checkbox-anim-indeterminate-unchecked .mat-checkbox-mixedmark{animation:.3s linear 0s mat-checkbox-indeterminate-unchecked-mixedmark}.mat-checkbox-input{bottom:0;left:50%}.mat-checkbox-ripple{position:absolute;left:-15px;top:-15px;right:-15px;bottom:-15px;border-radius:50%;z-index:1;pointer-events:none}"],
             host: {
-                '[class.md-checkbox-indeterminate]': 'indeterminate',
-                '[class.md-checkbox-checked]': 'checked',
-                '[class.md-checkbox-disabled]': 'disabled',
-                '[class.md-checkbox-label-before]': 'labelPosition == "before"',
-                '[class.md-checkbox-focused]': '_hasFocus',
+                '[class.mat-checkbox]': 'true',
+                '[class.mat-checkbox-indeterminate]': 'indeterminate',
+                '[class.mat-checkbox-checked]': 'checked',
+                '[class.mat-checkbox-disabled]': 'disabled',
+                '[class.mat-checkbox-label-before]': 'labelPosition == "before"',
+                '[class.mat-checkbox-focused]': '_hasFocus',
             },
             providers: [MD_CHECKBOX_CONTROL_VALUE_ACCESSOR],
             encapsulation: ViewEncapsulation.None,
@@ -412,21 +425,21 @@ export var MdCheckbox = (function () {
 export var MdCheckboxModule = (function () {
     function MdCheckboxModule() {
     }
+    /** @deprecated */
     MdCheckboxModule.forRoot = function () {
         return {
             ngModule: MdCheckboxModule,
-            providers: [ViewportRuler]
+            providers: []
         };
     };
     MdCheckboxModule = __decorate([
         NgModule({
-            imports: [CommonModule, MdRippleModule, DefaultStyleCompatibilityModeModule],
-            exports: [MdCheckbox, DefaultStyleCompatibilityModeModule],
+            imports: [CommonModule, MdRippleModule, CompatibilityModule],
+            exports: [MdCheckbox, CompatibilityModule],
             declarations: [MdCheckbox],
         }), 
         __metadata('design:paramtypes', [])
     ], MdCheckboxModule);
     return MdCheckboxModule;
 }());
-
 //# sourceMappingURL=checkbox.js.map

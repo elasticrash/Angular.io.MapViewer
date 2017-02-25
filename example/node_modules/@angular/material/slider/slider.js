@@ -13,7 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { NgModule, Component, ElementRef, Input, Output, ViewEncapsulation, forwardRef, EventEmitter, Optional } from '@angular/core';
 import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
-import { GestureConfig, coerceBooleanProperty, coerceNumberProperty, DefaultStyleCompatibilityModeModule } from '../core';
+import { GestureConfig, coerceBooleanProperty, coerceNumberProperty, CompatibilityModule } from '../core';
 import { Dir } from '../core/rtl/dir';
 import { CommonModule } from '@angular/common';
 import { PAGE_UP, PAGE_DOWN, END, HOME, LEFT_ARROW, UP_ARROW, RIGHT_ARROW, DOWN_ARROW } from '../core/keyboard/keycodes';
@@ -22,6 +22,12 @@ import { PAGE_UP, PAGE_DOWN, END, HOME, LEFT_ARROW, UP_ARROW, RIGHT_ARROW, DOWN_
  * the default separation we chose.
  */
 var MIN_AUTO_TICK_SEPARATION = 30;
+/** The thumb gap size for a disabled slider. */
+var DISABLED_THUMB_GAP = 7;
+/** The thumb gap size for a non-active slider at its minimum value. */
+var MIN_VALUE_NONACTIVE_THUMB_GAP = 7;
+/** The thumb gap size for an active slider at its minimum value. */
+var MIN_VALUE_ACTIVE_THUMB_GAP = 10;
 /**
  * Provider Expression that allows md-slider to register as a ControlValueAccessor.
  * This allows it to support [(ngModel)] and [formControl].
@@ -51,8 +57,9 @@ export var MdSlider = (function () {
         this._disabled = false;
         this._thumbLabel = false;
         this._controlValueAccessorChangeFn = function () { };
-        /** The last value for which a change event was emitted. */
-        this._lastEmittedValue = null;
+        /** The last values for which a change or input event was emitted. */
+        this._lastChangeValue = null;
+        this._lastInputValue = null;
         /** onTouch function registered via registerOnTouch (ControlValueAccessor). */
         this.onTouched = function () { };
         /**
@@ -76,6 +83,8 @@ export var MdSlider = (function () {
         this._vertical = false;
         /** Event emitted when the slider value has changed. */
         this.change = new EventEmitter();
+        /** Event emitted when the slider thumb moves. */
+        this.input = new EventEmitter();
         this._renderer = new SliderRenderer(elementRef);
     }
     Object.defineProperty(MdSlider.prototype, "disabled", {
@@ -102,7 +111,12 @@ export var MdSlider = (function () {
     Object.defineProperty(MdSlider.prototype, "step", {
         /** The values at which the thumb will snap. */
         get: function () { return this._step; },
-        set: function (v) { this._step = coerceNumberProperty(v, this._step); },
+        set: function (v) {
+            this._step = coerceNumberProperty(v, this._step);
+            if (this._step % 1 !== 0) {
+                this._roundLabelTo = this._step.toString().split('.').pop().length;
+            }
+        },
         enumerable: true,
         configurable: true
     });
@@ -154,7 +168,7 @@ export var MdSlider = (function () {
         configurable: true
     });
     Object.defineProperty(MdSlider.prototype, "min", {
-        /** The miniumum value that the slider can have. */
+        /** The minimum value that the slider can have. */
         get: function () {
             return this._min;
         },
@@ -195,6 +209,20 @@ export var MdSlider = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(MdSlider.prototype, "displayValue", {
+        /** The value to be used for display purposes. */
+        get: function () {
+            // Note that this could be improved further by rounding something like 0.999 to 1 or
+            // 0.899 to 0.9, however it is very performance sensitive, because it gets called on
+            // every change detection cycle.
+            if (this._roundLabelTo && this.value % 1 !== 0) {
+                return this.value.toFixed(this._roundLabelTo);
+            }
+            return this.value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(MdSlider.prototype, "invertAxis", {
         /**
          * Whether the axis of the slider is inverted.
@@ -219,12 +247,50 @@ export var MdSlider = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(MdSlider.prototype, "_isMinValue", {
+        /** Whether the slider is at its minimum value. */
+        get: function () {
+            return this.percent === 0;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MdSlider.prototype, "_thumbGap", {
+        /**
+         * The amount of space to leave between the slider thumb and the track fill & track background
+         * elements.
+         */
+        get: function () {
+            if (this.disabled) {
+                return DISABLED_THUMB_GAP;
+            }
+            if (this._isMinValue && !this.thumbLabel) {
+                return this._isActive ? MIN_VALUE_ACTIVE_THUMB_GAP : MIN_VALUE_NONACTIVE_THUMB_GAP;
+            }
+            return 0;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MdSlider.prototype, "trackBackgroundStyles", {
+        /** CSS styles for the track background element. */
+        get: function () {
+            var axis = this.vertical ? 'Y' : 'X';
+            var sign = this.invertMouseCoords ? '-' : '';
+            return {
+                'transform': "translate" + axis + "(" + sign + this._thumbGap + "px) scale" + axis + "(" + (1 - this.percent) + ")"
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(MdSlider.prototype, "trackFillStyles", {
         /** CSS styles for the track fill element. */
         get: function () {
             var axis = this.vertical ? 'Y' : 'X';
+            var sign = this.invertMouseCoords ? '' : '-';
             return {
-                'transform': "scale" + axis + "(" + this.percent + ")"
+                'transform': "translate" + axis + "(" + sign + this._thumbGap + "px) scale" + axis + "(" + this.percent + ")"
             };
         },
         enumerable: true,
@@ -256,11 +322,18 @@ export var MdSlider = (function () {
             // ticks 180 degrees so we're really cutting off the end edge abd not the start.
             var sign = !this.vertical && this.direction == 'rtl' ? '-' : '';
             var rotate = !this.vertical && this.direction == 'rtl' ? ' rotate(180deg)' : '';
-            return {
+            var styles = {
                 'backgroundSize': backgroundSize,
                 // Without translateZ ticks sometimes jitter as the slider moves on Chrome & Firefox.
                 'transform': "translateZ(0) translate" + axis + "(" + sign + tickSize / 2 + "%)" + rotate
             };
+            if (this._isMinValue && this._thumbGap) {
+                var side = this.vertical ?
+                    (this.invertAxis ? 'Bottom' : 'Top') :
+                    (this.invertAxis ? 'Right' : 'Left');
+                styles[("padding" + side)] = this._thumbGap + "px";
+            }
+            return styles;
         },
         enumerable: true,
         configurable: true
@@ -304,6 +377,8 @@ export var MdSlider = (function () {
         this._isSliding = false;
         this._renderer.addFocus();
         this._updateValueFromPosition({ x: event.clientX, y: event.clientY });
+        /* Emits a change and input event if the value changed. */
+        this._emitInputEvent();
         this._emitValueIfChanged();
     };
     MdSlider.prototype._onSlide = function (event) {
@@ -313,6 +388,8 @@ export var MdSlider = (function () {
         // Prevent the slide from selecting anything else.
         event.preventDefault();
         this._updateValueFromPosition({ x: event.center.x, y: event.center.y });
+        // Native range elements always emit `input` events when the value changed while sliding.
+        this._emitInputEvent();
     };
     MdSlider.prototype._onSlideStart = function (event) {
         if (this.disabled) {
@@ -376,11 +453,17 @@ export var MdSlider = (function () {
                 // it.
                 return;
         }
+        this._isSliding = true;
         event.preventDefault();
+    };
+    MdSlider.prototype._onKeyup = function () {
+        this._isSliding = false;
     };
     /** Increments the slider by the given number of steps (negative number decrements). */
     MdSlider.prototype._increment = function (numSteps) {
         this.value = this._clamp(this.value + this.step * numSteps, this.min, this.max);
+        this._emitInputEvent();
+        this._emitValueIfChanged();
     };
     /** Calculate the new value from the new physical location. The value will always be snapped. */
     MdSlider.prototype._updateValueFromPosition = function (pos) {
@@ -404,13 +487,19 @@ export var MdSlider = (function () {
     };
     /** Emits a change event if the current value is different from the last emitted value. */
     MdSlider.prototype._emitValueIfChanged = function () {
-        if (this.value != this._lastEmittedValue) {
-            var event_1 = new MdSliderChange();
-            event_1.source = this;
-            event_1.value = this.value;
-            this._lastEmittedValue = this.value;
+        if (this.value != this._lastChangeValue) {
+            var event_1 = this._createChangeEvent();
+            this._lastChangeValue = this.value;
             this._controlValueAccessorChangeFn(this.value);
             this.change.emit(event_1);
+        }
+    };
+    /** Emits an input event when the current value is different from the last emitted value. */
+    MdSlider.prototype._emitInputEvent = function () {
+        if (this.value != this._lastInputValue) {
+            var event_2 = this._createChangeEvent();
+            this._lastInputValue = this.value;
+            this.input.emit(event_2);
         }
     };
     /** Updates the amount of space between ticks as a percentage of the width of the slider. */
@@ -428,6 +517,14 @@ export var MdSlider = (function () {
         else {
             this._tickIntervalPercent = this.tickInterval * this.step / (this.max - this.min);
         }
+    };
+    /** Creates a slider change object from the specified value. */
+    MdSlider.prototype._createChangeEvent = function (value) {
+        if (value === void 0) { value = this.value; }
+        var event = new MdSliderChange();
+        event.source = this;
+        event.value = value;
+        return event;
     };
     /** Calculates the percentage of the slider that a value is. */
     MdSlider.prototype._calculatePercentage = function (value) {
@@ -522,13 +619,19 @@ export var MdSlider = (function () {
         Output(), 
         __metadata('design:type', Object)
     ], MdSlider.prototype, "change", void 0);
+    __decorate([
+        Output(), 
+        __metadata('design:type', Object)
+    ], MdSlider.prototype, "input", void 0);
     MdSlider = __decorate([
         Component({selector: 'md-slider, mat-slider',
             providers: [MD_SLIDER_VALUE_ACCESSOR],
             host: {
+                '[class.mat-slider]': 'true',
                 '(blur)': '_onBlur()',
                 '(click)': '_onClick($event)',
                 '(keydown)': '_onKeydown($event)',
+                '(keyup)': '_onKeyup()',
                 '(mouseenter)': '_onMouseenter()',
                 '(slide)': '_onSlide($event)',
                 '(slideend)': '_onSlideEnd()',
@@ -539,17 +642,19 @@ export var MdSlider = (function () {
                 '[attr.aria-valuemax]': 'max',
                 '[attr.aria-valuemin]': 'min',
                 '[attr.aria-valuenow]': 'value',
-                '[class.md-slider-active]': '_isActive',
-                '[class.md-slider-disabled]': 'disabled',
-                '[class.md-slider-has-ticks]': 'tickInterval',
-                '[class.md-slider-horizontal]': '!vertical',
-                '[class.md-slider-axis-inverted]': 'invertAxis',
-                '[class.md-slider-sliding]': '_isSliding',
-                '[class.md-slider-thumb-label-showing]': 'thumbLabel',
-                '[class.md-slider-vertical]': 'vertical',
+                '[class.mat-slider-active]': '_isActive',
+                '[class.mat-slider-disabled]': 'disabled',
+                '[class.mat-slider-has-ticks]': 'tickInterval',
+                '[class.mat-slider-horizontal]': '!vertical',
+                '[class.mat-slider-axis-inverted]': 'invertAxis',
+                '[class.mat-slider-sliding]': '_isSliding',
+                '[class.mat-slider-thumb-label-showing]': 'thumbLabel',
+                '[class.mat-slider-vertical]': 'vertical',
+                '[class.mat-slider-min-value]': '_isMinValue',
+                '[class.mat-slider-hide-last-tick]': '_isMinValue && _thumbGap && invertAxis',
             },
-            template: "<div class=\"md-slider-track\"><div class=\"md-slider-track-fill\" [ngStyle]=\"trackFillStyles\"></div><div class=\"md-slider-ticks-container\" [ngStyle]=\"ticksContainerStyles\"><div class=\"md-slider-ticks\" [ngStyle]=\"ticksStyles\"></div></div><div class=\"md-slider-thumb-container\" [ngStyle]=\"thumbContainerStyles\"><div class=\"md-slider-thumb\"></div><div class=\"md-slider-thumb-label\"><span class=\"md-slider-thumb-label-text\">{{value}}</span></div></div></div>",
-            styles: ["md-slider{display:inline-block;position:relative;box-sizing:border-box;padding:8px;outline:0;vertical-align:middle}.md-slider-track{position:absolute}.md-slider-track-fill{position:absolute;transform-origin:0 0;transition:transform .4s cubic-bezier(.25,.8,.25,1)}.md-slider-ticks-container{position:absolute;left:0;top:0;overflow:hidden}.md-slider-ticks{opacity:0;transition:opacity .4s cubic-bezier(.25,.8,.25,1)}.md-slider-thumb,.md-slider-thumb-container{transition:transform .4s cubic-bezier(.25,.8,.25,1);position:absolute}.md-slider-thumb-container{z-index:1}.md-slider-thumb{right:-10px;bottom:-10px;width:20px;height:20px;border-radius:50%;transform:scale(.7)}.md-slider-thumb-label{display:none;align-items:center;justify-content:center;position:absolute;width:28px;height:28px;border-radius:50%;transition:.3s cubic-bezier(.35,0,.25,1);transition-property:transform,border-radius}.md-slider-thumb-label-text{z-index:1;font-size:12px;font-weight:700;opacity:0;transition:opacity .3s cubic-bezier(.35,0,.25,1)}.md-slider-sliding .md-slider-thumb-container,.md-slider-sliding .md-slider-track-fill{transition-duration:0s}.md-slider-has-ticks .md-slider-track::after{content:'';position:absolute;border:0 solid rgba(0,0,0,.6);opacity:0;transition:opacity .3s cubic-bezier(.35,0,.25,1)}.md-slider-active .md-slider-thumb-label-text,.md-slider-has-ticks.md-slider-active .md-slider-ticks,.md-slider-has-ticks.md-slider-active .md-slider-track::after,.md-slider-has-ticks:hover .md-slider-ticks,.md-slider-has-ticks:hover .md-slider-track::after{opacity:1}.md-slider-thumb-label-showing .md-slider-thumb-label{display:flex}.md-slider-axis-inverted .md-slider-track-fill{transform-origin:100% 100%}.md-slider-active .md-slider-thumb{transform:scale(1)}.md-slider-active.md-slider-thumb-label-showing .md-slider-thumb{transform:scale(0)}.md-slider-active .md-slider-thumb-label{border-radius:50% 50% 0}.md-slider-horizontal{height:48px;min-width:128px}.md-slider-horizontal .md-slider-track{height:2px;top:23px;left:8px;right:8px}.md-slider-horizontal .md-slider-track::after{height:2px;border-left-width:2px;right:0}.md-slider-horizontal .md-slider-track-fill{height:2px;width:100%;transform:scaleX(0)}.md-slider-horizontal .md-slider-ticks-container{height:2px;width:100%}.md-slider-horizontal .md-slider-ticks{background:repeating-linear-gradient(to right,rgba(0,0,0,.6),rgba(0,0,0,.6) 2px,transparent 0,transparent);background:-moz-repeating-linear-gradient(.0001deg,rgba(0,0,0,.6),rgba(0,0,0,.6) 2px,transparent 0,transparent);height:2px;width:100%}.md-slider-horizontal .md-slider-thumb-container{width:100%;height:0;top:50%}.md-slider-horizontal .md-slider-thumb-label{right:-14px;top:-40px;transform:translateY(26px) scale(.4) rotate(45deg)}.md-slider-horizontal .md-slider-thumb-label-text{transform:rotate(-45deg)}.md-slider-horizontal.md-slider-active .md-slider-thumb-label{transform:rotate(45deg)}.md-slider-vertical{width:48px;min-height:128px}.md-slider-vertical .md-slider-track{width:2px;top:8px;bottom:8px;left:23px}.md-slider-vertical .md-slider-track::after{width:2px;border-top-width:2px;bottom:0}.md-slider-vertical .md-slider-track-fill{height:100%;width:2px;transform:scaleY(0)}.md-slider-vertical .md-slider-ticks-container{width:2px;height:100%}.md-slider-vertical .md-slider-ticks{background:repeating-linear-gradient(to bottom,rgba(0,0,0,.6),rgba(0,0,0,.6) 2px,transparent 0,transparent);width:2px;height:100%}.md-slider-vertical .md-slider-thumb-container{height:100%;width:0;left:50%}.md-slider-vertical .md-slider-thumb-label{bottom:-14px;left:-40px;transform:translateX(26px) scale(.4) rotate(-45deg)}.md-slider-vertical .md-slider-thumb-label-text{transform:rotate(45deg)}.md-slider-vertical.md-slider-active .md-slider-thumb-label{transform:rotate(-45deg)}[dir=rtl] .md-slider-track::after{left:0;right:auto}[dir=rtl] .md-slider-horizontal .md-slider-track-fill{transform-origin:100% 100%}[dir=rtl] .md-slider-horizontal.md-slider-axis-inverted .md-slider-track-fill{transform-origin:0 0}"],
+            template: "<div class=\"mat-slider-wrapper\"><div class=\"mat-slider-track-wrapper\"><div class=\"mat-slider-track-background\" [ngStyle]=\"trackBackgroundStyles\"></div><div class=\"mat-slider-track-fill\" [ngStyle]=\"trackFillStyles\"></div></div><div class=\"mat-slider-ticks-container\" [ngStyle]=\"ticksContainerStyles\"><div class=\"mat-slider-ticks\" [ngStyle]=\"ticksStyles\"></div></div><div class=\"mat-slider-thumb-container\" [ngStyle]=\"thumbContainerStyles\"><div class=\"mat-slider-thumb\"></div><div class=\"mat-slider-thumb-label\"><span class=\"mat-slider-thumb-label-text\">{{displayValue}}</span></div></div></div>",
+            styles: [".mat-slider-track-background,.mat-slider-track-fill{transition:transform .4s cubic-bezier(.25,.8,.25,1),background-color .4s cubic-bezier(.25,.8,.25,1)}.mat-slider{display:inline-block;position:relative;box-sizing:border-box;padding:8px;outline:0;vertical-align:middle}.mat-slider-wrapper{position:absolute}.mat-slider-track-wrapper{position:absolute;top:0;left:0;overflow:hidden}.mat-slider-track-fill{position:absolute;transform-origin:0 0}.mat-slider-track-background{position:absolute;transform-origin:100% 100%}.mat-slider-ticks-container{position:absolute;left:0;top:0;overflow:hidden}.mat-slider-ticks{box-sizing:border-box;opacity:0;transition:opacity .4s cubic-bezier(.25,.8,.25,1)}.mat-slider-disabled .mat-slider-ticks{opacity:0}.mat-slider-thumb-container{position:absolute;z-index:1;transition:transform .4s cubic-bezier(.25,.8,.25,1)}.mat-slider-thumb{position:absolute;right:-10px;bottom:-10px;box-sizing:border-box;width:20px;height:20px;border:3px solid transparent;border-radius:50%;transform:scale(.7);transition:transform .4s cubic-bezier(.25,.8,.25,1),background-color .4s cubic-bezier(.25,.8,.25,1),border-color .4s cubic-bezier(.25,.8,.25,1)}.mat-slider-thumb-label{display:none;align-items:center;justify-content:center;position:absolute;width:28px;height:28px;border-radius:50%;transition:transform .4s cubic-bezier(.25,.8,.25,1),border-radius .4s cubic-bezier(.25,.8,.25,1),background-color .4s cubic-bezier(.25,.8,.25,1)}.mat-slider-thumb-label-text{z-index:1;font-size:12px;font-weight:700;opacity:0;transition:opacity .4s cubic-bezier(.25,.8,.25,1)}.mat-slider-sliding .mat-slider-thumb-container,.mat-slider-sliding .mat-slider-track-background,.mat-slider-sliding .mat-slider-track-fill{transition-duration:0s}.mat-slider-has-ticks .mat-slider-wrapper::after{content:'';position:absolute;border:0 solid rgba(0,0,0,.6);opacity:0;transition:opacity .4s cubic-bezier(.25,.8,.25,1)}.mat-slider-active .mat-slider-thumb-label-text,.mat-slider-has-ticks.mat-slider-active .mat-slider-ticks,.mat-slider-has-ticks.mat-slider-active:not(.mat-slider-hide-last-tick) .mat-slider-wrapper::after,.mat-slider-has-ticks:hover .mat-slider-ticks,.mat-slider-has-ticks:hover:not(.mat-slider-hide-last-tick) .mat-slider-wrapper::after{opacity:1}.mat-slider-thumb-label-showing .mat-slider-thumb-label{display:flex}.mat-slider-axis-inverted .mat-slider-track-fill{transform-origin:100% 100%}.mat-slider-axis-inverted .mat-slider-track-background{transform-origin:0 0}.mat-slider-active .mat-slider-thumb{border-width:2px;transform:scale(1)}.mat-slider-active.mat-slider-thumb-label-showing .mat-slider-thumb{transform:scale(0)}.mat-slider-active .mat-slider-thumb-label{border-radius:50% 50% 0}.mat-slider-disabled .mat-slider-thumb{border-width:4px;transform:scale(.5)}.mat-slider-disabled .mat-slider-thumb-label{display:none}.mat-slider-horizontal{height:48px;min-width:128px}.mat-slider-horizontal .mat-slider-wrapper{height:2px;top:23px;left:8px;right:8px}.mat-slider-horizontal .mat-slider-wrapper::after{height:2px;border-left-width:2px;right:0;top:0}.mat-slider-horizontal .mat-slider-track-wrapper{height:2px;width:100%}.mat-slider-horizontal .mat-slider-track-fill{height:2px;width:100%;transform:scaleX(0)}.mat-slider-horizontal .mat-slider-track-background{height:2px;width:100%;transform:scaleX(1)}.mat-slider-horizontal .mat-slider-ticks-container{height:2px;width:100%}.mat-slider-horizontal .mat-slider-ticks{background:repeating-linear-gradient(to right,rgba(0,0,0,.6),rgba(0,0,0,.6) 2px,transparent 0,transparent);background:-moz-repeating-linear-gradient(.0001deg,rgba(0,0,0,.6),rgba(0,0,0,.6) 2px,transparent 0,transparent);background-clip:content-box;height:2px;width:100%}.mat-slider-horizontal .mat-slider-thumb-container{width:100%;height:0;top:50%}.mat-slider-horizontal .mat-slider-thumb-label{right:-14px;top:-40px;transform:translateY(26px) scale(.01) rotate(45deg)}.mat-slider-horizontal .mat-slider-thumb-label-text{transform:rotate(-45deg)}.mat-slider-horizontal.mat-slider-active .mat-slider-thumb-label{transform:rotate(45deg)}.mat-slider-vertical{width:48px;min-height:128px}.mat-slider-vertical .mat-slider-wrapper{width:2px;top:8px;bottom:8px;left:23px}.mat-slider-vertical .mat-slider-wrapper::after{width:2px;border-top-width:2px;bottom:0;left:0}.mat-slider-vertical .mat-slider-track-wrapper{height:100%;width:2px}.mat-slider-vertical .mat-slider-track-fill{height:100%;width:2px;transform:scaleY(0)}.mat-slider-vertical .mat-slider-track-background{height:100%;width:2px;transform:scaleY(1)}.mat-slider-vertical .mat-slider-ticks-container{width:2px;height:100%}.mat-slider-vertical .mat-slider-ticks{background:repeating-linear-gradient(to bottom,rgba(0,0,0,.6),rgba(0,0,0,.6) 2px,transparent 0,transparent);background-clip:content-box;width:2px;height:100%}.mat-slider-vertical .mat-slider-thumb-container{height:100%;width:0;left:50%}.mat-slider-vertical .mat-slider-thumb-label{bottom:-14px;left:-40px;transform:translateX(26px) scale(.01) rotate(-45deg)}.mat-slider-vertical .mat-slider-thumb-label-text{transform:rotate(45deg)}.mat-slider-vertical.mat-slider-active .mat-slider-thumb-label{transform:rotate(-45deg)}[dir=rtl] .mat-slider-wrapper::after{left:0;right:auto}[dir=rtl] .mat-slider-horizontal .mat-slider-track-fill{transform-origin:100% 100%}[dir=rtl] .mat-slider-horizontal .mat-slider-track-background,[dir=rtl] .mat-slider-horizontal.mat-slider-axis-inverted .mat-slider-track-fill{transform-origin:0 0}[dir=rtl] .mat-slider-horizontal.mat-slider-axis-inverted .mat-slider-track-background{transform-origin:100% 100%}"],
             encapsulation: ViewEncapsulation.None,
         }),
         __param(0, Optional()), 
@@ -571,8 +676,8 @@ export var SliderRenderer = (function () {
      * take up.
      */
     SliderRenderer.prototype.getSliderDimensions = function () {
-        var trackElement = this._sliderElement.querySelector('.md-slider-track');
-        return trackElement.getBoundingClientRect();
+        var wrapperElement = this._sliderElement.querySelector('.mat-slider-wrapper');
+        return wrapperElement.getBoundingClientRect();
     };
     /**
      * Focuses the native element.
@@ -586,24 +691,22 @@ export var SliderRenderer = (function () {
 export var MdSliderModule = (function () {
     function MdSliderModule() {
     }
+    /** @deprecated */
     MdSliderModule.forRoot = function () {
         return {
             ngModule: MdSliderModule,
-            providers: [{ provide: HAMMER_GESTURE_CONFIG, useClass: GestureConfig }]
+            providers: []
         };
     };
     MdSliderModule = __decorate([
         NgModule({
-            imports: [CommonModule, FormsModule, DefaultStyleCompatibilityModeModule],
-            exports: [MdSlider, DefaultStyleCompatibilityModeModule],
+            imports: [CommonModule, FormsModule, CompatibilityModule],
+            exports: [MdSlider, CompatibilityModule],
             declarations: [MdSlider],
-            providers: [
-                { provide: HAMMER_GESTURE_CONFIG, useClass: GestureConfig },
-            ],
+            providers: [{ provide: HAMMER_GESTURE_CONFIG, useClass: GestureConfig }]
         }), 
         __metadata('design:paramtypes', [])
     ], MdSliderModule);
     return MdSliderModule;
 }());
-
 //# sourceMappingURL=slider.js.map

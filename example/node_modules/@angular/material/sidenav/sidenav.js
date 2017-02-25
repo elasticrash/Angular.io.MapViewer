@@ -15,14 +15,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { NgModule, Component, ContentChildren, ElementRef, Input, Optional, Output, QueryList, ChangeDetectionStrategy, EventEmitter, Renderer, ViewEncapsulation, ViewChild } from '@angular/core';
+import { NgModule, Component, ContentChildren, ElementRef, Input, Optional, Output, QueryList, ChangeDetectionStrategy, EventEmitter, Renderer, ViewEncapsulation, ViewChild, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Dir, MdError, coerceBooleanProperty, DefaultStyleCompatibilityModeModule } from '../core';
+import { Dir, MdError, coerceBooleanProperty, CompatibilityModule } from '../core';
 import { A11yModule } from '../core/a11y/index';
 import { FocusTrap } from '../core/a11y/focus-trap';
 import { ESCAPE } from '../core/keyboard/keycodes';
 import { OverlayModule } from '../core/overlay/overlay-directives';
-import { InteractivityChecker } from '../core/a11y/interactivity-checker';
+import 'rxjs/add/operator/first';
 /** Exception thrown when two MdSidenav are matching the same side. */
 export var MdDuplicatedSidenavError = (function (_super) {
     __extends(MdDuplicatedSidenavError, _super);
@@ -60,6 +60,7 @@ export var MdSidenav = (function () {
         this._valid = true;
         /** Mode of the sidenav; whether 'over' or 'side'. */
         this.mode = 'over';
+        this._disableClose = false;
         /** Whether the sidenav is opened. */
         this._opened = false;
         /** Event emitted when the sidenav is being opened. Use this to synchronize animations. */
@@ -122,6 +123,13 @@ export var MdSidenav = (function () {
                 this.onAlignChanged.emit();
             }
         },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MdSidenav.prototype, "disableClose", {
+        /** Whether the sidenav can be closed with the escape key or not. */
+        get: function () { return this._disableClose; },
+        set: function (value) { this._disableClose = coerceBooleanProperty(value); },
         enumerable: true,
         configurable: true
     });
@@ -204,7 +212,7 @@ export var MdSidenav = (function () {
      * @docs-private
      */
     MdSidenav.prototype.handleKeydown = function (event) {
-        if (event.keyCode === ESCAPE) {
+        if (event.keyCode === ESCAPE && !this.disableClose) {
             this.close();
             event.stopPropagation();
         }
@@ -308,6 +316,10 @@ export var MdSidenav = (function () {
         __metadata('design:type', Object)
     ], MdSidenav.prototype, "mode", void 0);
     __decorate([
+        Input(), 
+        __metadata('design:type', Boolean)
+    ], MdSidenav.prototype, "disableClose", null);
+    __decorate([
         Output('open-start'), 
         __metadata('design:type', Object)
     ], MdSidenav.prototype, "onOpenStart", void 0);
@@ -334,21 +346,22 @@ export var MdSidenav = (function () {
     MdSidenav = __decorate([
         Component({selector: 'md-sidenav, mat-sidenav',
             // TODO(mmalerba): move template to separate file.
-            template: "<cdk-focus-trap class=\"md-sidenav-focus-trap\" [disabled]=\"isFocusTrapDisabled\"><ng-content></ng-content></cdk-focus-trap>",
+            template: "<cdk-focus-trap class=\"mat-sidenav-focus-trap\" [disabled]=\"isFocusTrapDisabled\"><ng-content></ng-content></cdk-focus-trap>",
             host: {
+                '[class.mat-sidenav]': 'true',
                 '(transitionend)': '_onTransitionEnd($event)',
                 '(keydown)': 'handleKeydown($event)',
                 // must prevent the browser from aligning text based on value
                 '[attr.align]': 'null',
-                '[class.md-sidenav-closed]': '_isClosed',
-                '[class.md-sidenav-closing]': '_isClosing',
-                '[class.md-sidenav-end]': '_isEnd',
-                '[class.md-sidenav-opened]': '_isOpened',
-                '[class.md-sidenav-opening]': '_isOpening',
-                '[class.md-sidenav-over]': '_modeOver',
-                '[class.md-sidenav-push]': '_modePush',
-                '[class.md-sidenav-side]': '_modeSide',
-                '[class.md-sidenav-invalid]': '!valid',
+                '[class.mat-sidenav-closed]': '_isClosed',
+                '[class.mat-sidenav-closing]': '_isClosing',
+                '[class.mat-sidenav-end]': '_isEnd',
+                '[class.mat-sidenav-opened]': '_isOpened',
+                '[class.mat-sidenav-opening]': '_isOpening',
+                '[class.mat-sidenav-over]': '_modeOver',
+                '[class.mat-sidenav-push]': '_modePush',
+                '[class.mat-sidenav-side]': '_modeSide',
+                '[class.mat-sidenav-invalid]': '!valid',
                 'tabIndex': '-1'
             },
             changeDetection: ChangeDetectionStrategy.OnPush,
@@ -365,13 +378,16 @@ export var MdSidenav = (function () {
  * and coordinates the backdrop and content styling.
  */
 export var MdSidenavContainer = (function () {
-    function MdSidenavContainer(_dir, _element, _renderer) {
+    function MdSidenavContainer(_dir, _element, _renderer, _ngZone) {
         var _this = this;
         this._dir = _dir;
         this._element = _element;
         this._renderer = _renderer;
+        this._ngZone = _ngZone;
         /** Event emitted when the sidenav backdrop is clicked. */
-        this.onBackdropClicked = new EventEmitter();
+        this.backdropClick = new EventEmitter();
+        /** Whether to enable open/close trantions. */
+        this._enableTransitions = false;
         // If a `Dir` directive exists up the tree, listen direction changes and update the left/right
         // properties to point to the proper start/end.
         if (_dir != null) {
@@ -399,6 +415,8 @@ export var MdSidenavContainer = (function () {
             _this._watchSidenavAlign(sidenav);
         });
         this._validateDrawers();
+        // Give the view a chance to render the initial state, then enable transitions.
+        this._ngZone.onMicrotaskEmpty.first().subscribe(function () { return _this._enableTransitions = true; });
     };
     /**
      * Subscribes to sidenav events in order to set a class on the main container element when the
@@ -424,9 +442,9 @@ export var MdSidenavContainer = (function () {
         }
         sidenav.onAlignChanged.subscribe(function () { return _this._validateDrawers(); });
     };
-    /** Toggles the 'md-sidenav-opened' class on the main 'md-sidenav-container' element. */
+    /** Toggles the 'mat-sidenav-opened' class on the main 'md-sidenav-container' element. */
     MdSidenavContainer.prototype._setContainerClass = function (sidenav, bool) {
-        this._renderer.setElementClass(this._element.nativeElement, 'md-sidenav-opened', bool);
+        this._renderer.setElementClass(this._element.nativeElement, 'mat-sidenav-opened', bool);
     };
     /** Sets the valid state of the drawers. */
     MdSidenavContainer.prototype._setDrawersValid = function (valid) {
@@ -473,16 +491,14 @@ export var MdSidenavContainer = (function () {
         this._setDrawersValid(true);
     };
     MdSidenavContainer.prototype._onBackdropClicked = function () {
-        this.onBackdropClicked.emit();
+        this.backdropClick.emit();
         this._closeModalSidenav();
     };
     MdSidenavContainer.prototype._closeModalSidenav = function () {
-        if (this._start != null && this._start.mode != 'side') {
-            this._start.close();
-        }
-        if (this._end != null && this._end.mode != 'side') {
-            this._end.close();
-        }
+        // Close all open sidenav's where closing is not disabled and the mode is not `side`.
+        [this._start, this._end]
+            .filter(function (sidenav) { return sidenav && !sidenav.disableClose && sidenav.mode !== 'side'; })
+            .forEach(function (sidenav) { return sidenav.close(); });
     };
     MdSidenavContainer.prototype._isShowingBackdrop = function () {
         return (this._isSidenavOpen(this._start) && this._start.mode != 'side')
@@ -536,45 +552,46 @@ export var MdSidenavContainer = (function () {
         __metadata('design:type', QueryList)
     ], MdSidenavContainer.prototype, "_sidenavs", void 0);
     __decorate([
-        Output('backdrop-clicked'), 
+        Output(), 
         __metadata('design:type', Object)
-    ], MdSidenavContainer.prototype, "onBackdropClicked", void 0);
+    ], MdSidenavContainer.prototype, "backdropClick", void 0);
     MdSidenavContainer = __decorate([
-        Component({selector: 'md-sidenav-container, mat-sidenav-container, md-sidenav-layout, mat-sidenav-layout',
+        Component({selector: 'md-sidenav-container, mat-sidenav-container',
             // Do not use ChangeDetectionStrategy.OnPush. It does not work for this component because
             // technically it is a sibling of MdSidenav (on the content tree) and isn't updated when MdSidenav
             // changes its state.
-            template: "<div class=\"md-sidenav-backdrop\" (click)=\"_onBackdropClicked()\" [class.md-sidenav-shown]=\"_isShowingBackdrop()\"></div><ng-content select=\"md-sidenav, mat-sidenav\"></ng-content><div class=\"md-sidenav-content\" [ngStyle]=\"_getStyles()\"><ng-content></ng-content></div>",
-            styles: [".md-sidenav-container,.md-sidenav-content{transform:translate3d(0,0,0);display:block}.md-sidenav-container{position:relative;box-sizing:border-box;-webkit-overflow-scrolling:touch;overflow:hidden}.md-sidenav-backdrop,.md-sidenav-container[fullscreen]{position:absolute;top:0;bottom:0;right:0;left:0}.md-sidenav-container[fullscreen].md-sidenav-opened{overflow:hidden}.md-sidenav-backdrop{display:block;z-index:2;visibility:hidden}.md-sidenav-backdrop.md-sidenav-shown{visibility:visible}@media screen and (-ms-high-contrast:active){.md-sidenav-backdrop{opacity:.5}}.md-sidenav-content{position:relative;height:100%;overflow:auto}md-sidenav,md-sidenav.md-sidenav-closing{transform:translate3d(-100%,0,0)}md-sidenav{display:block;position:absolute;top:0;bottom:0;z-index:3;min-width:5%;outline:0}md-sidenav.md-sidenav-closed{visibility:hidden}md-sidenav.md-sidenav-opened,md-sidenav.md-sidenav-opening{box-shadow:0 8px 10px -5px rgba(0,0,0,.2),0 16px 24px 2px rgba(0,0,0,.14),0 6px 30px 5px rgba(0,0,0,.12);transform:translate3d(0,0,0)}md-sidenav.md-sidenav-opening{visibility:visible}md-sidenav.md-sidenav-end,md-sidenav.md-sidenav-end.md-sidenav-closing{transform:translate3d(100%,0,0)}md-sidenav.md-sidenav-side{z-index:1}md-sidenav.md-sidenav-end{right:0}md-sidenav.md-sidenav-end.md-sidenav-closed{visibility:hidden}md-sidenav.md-sidenav-end.md-sidenav-opened,md-sidenav.md-sidenav-end.md-sidenav-opening{box-shadow:0 8px 10px -5px rgba(0,0,0,.2),0 16px 24px 2px rgba(0,0,0,.14),0 6px 30px 5px rgba(0,0,0,.12);transform:translate3d(0,0,0)}md-sidenav.md-sidenav-end.md-sidenav-opening{visibility:visible}[dir=rtl] md-sidenav,[dir=rtl] md-sidenav.md-sidenav-closing{transform:translate3d(100%,0,0)}[dir=rtl] md-sidenav.md-sidenav-closed{visibility:hidden}[dir=rtl] md-sidenav.md-sidenav-opened,[dir=rtl] md-sidenav.md-sidenav-opening{box-shadow:0 8px 10px -5px rgba(0,0,0,.2),0 16px 24px 2px rgba(0,0,0,.14),0 6px 30px 5px rgba(0,0,0,.12);transform:translate3d(0,0,0)}[dir=rtl] md-sidenav.md-sidenav-opening{visibility:visible}[dir=rtl] md-sidenav.md-sidenav-end{left:0;right:auto;transform:translate3d(-100%,0,0)}[dir=rtl] md-sidenav.md-sidenav-end.md-sidenav-closed{visibility:hidden}[dir=rtl] md-sidenav.md-sidenav-end.md-sidenav-closing{transform:translate3d(-100%,0,0)}[dir=rtl] md-sidenav.md-sidenav-end.md-sidenav-opened,[dir=rtl] md-sidenav.md-sidenav-end.md-sidenav-opening{box-shadow:0 8px 10px -5px rgba(0,0,0,.2),0 16px 24px 2px rgba(0,0,0,.14),0 6px 30px 5px rgba(0,0,0,.12);transform:translate3d(0,0,0)}[dir=rtl] md-sidenav.md-sidenav-end.md-sidenav-opening{visibility:visible}.md-sidenav-focus-trap{height:100%}.md-sidenav-focus-trap>.cdk-focus-trap-content{box-sizing:border-box;height:100%;overflow-y:auto;transform:translateZ(0)}.md-sidenav-invalid{display:none}",
-".md-sidenav-content,md-sidenav{transition:transform .4s cubic-bezier(.25,.8,.25,1)}.md-sidenav-backdrop.md-sidenav-shown{transition:background-color .4s cubic-bezier(.25,.8,.25,1)}"],
+            template: "<div class=\"mat-sidenav-backdrop\" (click)=\"_onBackdropClicked()\" [class.mat-sidenav-shown]=\"_isShowingBackdrop()\"></div><ng-content select=\"md-sidenav, mat-sidenav\"></ng-content><div class=\"mat-sidenav-content\" [ngStyle]=\"_getStyles()\" cdk-scrollable><ng-content></ng-content></div>",
+            styles: [".mat-sidenav-container{position:relative;transform:translate3d(0,0,0);box-sizing:border-box;-webkit-overflow-scrolling:touch;display:block;overflow:hidden}.mat-sidenav-backdrop,.mat-sidenav-container[fullscreen]{position:absolute;top:0;bottom:0;right:0;left:0}.mat-sidenav-container[fullscreen].mat-sidenav-opened{overflow:hidden}.mat-sidenav-backdrop{display:block;z-index:2;visibility:hidden}.mat-sidenav-backdrop.mat-sidenav-shown{visibility:visible}.mat-sidenav.mat-sidenav-closed,.mat-sidenav.mat-sidenav-end.mat-sidenav-closed,[dir=rtl] .mat-sidenav.mat-sidenav-closed,[dir=rtl] .mat-sidenav.mat-sidenav-end.mat-sidenav-closed{visibility:hidden}@media screen and (-ms-high-contrast:active){.mat-sidenav-backdrop{opacity:.5}}.mat-sidenav-content{position:relative;transform:translate3d(0,0,0);display:block;height:100%;overflow:auto}.mat-sidenav{display:block;position:absolute;top:0;bottom:0;z-index:3;min-width:5%;outline:0;transform:translate3d(-100%,0,0)}.mat-sidenav.mat-sidenav-opened,.mat-sidenav.mat-sidenav-opening{transform:translate3d(0,0,0)}.mat-sidenav.mat-sidenav-side{z-index:1}.mat-sidenav.mat-sidenav-end{right:0;transform:translate3d(100%,0,0)}.mat-sidenav.mat-sidenav-end.mat-sidenav-opened,.mat-sidenav.mat-sidenav-end.mat-sidenav-opening{transform:translate3d(0,0,0)}[dir=rtl] .mat-sidenav{transform:translate3d(100%,0,0)}[dir=rtl] .mat-sidenav.mat-sidenav-opened,[dir=rtl] .mat-sidenav.mat-sidenav-opening{transform:translate3d(0,0,0)}[dir=rtl] .mat-sidenav.mat-sidenav-end{left:0;right:auto;transform:translate3d(-100%,0,0)}[dir=rtl] .mat-sidenav.mat-sidenav-end.mat-sidenav-opened,[dir=rtl] .mat-sidenav.mat-sidenav-end.mat-sidenav-opening{transform:translate3d(0,0,0)}.mat-sidenav.mat-sidenav-opened:not(.mat-sidenav-side),.mat-sidenav.mat-sidenav-opening:not(.mat-sidenav-side){box-shadow:0 8px 10px -5px rgba(0,0,0,.2),0 16px 24px 2px rgba(0,0,0,.14),0 6px 30px 5px rgba(0,0,0,.12)}.mat-sidenav-focus-trap{height:100%}.mat-sidenav-focus-trap>.cdk-focus-trap-content{box-sizing:border-box;height:100%;overflow-y:auto;transform:translateZ(0)}.mat-sidenav-invalid{display:none}",
+".mat-sidenav-transition .mat-sidenav{transition:transform .4s cubic-bezier(.25,.8,.25,1)}.mat-sidenav-transition .mat-sidenav-content{transition-duration:.4s;transition-timing-function:cubic-bezier(.25,.8,.25,1);transition-property:transform,margin-left,margin-right}.mat-sidenav-transition .mat-sidenav-backdrop.mat-sidenav-shown{transition:background-color .4s cubic-bezier(.25,.8,.25,1)}"],
             host: {
-                'class': 'md-sidenav-container',
+                '[class.mat-sidenav-container]': 'true',
+                '[class.mat-sidenav-transition]': '_enableTransitions',
             },
             encapsulation: ViewEncapsulation.None,
         }),
         __param(0, Optional()), 
-        __metadata('design:paramtypes', [Dir, ElementRef, Renderer])
+        __metadata('design:paramtypes', [Dir, ElementRef, Renderer, NgZone])
     ], MdSidenavContainer);
     return MdSidenavContainer;
 }());
 export var MdSidenavModule = (function () {
     function MdSidenavModule() {
     }
+    /** @deprecated */
     MdSidenavModule.forRoot = function () {
         return {
             ngModule: MdSidenavModule,
-            providers: [InteractivityChecker]
+            providers: []
         };
     };
     MdSidenavModule = __decorate([
         NgModule({
-            imports: [CommonModule, DefaultStyleCompatibilityModeModule, A11yModule, OverlayModule],
-            exports: [MdSidenavContainer, MdSidenav, DefaultStyleCompatibilityModeModule],
+            imports: [CommonModule, CompatibilityModule, A11yModule, OverlayModule],
+            exports: [MdSidenavContainer, MdSidenav, CompatibilityModule],
             declarations: [MdSidenavContainer, MdSidenav],
         }), 
         __metadata('design:paramtypes', [])
     ], MdSidenavModule);
     return MdSidenavModule;
 }());
-
 //# sourceMappingURL=sidenav.js.map

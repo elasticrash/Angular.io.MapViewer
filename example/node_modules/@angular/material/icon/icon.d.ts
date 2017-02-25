@@ -1,4 +1,6 @@
-import { ModuleWithProviders, ElementRef, OnChanges, OnInit, Renderer, SimpleChange, AfterViewChecked } from '@angular/core';
+import { ModuleWithProviders, ElementRef, OnChanges, OnInit, Renderer, SimpleChange, AfterViewChecked, Optional } from '@angular/core';
+import { Http } from '@angular/http';
+import { DomSanitizer } from '@angular/platform-browser';
 import { MdError } from '../core';
 import { MdIconRegistry } from './icon-registry';
 export { MdIconRegistry } from './icon-registry';
@@ -58,6 +60,7 @@ export declare class MdIcon implements OnChanges, OnInit, AfterViewChecked {
     color: string;
     private _previousFontSetClass;
     private _previousFontIconClass;
+    private _previousAriaLabel;
     constructor(_elementRef: ElementRef, _renderer: Renderer, _mdIconRegistry: MdIconRegistry);
     _updateColor(newColor: string): void;
     _setElementColor(color: string, isAdd: boolean): void;
@@ -86,6 +89,13 @@ export declare class MdIcon implements OnChanges, OnInit, AfterViewChecked {
     private _setSvgElement(svg);
     private _updateFontIconClasses();
 }
+export declare function ICON_REGISTRY_PROVIDER_FACTORY(parentRegistry: MdIconRegistry, http: Http, sanitizer: DomSanitizer): MdIconRegistry;
+export declare const ICON_REGISTRY_PROVIDER: {
+    provide: typeof MdIconRegistry;
+    deps: (Optional[] | typeof DomSanitizer | typeof Http)[];
+    useFactory: (parentRegistry: MdIconRegistry, http: Http, sanitizer: DomSanitizer) => MdIconRegistry;
+};
 export declare class MdIconModule {
+    /** @deprecated */
     static forRoot(): ModuleWithProviders;
 }

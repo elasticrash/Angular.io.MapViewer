@@ -16,6 +16,7 @@ import { isFakeMousedownFromScreenReader, Dir, Overlay, OverlayState, TemplatePo
 /**
  * This directive is intended to be used in conjunction with an md-menu tag.  It is
  * responsible for toggling the display of the provided menu instance.
+ * TODO(andrewseguin): Remove the kebab versions in favor of camelCased attribute selectors
  */
 export var MdMenuTrigger = (function () {
     function MdMenuTrigger(_overlay, _element, _viewContainerRef, _renderer, _dir) {
@@ -33,8 +34,22 @@ export var MdMenuTrigger = (function () {
         /** Event emitted when the associated menu is closed. */
         this.onMenuClose = new EventEmitter();
     }
-    Object.defineProperty(MdMenuTrigger.prototype, "_deprecatedMenuTriggerFor", {
+    Object.defineProperty(MdMenuTrigger.prototype, "_deprecatedMdMenuTriggerFor", {
         /** @deprecated */
+        get: function () { return this.menu; },
+        set: function (v) { this.menu = v; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MdMenuTrigger.prototype, "_deprecatedMatMenuTriggerFor", {
+        /** @deprecated */
+        get: function () { return this.menu; },
+        set: function (v) { this.menu = v; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(MdMenuTrigger.prototype, "_matMenuTriggerFor", {
+        // Trigger input for compatibility mode
         get: function () { return this.menu; },
         set: function (v) { this.menu = v; },
         enumerable: true,
@@ -181,6 +196,9 @@ export var MdMenuTrigger = (function () {
         this._positionSubscription = position.onPositionChange.subscribe(function (change) {
             var posX = change.connectionPair.originX === 'start' ? 'after' : 'before';
             var posY = change.connectionPair.originY === 'top' ? 'below' : 'above';
+            if (!_this.menu.overlapTrigger) {
+                posY = posY === 'below' ? 'above' : 'below';
+            }
             _this.menu.setPositionClasses(posX, posY);
         });
     };
@@ -191,12 +209,18 @@ export var MdMenuTrigger = (function () {
      */
     MdMenuTrigger.prototype._getPosition = function () {
         var _a = this.menu.positionX === 'before' ? ['end', 'start'] : ['start', 'end'], posX = _a[0], fallbackX = _a[1];
-        var _b = this.menu.positionY === 'above' ? ['bottom', 'top'] : ['top', 'bottom'], posY = _b[0], fallbackY = _b[1];
+        var _b = this.menu.positionY === 'above' ? ['bottom', 'top'] : ['top', 'bottom'], overlayY = _b[0], fallbackOverlayY = _b[1];
+        var originY = overlayY;
+        var fallbackOriginY = fallbackOverlayY;
+        if (!this.menu.overlapTrigger) {
+            originY = overlayY === 'top' ? 'bottom' : 'top';
+            fallbackOriginY = fallbackOverlayY === 'top' ? 'bottom' : 'top';
+        }
         return this._overlay.position()
-            .connectedTo(this._element, { originX: posX, originY: posY }, { overlayX: posX, overlayY: posY })
-            .withFallbackPosition({ originX: fallbackX, originY: posY }, { overlayX: fallbackX, overlayY: posY })
-            .withFallbackPosition({ originX: posX, originY: fallbackY }, { overlayX: posX, overlayY: fallbackY })
-            .withFallbackPosition({ originX: fallbackX, originY: fallbackY }, { overlayX: fallbackX, overlayY: fallbackY });
+            .connectedTo(this._element, { originX: posX, originY: originY }, { overlayX: posX, overlayY: overlayY })
+            .withFallbackPosition({ originX: fallbackX, originY: originY }, { overlayX: fallbackX, overlayY: overlayY })
+            .withFallbackPosition({ originX: posX, originY: fallbackOriginY }, { overlayX: posX, overlayY: fallbackOverlayY })
+            .withFallbackPosition({ originX: fallbackX, originY: fallbackOriginY }, { overlayX: fallbackX, overlayY: fallbackOverlayY });
     };
     MdMenuTrigger.prototype._cleanUpSubscriptions = function () {
         if (this._backdropSubscription) {
@@ -214,7 +238,15 @@ export var MdMenuTrigger = (function () {
     __decorate([
         Input('md-menu-trigger-for'), 
         __metadata('design:type', Object)
-    ], MdMenuTrigger.prototype, "_deprecatedMenuTriggerFor", null);
+    ], MdMenuTrigger.prototype, "_deprecatedMdMenuTriggerFor", null);
+    __decorate([
+        Input('mat-menu-trigger-for'), 
+        __metadata('design:type', Object)
+    ], MdMenuTrigger.prototype, "_deprecatedMatMenuTriggerFor", null);
+    __decorate([
+        Input('matMenuTriggerFor'), 
+        __metadata('design:type', Object)
+    ], MdMenuTrigger.prototype, "_matMenuTriggerFor", null);
     __decorate([
         Input('mdMenuTriggerFor'), 
         __metadata('design:type', Object)
@@ -229,7 +261,7 @@ export var MdMenuTrigger = (function () {
     ], MdMenuTrigger.prototype, "onMenuClose", void 0);
     MdMenuTrigger = __decorate([
         Directive({
-            selector: '[md-menu-trigger-for], [mat-menu-trigger-for], [mdMenuTriggerFor]',
+            selector: "[md-menu-trigger-for], [mat-menu-trigger-for], \n             [mdMenuTriggerFor], [matMenuTriggerFor]",
             host: {
                 'aria-haspopup': 'true',
                 '(mousedown)': '_handleMousedown($event)',
@@ -242,5 +274,4 @@ export var MdMenuTrigger = (function () {
     ], MdMenuTrigger);
     return MdMenuTrigger;
 }());
-
 //# sourceMappingURL=menu-trigger.js.map
