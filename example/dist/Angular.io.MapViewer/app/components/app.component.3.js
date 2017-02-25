@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var Lealflet = require('leaflet');
+var L = require('leaflet');
 var Proj4 = require('proj4');
 var AppComponent3 = (function () {
     function AppComponent3() {
@@ -26,7 +26,7 @@ var AppComponent3 = (function () {
         var extentHeight = upleft[1] - botright[1];
         var boundpointa = new L.Point(upleft[0], upleft[1]);
         var boundpointb = new L.Point(botright[0], botright[1]);
-        var b = new L.bounds(boundpointa, boundpointb);
+        var b = L.bounds(boundpointa, boundpointb);
         var resX = extentWidth / 256;
         var resY = extentHeight / 256;
         var res = Math.max(resX, resY);
