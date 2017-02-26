@@ -15,7 +15,7 @@ var moment = require('moment');
 var GeneratePoints = (function () {
     function GeneratePoints(mapService) {
         this.mapService = mapService;
-        this.population = 699;
+        this.population = 9;
         this.count = Array(this.population).fill(0, 0).map(function (x, i) { return i; });
         this.lat = this.randomArray(52.611, 52.701, this.population);
         this.lon = this.randomArray(-1.109, -1.001, this.population);
