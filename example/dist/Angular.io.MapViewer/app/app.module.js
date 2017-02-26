@@ -44,7 +44,7 @@ var AppModule = (function () {
                     },
                     { path: 'random', component: random_points_1.RandomPoints },
                     { path: 'simple', component: simple_1.Simple }
-                ]),
+                ], { useHash: true }),
             ],
             declarations: [app_component_1.AppComponent, app_component_1_1.AppComponent1, app_component_2_1.AppComponent2, app_component_3_1.AppComponent3, app_component_4_1.AppComponent4, game_1.GamePoints,
                 random_points_1.RandomPoints, generate_points_1.GeneratePoints, simple_1.Simple, toolbar_element_1.ToolbarElement, angular2_leaflet_components_1.CandTLeafletComponent, coordinates_1.CoordinateControl],
