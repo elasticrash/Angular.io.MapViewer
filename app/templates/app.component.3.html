@@ -8,5 +8,90 @@
 		<polygon-element [xys]="[[477000, 4202200], [477000, 4202300], [478000, 4202300], [478000, 4202200]]" [onclick]="'hello I am a polygon on a weird srs'"></polygon-element>
 		<polyline-element [xys]="[[477100, 4202200], [477100, 4202400], [478100, 4202400]]" [onclick]="'hello I am a polyline on a weird srs'"></polyline-element>
 		<coordinate-control [crs]='system'></coordinate-control>
+		<leaflet-group [name]="'rest'">
+			<geojson-element [geojson]='{
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+          "type": "LineString",
+          "coordinates": [
+            [
+              491000,
+              4202000
+            ],
+            [
+              491100,
+              4202000
+            ],
+            [
+              490900,
+              4202000
+            ],
+            [
+              491100,
+              4202000
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                492000,
+                4203000
+              ],
+              [
+                493000,
+                4203000
+              ],
+              [
+                493000,
+                4204000
+              ],
+              [
+                492000,
+                4204000
+              ],
+              [
+                492000,
+                4203000
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            494000,
+            4204000
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            494400,
+            4204400
+          ]
+        }
+      }
+    ]
+  }'></geojson-element>
+		</leaflet-group>
 	</leaf-element>
 </div>
