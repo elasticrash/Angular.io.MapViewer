@@ -1,25 +1,17 @@
 import { Component } from '@angular/core';
-
-var Lealflet = require('leaflet');
-var Proj4 = require('proj4');
-declare var L: any;
+import * as L from 'leaflet';
+import * as Proj4 from 'proj4';
 
 @Component({
   selector: 'my-sappproj',
   templateUrl: 'app/templates/app.component.3.html'
 })
 export class AppComponent3 {
-
-
   systemDefinition: string = "+proj=tmerc +lat_0=0 +lon_0=24 +k=0.9996 +x_0=500000 +y_0=0 +ellps=GRS80 +towgs84=-199.87,74.79,246.62,0,0,0,0 +units=m +no_defs";
   coordinateSystem: any = 'L.CRS.EPSG2100';
   system: any = {};
 
-  constructor() {
-  }
-
   ngOnInit() {
-
     this.system = Proj4(this.systemDefinition);
     var model = this;
 
@@ -31,7 +23,7 @@ export class AppComponent3 {
 
     var boundpointa = new L.Point(upleft[0], upleft[1]);
     var boundpointb = new L.Point(botright[0], botright[1]);
-    var b = new L.bounds(boundpointa, boundpointb);
+    var b = L.bounds(boundpointa, boundpointb);
 
     var resX = extentWidth / 256;
     var resY = extentHeight / 256;

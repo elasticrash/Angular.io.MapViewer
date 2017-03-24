@@ -1,6 +1,9 @@
 <div class="full-dim" layout="column">
 	<toolbar-element></toolbar-element>
 	<leaf-element [zoom]=11 [layerControl]=true>
+		<zoom-control></zoom-control>
+		<scale-control></scale-control>
+		<attribution-control></attribution-control>
 		<layer-element [name]="'openstreetmap'" [type]="'basemap'" [slippyLayer]="'http://{s}.tile.osm.org/{z}/{x}/{y}.png'"></layer-element>
 		<layer-element [name]="'carto'" [type]="'basemap'" [slippyLayer]="'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'"></layer-element>
 		<layer-element [wmsLayer]="'http://78.46.70.93:8080/geoserver/wms'" [name]="'cnt:post_codes'" [opacity]=0.3></layer-element>
@@ -11,7 +14,7 @@
 		</leaflet-group>
 		<leaflet-group [name]="'circles'">
 			<circle-element [lat]=52.62 [lon]=-1.12 [radius]=180 [onclick]="'hello I am a circle-element'"> </circle-element>
-			<circle-element [lat]=52.63 [lon]=-1.13 [radius]=180 [Options]="{color:'#576887', weight:6}"></circle-element>
+			<circle-marker-element [lat]=52.63 [lon]=-1.13 [Options]="{color:'#576887', weight:6}">this is from ng-content</circle-marker-element>
 		</leaflet-group>
 		<leaflet-group [name]="'popup'">
 			<popup-element [lat]=52.65 [lon]=-1.30 [content]="'Good Popup'"></popup-element>
