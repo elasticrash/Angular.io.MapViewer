@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/Rx';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'my-mmapp',
+  selector: 'my-game-mapp',
   templateUrl: 'app/templates/app.component.4.html'
 })
 export class AppComponent4 {
