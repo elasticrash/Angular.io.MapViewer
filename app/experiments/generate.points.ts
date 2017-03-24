@@ -1,6 +1,6 @@
 import { Component, Input, Output, NgZone } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
-import { MapService } from 'angular2.leaflet.components/services/map.service';
+import { MapService } from 'ngx.leaflet.components/services/map.service';
 declare var L: any;
 
 var moment = require('moment');
