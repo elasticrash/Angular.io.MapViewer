@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { MapService } from 'angular2.leaflet.components/services/map.service';
+import { MapService } from 'ngx.leaflet.components/services/map.service';
 
 var Lealflet = require('leaflet');
 declare var L: any;

@@ -30,7 +30,7 @@
       'moment': 'npm:moment',
       'proj4': 'npm:proj4',
       'proj4leaflet': 'npm:proj4leaflet',
-      'angular2.leaflet.components': 'npm:angular2.leaflet.components',
+      'ngx.leaflet.components': 'npm:ngx.leaflet.components',
       //typescript
       "ts": "npm:plugin-typescript/lib/",
       "typescript": "npm:typescript/lib/"
@@ -48,7 +48,7 @@
         main: './index.js',
         defaultExtension: 'js'
       },
-      'angular2.leaflet.components': {
+      'ngx.leaflet.components': {
         main: './index',
         defaultExtension: 'js',
         meta: {
