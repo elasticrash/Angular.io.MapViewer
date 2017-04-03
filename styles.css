@@ -52,6 +52,14 @@ leaf-element{
     z-index: 0 !important;
 }
 
+.leaflet-pane {
+    z-index: 0 !important;
+}
+
+.leaflet-bottom.leaflet-left {
+    z-index: 1 !important;
+}
+
 .box {
     float: left;
     width: 200px;

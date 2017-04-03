@@ -4,6 +4,7 @@
 		<zoom-control></zoom-control>
 		<scale-control></scale-control>
 		<attribution-control></attribution-control>
+		<watermark-element [imagewidth]='150' [imageheight]='80' [url]="'/watermark.png'"></watermark-element>
 		<layer-element [name]="'openstreetmap'" [type]="'basemap'" [slippyLayer]="'http://{s}.tile.osm.org/{z}/{x}/{y}.png'"></layer-element>
 		<layer-element [name]="'carto'" [type]="'basemap'" [slippyLayer]="'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'"></layer-element>
 		<layer-element [wmsLayer]="'http://78.46.70.93:8080/geoserver/wms'" [name]="'cnt:post_codes'" [opacity]=0.3></layer-element>
