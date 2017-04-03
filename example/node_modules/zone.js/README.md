@@ -7,7 +7,11 @@ Implements _Zones_ for JavaScript, inspired by [Dart](https://www.dartlang.org/a
 
 > If you're using zone.js via unpkg please provide a query param `?main=browser`  
 `https://unpkg.com/zone.js?main=browser`  
-> If you're using `newrelic` make sure you import `newrelic` first as it patches global.Promise before zone,js does
+> If you're using the following library, make sure you import them first 
+
+> * 'newrelic' as it patches global.Promise before zone.js does
+> * 'async-listener' as it patches global.setTimeout, global.setInterval before zone.js does
+> * 'continuation-local-storage' as it uses async-listener 
 
 # NEW Zone.js POST-v0.6.0
 
@@ -30,6 +34,19 @@ See this video from ng-conf 2014 for a detailed explanation:
 * [strongloop/zone](https://github.com/strongloop/zone)
 * [vizone](https://github.com/gilbox/vizone) - control flow visualizer that uses zone.js
 
+## Standard API support
+
+zone.js patched most standard web APIs(such as DOM events, XMLHttpRequest...) and nodejs APIs 
+(EventEmitter,fs ...), for more details, please see [STANDARD-APIS.md](STANDARD-APIS.md) for 
+more details.
+
+## Non standard API support
+
+And now we are adding support to some non standard APIs, such as MediaQuery,
+Notification. Please see [NON-STANDARD-APIS.md](NON-STANDARD-APIS.md) for more details.
+
+## Promise A+ test passed
+[![Promises/A+ 1.1 compliant](https://promisesaplus.com/assets/logo-small.png)](https://promisesaplus.com/)
 
 ## License
 MIT

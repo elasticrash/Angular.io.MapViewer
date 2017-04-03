@@ -1,3 +1,4 @@
+import { QueryList } from '@angular/core';
 import { MdGridTile } from './grid-tile';
 /**
  * Class for determining, from a list of tiles, the (row, col) position of each of those tiles
@@ -13,6 +14,8 @@ import { MdGridTile } from './grid-tile';
  * column are already occupied; zero indicates an empty cell. Moving "down" to the next row
  * decrements each value in the tracking array (indicating that the column is one cell closer to
  * being free).
+ *
+ * @docs-private
  */
 export declare class TileCoordinator {
     /** Tracking array (see class description). */
@@ -28,7 +31,7 @@ export declare class TileCoordinator {
     readonly rowspan: number;
     /** The computed (row, col) position of each tile (the output). */
     positions: TilePosition[];
-    constructor(numColumns: number, tiles: MdGridTile[]);
+    constructor(numColumns: number, tiles: QueryList<MdGridTile>);
     /** Calculates the row and col position of a tile. */
     private _trackTile(tile);
     /** Finds the next available space large enough to fit the tile. */
@@ -43,7 +46,10 @@ export declare class TileCoordinator {
     /** Update the tile tracker to account for the given tile in the given space. */
     private _markTilePosition(start, tile);
 }
-/** Simple data structure for tile position (row, col). */
+/**
+ * Simple data structure for tile position (row, col).
+ * @docs-private
+ */
 export declare class TilePosition {
     row: number;
     col: number;

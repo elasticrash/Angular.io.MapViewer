@@ -11,9 +11,10 @@ var moment = require('moment');
 })
 export class GeneratePoints {
     population: number = 9;
-    @Input() count: Array<number> = Array(this.population).fill(0, 0);//.map((x,i)=>i);
+    @Input() count: Array<number> = Array(this.population).fill(0, 0).map((x,i)=>i);
     lat: Array<number> = this.randomArray(52.611, 52.701, this.population);
     lon: Array<number> = this.randomArray(-1.109, -1.001, this.population);
+    latlonColllection: Array<any> = [];
     allp: Array<Array<number>> = this.mergelatlon();
     allpclone: Array<Array<number>> = [...this.allp];
     generations: Array<any> = [];
@@ -46,6 +47,9 @@ export class GeneratePoints {
     }
 
     ngOnInit() {
+        this.count.forEach(element => {
+           this.latlonColllection.push({lat: this.lat[element], lon:this.lon[element]}); 
+        });
         this.subscription = this.timer.subscribe(t => {
             this.shufflestaff(t);
         });

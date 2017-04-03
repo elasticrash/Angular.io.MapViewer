@@ -14,6 +14,8 @@ var material_1 = require('@angular/material');
 var app_component_1 = require('./components/app.component');
 var app_component_1_1 = require('./components/app.component.1');
 var app_component_2_1 = require('./components/app.component.2');
+var app_component_3_1 = require('./components/app.component.3');
+var app_component_4_1 = require('./components/app.component.4');
 var random_points_1 = require('./components/random.points');
 var simple_1 = require('./components/simple');
 var toolbar_element_1 = require('./components/toolbar.element');
@@ -21,27 +23,37 @@ var angular2_leaflet_components_1 = require('angular2.leaflet.components');
 var angular2_leaflet_components_2 = require('angular2.leaflet.components');
 var router_1 = require('@angular/router');
 var generate_points_1 = require('./experiments/generate.points');
+var coordinates_1 = require('./components/coordinates');
+var game_1 = require('./game/game');
+var game_resolver_1 = require('./game/game.resolver');
 var AppModule = (function () {
     function AppModule() {
     }
     AppModule = __decorate([
         core_1.NgModule({
-            imports: [platform_browser_1.BrowserModule, material_1.MaterialModule.forRoot(),
-            router_1.RouterModule.forRoot([
-                { path: 'mm-map', component: app_component_1_1.AppComponent1 },
-                { path: '', component: app_component_2_1.AppComponent2 },
-                { path: 'random', component: random_points_1.RandomPoints },
-                { path: 'simple', component: simple_1.Simple }
-            ], { useHash: true }),
+            imports: [platform_browser_1.BrowserModule, material_1.MaterialModule,
+                router_1.RouterModule.forRoot([
+                    { path: 'mm-map', component: app_component_1_1.AppComponent1 },
+                    { path: '', component: app_component_2_1.AppComponent2 },
+                    { path: 'prj', component: app_component_3_1.AppComponent3 },
+                    {
+                        path: 'game', component: app_component_4_1.AppComponent4,
+                        resolve: {
+                            countries: game_resolver_1.GameResolver
+                        }
+                    },
+                    { path: 'random', component: random_points_1.RandomPoints },
+                    { path: 'simple', component: simple_1.Simple }
+                ], { useHash: true }),
             ],
-            declarations: [app_component_1.AppComponent, app_component_1_1.AppComponent1, app_component_2_1.AppComponent2,
-            random_points_1.RandomPoints, generate_points_1.GeneratePoints, simple_1.Simple, toolbar_element_1.ToolbarElement, angular2_leaflet_components_1.CandTLeafletComponent],
-            providers: [angular2_leaflet_components_2.CandTLeafletService],
+            declarations: [app_component_1.AppComponent, app_component_1_1.AppComponent1, app_component_2_1.AppComponent2, app_component_3_1.AppComponent3, app_component_4_1.AppComponent4, game_1.GamePoints,
+                random_points_1.RandomPoints, generate_points_1.GeneratePoints, simple_1.Simple, toolbar_element_1.ToolbarElement, angular2_leaflet_components_1.CandTLeafletComponent, coordinates_1.CoordinateControl],
+            providers: [angular2_leaflet_components_2.CandTLeafletService, game_resolver_1.GameResolver],
             bootstrap: [app_component_1.AppComponent]
-        }),
+        }), 
         __metadata('design:paramtypes', [])
     ], AppModule);
     return AppModule;
-} ());
+}());
 exports.AppModule = AppModule;
 //# sourceMappingURL=app.module.js.map

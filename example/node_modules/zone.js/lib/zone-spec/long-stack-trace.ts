@@ -23,8 +23,8 @@ function getStacktraceWithUncaughtError(): Error {
 function getStacktraceWithCaughtError(): Error {
   try {
     throw getStacktraceWithUncaughtError();
-  } catch (e) {
-    return e;
+  } catch (error) {
+    return error;
   }
 }
 
@@ -91,7 +91,7 @@ Zone['longStackTraceZoneSpec'] = <ZoneSpec>{
       parentZoneDelegate: ZoneDelegate, currentZone: Zone, targetZone: Zone, error: any): any {
     const parentTask = Zone.currentTask || error.task;
     if (error instanceof Error && parentTask) {
-      var stackSetSucceded: string|boolean = null;
+      let stackSetSucceeded: string|boolean = null;
       try {
         let descriptor = Object.getOwnPropertyDescriptor(error, 'stack');
         if (descriptor && descriptor.configurable) {
@@ -105,23 +105,23 @@ Zone['longStackTraceZoneSpec'] = <ZoneSpec>{
             }
           };
           Object.defineProperty(error, 'stack', descriptor);
-          stackSetSucceded = true;
+          stackSetSucceeded = true;
         }
-      } catch (e) {
+      } catch (err) {
       }
-      var longStack: string = stackSetSucceded ?
+      const longStack: string = stackSetSucceeded ?
           null :
           renderLongStackTrace(parentTask.data && parentTask.data[creationTrace], error.stack);
-      if (!stackSetSucceded) {
+      if (!stackSetSucceeded) {
         try {
-          stackSetSucceded = error.stack = longStack;
-        } catch (e) {
+          stackSetSucceeded = error.stack = longStack;
+        } catch (err) {
         }
       }
-      if (!stackSetSucceded) {
+      if (!stackSetSucceeded) {
         try {
-          stackSetSucceded = (error as any).longStack = longStack;
-        } catch (e) {
+          stackSetSucceeded = (error as any).longStack = longStack;
+        } catch (err) {
         }
       }
     }
