@@ -4,7 +4,7 @@ import * as Proj4 from 'proj4';
 
 @Component({
   selector: 'my-sappproj',
-  templateUrl: 'app/templates/app.component.3.html'
+  templateUrl: '../templates/app.component.3.html'
 })
 export class AppComponent3 {
   systemDefinition: string = "+proj=tmerc +lat_0=0 +lon_0=24 +k=0.9996 +x_0=500000 +y_0=0 +ellps=GRS80 +towgs84=-199.87,74.79,246.62,0,0,0,0 +units=m +no_defs";
@@ -44,7 +44,7 @@ export class AppComponent3 {
       }
     }
 
-    L.CRS.EPSG2100 = L.extend({}, L.CRS, {
+    L.CRS['EPSG2100'] = L['extend']({}, L.CRS, {
       code: 'EPSG:2100',
       projection: L.Projection[model.system.oProj.projName],
       transformation: new L.Transformation(model.system.oProj.k0, -model.system.oProj.lat0, -model.system.oProj.k0, model.system.oProj.long0),

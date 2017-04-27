@@ -3,11 +3,11 @@ import { Observable } from 'rxjs/Rx';
 import { MapService } from 'ngx.leaflet.components/services/map.service';
 declare var L: any;
 
-var moment = require('moment');
+import * as moment from 'moment';
 
 @Component({
     selector: 'generate-points',
-    templateUrl: 'app/experiments/generate.points.html'
+    templateUrl: './generate.points.html'
 })
 export class GeneratePoints {
     population: number = 699;

@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'my-game-mapp',
-  templateUrl: 'app/templates/app.component.4.html'
+  templateUrl: '../templates/app.component.4.html'
 })
 export class AppComponent4 {
   countries: any;

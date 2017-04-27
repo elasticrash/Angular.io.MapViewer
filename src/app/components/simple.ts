@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 
 @Component({
     selector: 'simple-element',
-    templateUrl: 'app/templates/simple.element.html'
+    templateUrl: '../templates/simple.element.html'
 })
 export class Simple {
     stars: Array<any> = [

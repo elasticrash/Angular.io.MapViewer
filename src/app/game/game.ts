@@ -5,7 +5,7 @@ import { Http, Response, Headers, RequestOptions, Request, RequestMethod, Respon
 
 @Component({
     selector: 'game-points',
-    templateUrl: 'app/game/game.html'
+    templateUrl: './game.html'
 })
 
 export class GamePoints {
