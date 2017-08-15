@@ -10,20 +10,21 @@ import { AppComponent3 } from './components/app.component.3';
 import { AppComponent4 } from './components/app.component.4';
 import { RandomPoints } from './components/random.points';
 import { Simple } from './components/simple';
-import { ToolbarElement } from './components/toolbar.element';
 import { ngxLeafletModule } from 'ngx.leaflet.components/ngx.leaflet.module';
 import { RouterModule } from '@angular/router';
 import { GeneratePoints } from './experiments/generate.points';
 import { CoordinateControl } from './components/coordinates';
 import { GamePoints } from './game/game';
 import { GameResolver } from './game/game.resolver';
+import { MainViewComponent } from "./main-view/main-view.component";
+import { ToolbarElement } from "./toolbar/toolbar.element";
 
 
 @NgModule({
   imports: [BrowserModule, MaterialModule, FormsModule, HttpModule, ngxLeafletModule,
     RouterModule.forRoot([
       { path: 'mm-map', component: AppComponent1 },
-      { path: '', component: AppComponent2 },
+      { path: '', component: MainViewComponent },
       { path: 'prj', component: AppComponent3 },
       {
         path: 'game', component: AppComponent4,
@@ -35,7 +36,7 @@ import { GameResolver } from './game/game.resolver';
       { path: 'simple', component: Simple }
     ]),
   ],
-  declarations: [AppComponent, AppComponent1, AppComponent2, AppComponent3, AppComponent4, GamePoints,
+  declarations: [AppComponent, MainViewComponent, AppComponent1, AppComponent2, AppComponent3, AppComponent4, GamePoints,
     RandomPoints, GeneratePoints, Simple, ToolbarElement, CoordinateControl],
   providers: [GameResolver],
   bootstrap: [AppComponent]
