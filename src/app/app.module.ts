@@ -1,3 +1,4 @@
+import { Simple } from './simple/simple.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { MaterialModule } from '@angular/material';
@@ -9,7 +10,6 @@ import { AppComponent2 } from './components/app.component.2';
 import { AppComponent3 } from './components/app.component.3';
 import { AppComponent4 } from './components/app.component.4';
 import { RandomPoints } from './components/random.points';
-import { Simple } from './components/simple';
 import { ngxLeafletModule } from 'ngx.leaflet.components/ngx.leaflet.module';
 import { RouterModule } from '@angular/router';
 import { GeneratePoints } from './experiments/generate.points';
@@ -21,7 +21,12 @@ import { ToolbarElement } from "./toolbar/toolbar.element";
 
 
 @NgModule({
-  imports: [BrowserModule, MaterialModule, FormsModule, HttpModule, ngxLeafletModule,
+  imports: [
+    BrowserModule,
+    MaterialModule,
+    FormsModule,
+    HttpModule,
+    ngxLeafletModule,
     RouterModule.forRoot([
       { path: 'mm-map', component: AppComponent1 },
       { path: '', component: MainViewComponent },

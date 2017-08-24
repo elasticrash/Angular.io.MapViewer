@@ -1,14 +1,27 @@
 .container {
-    width: 100%;
-    height: 100%;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-  }
-  
-  .sidenav-content {
-    display: flex;
-    height: 100%;
-  }
-  
-  .sidenav {
-    padding: 120px;
-  }
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.sidenav-content {
+  display: flex;
+  height: 100%;
+}
+
+.sidenav {
+  padding: 120px;
+}
+
+md-list-item {
+  height: 400px;
+}
+
+md-card {
+  width: 500px;
+  height: 300px;
+}
+
+md-card-content {
+  height: 200px;
+}
