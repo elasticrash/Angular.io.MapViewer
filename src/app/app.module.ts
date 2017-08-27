@@ -1,3 +1,4 @@
+import { CustomProjectionComponent } from './custom-projection/custom-projection.component';
 import { Simple } from './simple/simple.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -7,7 +8,6 @@ import { HttpModule } from '@angular/http';
 import { AppComponent } from './components/app.component';
 import { AppComponent1 } from './components/app.component.1';
 import { AppComponent2 } from './components/app.component.2';
-import { AppComponent3 } from './components/app.component.3';
 import { AppComponent4 } from './components/app.component.4';
 import { RandomPoints } from './components/random.points';
 import { ngxLeafletModule } from 'ngx.leaflet.components/ngx.leaflet.module';
@@ -30,7 +30,7 @@ import { ToolbarElement } from "./toolbar/toolbar.element";
     RouterModule.forRoot([
       { path: 'mm-map', component: AppComponent1 },
       { path: '', component: MainViewComponent },
-      { path: 'prj', component: AppComponent3 },
+      { path: 'prj', component: CustomProjectionComponent },
       {
         path: 'game', component: AppComponent4,
         resolve: {
@@ -41,7 +41,7 @@ import { ToolbarElement } from "./toolbar/toolbar.element";
       { path: 'simple', component: Simple }
     ]),
   ],
-  declarations: [AppComponent, MainViewComponent, AppComponent1, AppComponent2, AppComponent3, AppComponent4, GamePoints,
+  declarations: [AppComponent, MainViewComponent, AppComponent1, AppComponent2, CustomProjectionComponent, AppComponent4, GamePoints,
     RandomPoints, GeneratePoints, Simple, ToolbarElement, CoordinateControl],
   providers: [GameResolver],
   bootstrap: [AppComponent]

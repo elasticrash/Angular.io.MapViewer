@@ -3,16 +3,26 @@ import * as L from 'leaflet';
 import * as Proj4 from 'proj4';
 
 @Component({
-  selector: 'my-sappproj',
-  templateUrl: '../templates/app.component.3.html'
+  selector: 'custom-projection',
+  templateUrl: 'custom-projection.component.html',
+  styleUrls: ['custom-projection.component.css'],      
 })
-export class AppComponent3 {
+export class CustomProjectionComponent {
   systemDefinition: string = "+proj=tmerc +lat_0=0 +lon_0=24 +k=0.9996 +x_0=500000 +y_0=0 +ellps=GRS80 +towgs84=-199.87,74.79,246.62,0,0,0,0 +units=m +no_defs";
   coordinateSystem: any = 'L.CRS.EPSG2100';
   system: any = {};
 
   ngOnInit() {
-    this.system = Proj4(this.systemDefinition);
+
+    let DefaultIcon = L.icon({
+      iconUrl: '/assets/marker-icon.png',
+      shadowUrl: '/assets/marker-shadow.png'
+    });
+
+    L.Marker.prototype.options.icon = DefaultIcon;
+    
+
+    this.system = Proj4.default(this.systemDefinition);
     var model = this;
 
     var upleft = [-34387.6695, 4641211.3222];

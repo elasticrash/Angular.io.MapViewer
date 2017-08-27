@@ -5,6 +5,7 @@
 }
 
 .sidenav-content {
+  margin-top: 172px;
   display: flex;
   height: 100%;
 }
