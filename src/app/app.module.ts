@@ -1,3 +1,9 @@
+import { AppComponent } from "./app.component";
+import { CoordinateControl } from './display-coordinates/coordinates';
+import { ExtendedMapComponent } from './extended/extended-map.component';
+import { RandomPoints } from './random/random.points';
+import { GameComponent } from './game/game-map.component';
+import { BasicMapComponent } from './basic/basic-map.component';
 import { CustomProjectionComponent } from './custom-projection/custom-projection.component';
 import { Simple } from './simple/simple.component';
 import { NgModule } from '@angular/core';
@@ -5,15 +11,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { MaterialModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { AppComponent } from './components/app.component';
-import { AppComponent1 } from './components/app.component.1';
-import { AppComponent2 } from './components/app.component.2';
-import { AppComponent4 } from './components/app.component.4';
-import { RandomPoints } from './components/random.points';
 import { ngxLeafletModule } from 'ngx.leaflet.components/ngx.leaflet.module';
 import { RouterModule } from '@angular/router';
 import { GeneratePoints } from './experiments/generate.points';
-import { CoordinateControl } from './components/coordinates';
 import { GamePoints } from './game/game';
 import { GameResolver } from './game/game.resolver';
 import { MainViewComponent } from "./main-view/main-view.component";
@@ -28,11 +28,12 @@ import { ToolbarElement } from "./toolbar/toolbar.element";
     HttpModule,
     ngxLeafletModule,
     RouterModule.forRoot([
-      { path: 'mm-map', component: AppComponent1 },
+      { path: 'basic', component: BasicMapComponent },
+      { path: 'extended', component: ExtendedMapComponent },      
       { path: '', component: MainViewComponent },
-      { path: 'prj', component: CustomProjectionComponent },
+      { path: 'projection', component: CustomProjectionComponent },
       {
-        path: 'game', component: AppComponent4,
+        path: 'game', component: GameComponent,
         resolve: {
           countries: GameResolver
         }
@@ -41,7 +42,7 @@ import { ToolbarElement } from "./toolbar/toolbar.element";
       { path: 'simple', component: Simple }
     ]),
   ],
-  declarations: [AppComponent, MainViewComponent, AppComponent1, AppComponent2, CustomProjectionComponent, AppComponent4, GamePoints,
+  declarations: [AppComponent, MainViewComponent, BasicMapComponent, ExtendedMapComponent, CustomProjectionComponent, GameComponent, GamePoints,
     RandomPoints, GeneratePoints, Simple, ToolbarElement, CoordinateControl],
   providers: [GameResolver],
   bootstrap: [AppComponent]

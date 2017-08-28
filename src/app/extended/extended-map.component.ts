@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
+import * as L from 'leaflet';
 
 @Component({
-  selector: 'my-sapp',
-  templateUrl: '../templates/app.component.2.html'
+  selector: 'extended-map',
+  templateUrl: 'extended-map.component.html',
+  styleUrls: ['extended-map.component.css'],        
 })
-export class AppComponent2 {
+export class ExtendedMapComponent {
   g: any = {
     "type": "FeatureCollection",
     "features": [
@@ -96,5 +98,14 @@ export class AppComponent2 {
       }
     ]
   };
+
+  ngOnInit() {
+    let DefaultIcon = L.icon({
+      iconUrl: '/assets/marker-icon.png',
+      shadowUrl: '/assets/marker-shadow.png'
+    });
+
+    L.Marker.prototype.options.icon = DefaultIcon;
+  }
 
 }

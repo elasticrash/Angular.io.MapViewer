@@ -5,9 +5,10 @@ import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'my-game-mapp',
-  templateUrl: '../templates/app.component.4.html'
+  templateUrl: 'game-map.component.html',
+  styleUrls: ['game-map.component.css'],      
 })
-export class AppComponent4 {
+export class GameComponent {
   countries: any;
 
   constructor(private route: ActivatedRoute) {
