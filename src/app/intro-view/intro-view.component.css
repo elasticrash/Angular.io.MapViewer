@@ -1,0 +1,48 @@
+:host {
+    width: 100px;
+    height: 100px;
+}
+
+@media (min-width: 1050px) {
+    .header {
+        margin-top: 64px;
+        text-align: center;
+        margin: 0 !important;
+        font-size: 112px !important;
+    }
+}
+
+@media (max-width: 1050px) {
+    .header {
+        margin-top: 64px;
+        text-align: center;
+        margin: 0 !important;
+        font-size: 56px !important;
+    }
+}
+
+@media (max-width: 530px) {
+    .header {
+        margin-top: 64px;
+        text-align: center;
+        margin: 0 !important;
+        font-size: 28px !important;
+    }
+}
+
+.subheader {
+    text-align: center;
+}
+
+:host /deep/ .map-container {
+    top: 8px !important;
+    left: 8px !important;
+    right: 8px !important;
+    height: 220px;
+}
+
+md-card {
+    height: 192px;
+    margin-left: 16px;
+    margin-right: 16px;
+}

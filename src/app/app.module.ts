@@ -1,3 +1,4 @@
+import { IntroViewComponent } from './intro-view/intro-view.component';
 import { AppComponent } from "./app.component";
 import { CoordinateControl } from './display-coordinates/coordinates';
 import { ExtendedMapComponent } from './extended/extended-map.component';
@@ -28,9 +29,10 @@ import { ToolbarElement } from "./toolbar/toolbar.element";
     HttpModule,
     ngxLeafletModule,
     RouterModule.forRoot([
+      { path: '', component: IntroViewComponent },
+      { path: 'main', component: MainViewComponent },
       { path: 'basic', component: BasicMapComponent },
-      { path: 'extended', component: ExtendedMapComponent },      
-      { path: '', component: MainViewComponent },
+      { path: 'extended', component: ExtendedMapComponent },
       { path: 'projection', component: CustomProjectionComponent },
       {
         path: 'game', component: GameComponent,
@@ -42,8 +44,20 @@ import { ToolbarElement } from "./toolbar/toolbar.element";
       { path: 'simple', component: Simple }
     ]),
   ],
-  declarations: [AppComponent, MainViewComponent, BasicMapComponent, ExtendedMapComponent, CustomProjectionComponent, GameComponent, GamePoints,
-    RandomPoints, GeneratePoints, Simple, ToolbarElement, CoordinateControl],
+  declarations: [
+    AppComponent,
+    IntroViewComponent,
+    MainViewComponent,
+    BasicMapComponent,
+    ExtendedMapComponent,
+    CustomProjectionComponent, GameComponent,
+    GamePoints,
+    RandomPoints,
+    GeneratePoints,
+    Simple,
+    ToolbarElement,
+    CoordinateControl
+  ],
   providers: [GameResolver],
   bootstrap: [AppComponent]
 })
