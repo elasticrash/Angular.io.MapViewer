@@ -10,6 +10,11 @@
         margin: 0 !important;
         font-size: 112px !important;
     }
+    .info-card {
+        height: 136px;
+        margin-left: 16px;
+        margin-right: 16px;
+    }
 }
 
 @media (max-width: 1050px) {
@@ -19,6 +24,11 @@
         margin: 0 !important;
         font-size: 56px !important;
     }
+    .info-card {
+        height: 216px;
+        margin-left: 16px;
+        margin-right: 16px;
+    }
 }
 
 @media (max-width: 530px) {
@@ -27,6 +37,11 @@
         text-align: center;
         margin: 0 !important;
         font-size: 28px !important;
+    }
+    .info-card {
+        height: 256px;
+        margin-left: 16px;
+        margin-right: 16px;
     }
 }
 
@@ -41,8 +56,51 @@
     height: 220px;
 }
 
-md-card {
+.map-card {
     height: 192px;
     margin-left: 16px;
     margin-right: 16px;
+}
+
+.card-header {
+    font-size: 48px;
+}
+
+md-grid-list {
+    margin-top: 32px;
+    height: 256px;
+}
+
+md-grid-tile {
+    height: 256px;
+}
+
+button {
+    text-align: center;
+}
+
+[class^="ribbon-"] {
+    position: relative;
+    margin-bottom: 80px;
+}
+
+[class^="ribbon-"]:before, [class^="ribbon-"]:after {
+    content: "";
+    position: absolute;
+}
+
+.ribbon-2 {
+    width: 150px;
+    height: 50px;
+    background: #3f51b5;
+}
+
+.ribbon-2:after {
+    height: 0;
+    width: 0;
+    border-top: 25px solid transparent;
+    border-bottom: 25px solid transparent;
+    border-left: 15px solid #3f51b5;
+    right: -15px;
+    top: 0px;
 }

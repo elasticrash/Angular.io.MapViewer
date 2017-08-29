@@ -1,12 +1,62 @@
 <toolbar-element></toolbar-element>
 <section class="mat-typography">
     <h1 class="mat-display-4 header">ngx.leaflet.components</h1>
-    <h1 class="mat-display-1 subheader">a template based angular-leaflet library</h1>    
+    <h1 class="mat-display-1 subheader">a template based angular-leaflet library</h1>
 </section>
 
 
-<md-card>
+<md-card class="map-card">
     <leaf-element [zoom]=4>
         <layer-element [slippyLayer]="'http://{s}.tile.osm.org/{z}/{x}/{y}.png'"></layer-element>
     </leaf-element>
 </md-card>
+
+<md-grid-list cols="3" rowHeight="3:1">
+    <md-grid-tile>
+        <md-card class="info-card">
+            <md-card-header>
+                <md-card-title>
+                    <md-icon class="card-header">map</md-icon>
+                </md-card-title>
+                <md-card-subtitle>Behind the scenes</md-card-subtitle>
+            </md-card-header>
+            <md-card-content>
+                <section class="mat-typography">
+                    Leaflet: An open-source JavaScript library for mobile-friendly interactive maps
+                </section>
+            </md-card-content>
+        </md-card>
+    </md-grid-tile>
+    <md-grid-tile>
+        <md-card class="info-card">
+            <md-card-header>
+                <md-card-title>
+                    <md-icon class="card-header">message</md-icon>
+                </md-card-title>
+                <md-card-subtitle>Template Based</md-card-subtitle>
+            </md-card-header>
+            <md-card-content>
+                <section class="mat-typography">
+                    Your templates end up with a concise, readable and maintainable code that pretty much explains itself.
+                </section>
+            </md-card-content>
+        </md-card>
+    </md-grid-tile>
+    <md-grid-tile>
+        <md-card class="info-card">
+            <md-card-header>
+                <md-card-title>
+                    <md-icon class="card-header">developer_board</md-icon>
+                </md-card-title>
+                <md-card-subtitle>Components</md-card-subtitle>
+            </md-card-header>
+            <md-card-content>
+                <section class="mat-typography">
+                Native Angular Components designed to be used directly on the templates without much customization
+                </section>
+            </md-card-content>
+        </md-card>
+    </md-grid-tile>
+</md-grid-list>
+
+<button [routerLink]="['/main']" color="primary" class="ribbon-2" md-raised-button>Check Examples</button>
