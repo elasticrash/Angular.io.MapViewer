@@ -1,2 +1,2 @@
-<marker-element *ngFor="let c; of:latlonColllection;" [lat]='c.lat' [lon]='c.lon'> </marker-element>
+<circle-element *ngFor="let c; of:latlonColllection;" [lat]='c.lat' [lon]='c.lon'> </circle-element>
 <polyline-element [latlngs]="allp" [Options]="getnewColor()"></polyline-element>

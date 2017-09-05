@@ -4,43 +4,60 @@
   <md-list-item>
     <md-card>
       <md-card-header>
-        <md-card-title>Simple</md-card-title>
-        <md-card-subtitle>Dog Breed</md-card-subtitle>
-      </md-card-header>
-      <md-card-content>
-        <simple-element></simple-element>
-      </md-card-content>
-      <md-card-actions>
-        <button md-button>Full Screen</button>
-      </md-card-actions>
-    </md-card>
-  </md-list-item>
-  <md-list-item>
-    <md-card>
-      <md-card-header>
-        <md-card-title>Shiba Inu</md-card-title>
-        <md-card-subtitle>Dog Breed</md-card-subtitle>
+        <md-card-title>Basic example</md-card-title>
+        <md-card-subtitle>Basic Implementation</md-card-subtitle>
       </md-card-header>
       <md-card-content>
         <basic-map></basic-map>
       </md-card-content>
       <md-card-actions>
-        <button md-button>Full Screen</button>
+        <button (click)="fullscreen('basic')" md-button>Full Screen</button>
       </md-card-actions>
     </md-card>
   </md-list-item>
+
+  <md-list-item>
+    <md-card>
+      <md-card-header>
+        <md-card-title>cartesian coordinate system</md-card-title>
+        <md-card-subtitle>Star Map using L.CRS.Simple</md-card-subtitle>
+      </md-card-header>
+      <md-card-content>
+        <simple-element></simple-element>
+      </md-card-content>
+      <md-card-actions>
+        <button (click)="fullscreen('simple')" md-button>Full Screen</button>
+      </md-card-actions>
+    </md-card>
+  </md-list-item>
+
   <md-list-item>
     <md-card>
       <md-card-header>
         <md-card-title>Custom Projection</md-card-title>
-        <md-card-subtitle>Dog Breed</md-card-subtitle>
+        <md-card-subtitle>Custom Projection using EPSG:2100</md-card-subtitle>
       </md-card-header>
       <md-card-content>
         <custom-projection></custom-projection>
       </md-card-content>
       <md-card-actions>
-        <button md-button>Full Screen</button>
+        <button (click)="fullscreen('projection')" md-button>Full Screen</button>
       </md-card-actions>
     </md-card>
   </md-list-item>
+
+  <md-list-item>
+      <md-card>
+        <md-card-header>
+          <md-card-title>Travelling salesman</md-card-title>
+          <md-card-subtitle>Basic implementation of a genetic like algorithm trying to solve the Travelling salesman problem </md-card-subtitle>
+        </md-card-header>
+        <md-card-content>
+          <random-points></random-points>
+        </md-card-content>
+        <md-card-actions>
+          <button (click)="fullscreen('random')" md-button>Full Screen</button>
+        </md-card-actions>
+      </md-card>
+    </md-list-item>
 </md-list>
