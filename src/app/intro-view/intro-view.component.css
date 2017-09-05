@@ -3,6 +3,10 @@
     height: 100px;
 }
 
+:host .offset {
+    padding-top: 64px;
+}
+
 @media (min-width: 1050px) {
     .header {
         margin-top: 64px;

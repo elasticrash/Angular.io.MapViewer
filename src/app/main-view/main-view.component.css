@@ -10,8 +10,8 @@
   height: 100%;
 }
 
-.sidenav {
-  padding: 120px;
+md-list {
+  padding-top: 256px;
 }
 
 md-list-item {
