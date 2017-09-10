@@ -1,5 +1,5 @@
 import { Component, Input, Output, NgZone } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
+import { Observable, Subscription } from 'rxjs/Rx';
 import { MapService } from 'ngx.leaflet.components/services/map.service';
 declare var L: any;
 
@@ -11,7 +11,7 @@ import * as moment from 'moment';
 })
 export class GeneratePoints {
     population: number = 10;
-    @Input() count: Array<number> = Array(this.population).fill(0, 0).map((x,i)=>i);
+    @Input() count: Array<number> = Array(this.population).fill(0, 0).map((x, i) => i);
     lat: Array<number> = this.randomArray(52.611, 52.701, this.population);
     lon: Array<number> = this.randomArray(-1.109, -1.001, this.population);
     latlonColllection: Array<any> = [];
@@ -23,7 +23,7 @@ export class GeneratePoints {
     genloop: number = 0;
     keep: number = 1;
     timer = Observable.timer(2000, 50);
-    subscription;
+    subscription: Subscription;
     options = {};
     ourCustomControl;
     ourCustomControlConstructor;
@@ -48,7 +48,7 @@ export class GeneratePoints {
 
     ngOnInit() {
         this.count.forEach(element => {
-           this.latlonColllection.push({lat: this.lat[element], lon:this.lon[element]}); 
+            this.latlonColllection.push({ lat: this.lat[element], lon: this.lon[element] });
         });
         this.subscription = this.timer.subscribe(t => {
             this.shufflestaff(t);
@@ -317,5 +317,9 @@ export class GeneratePoints {
 
     ngOnChanges(changes) {
         console.log(changes);
+    }
+
+    ngOnDestroy() {
+        this.subscription.unsubscribe();
     }
 }

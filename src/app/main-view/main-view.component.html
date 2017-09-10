@@ -1,63 +1,131 @@
 <toolbar-element></toolbar-element>
 
-<md-list>
-  <md-list-item>
-    <md-card>
-      <md-card-header>
-        <md-card-title>Basic example</md-card-title>
-        <md-card-subtitle>Basic Implementation</md-card-subtitle>
-      </md-card-header>
-      <md-card-content>
-        <basic-map></basic-map>
-      </md-card-content>
-      <md-card-actions>
-        <button (click)="fullscreen('basic')" md-button>Full Screen</button>
-      </md-card-actions>
-    </md-card>
-  </md-list-item>
+<div class="outer">
+  <div class="inner">
+    <md-list>
+      <md-list-item>
+        <md-card>
+          <md-card-header>
+            <md-card-title>Basic example</md-card-title>
+            <md-card-subtitle>Basic Implementation</md-card-subtitle>
+          </md-card-header>
+          <md-card-content>
+            <basic-map></basic-map>
+          </md-card-content>
+          <md-card-actions>
+            <button (click)="fullscreen('basic')" md-button>Full Screen</button>
+          </md-card-actions>
+        </md-card>
+      </md-list-item>
 
-  <md-list-item>
-    <md-card>
-      <md-card-header>
-        <md-card-title>cartesian coordinate system</md-card-title>
-        <md-card-subtitle>Star Map using L.CRS.Simple</md-card-subtitle>
-      </md-card-header>
-      <md-card-content>
-        <simple-element></simple-element>
-      </md-card-content>
-      <md-card-actions>
-        <button (click)="fullscreen('simple')" md-button>Full Screen</button>
-      </md-card-actions>
-    </md-card>
-  </md-list-item>
+      <md-list-item>
+        <md-card>
+          <md-card-header>
+            <md-card-title>cartesian coordinate system</md-card-title>
+            <md-card-subtitle>Star Map using L.CRS.Simple</md-card-subtitle>
+          </md-card-header>
+          <md-card-content>
+            <simple-element></simple-element>
+          </md-card-content>
+          <md-card-actions>
+            <button (click)="fullscreen('simple')" md-button>Full Screen</button>
+          </md-card-actions>
+        </md-card>
+      </md-list-item>
 
-  <md-list-item>
-    <md-card>
-      <md-card-header>
-        <md-card-title>Custom Projection</md-card-title>
-        <md-card-subtitle>Custom Projection using EPSG:2100</md-card-subtitle>
-      </md-card-header>
-      <md-card-content>
-        <custom-projection></custom-projection>
-      </md-card-content>
-      <md-card-actions>
-        <button (click)="fullscreen('projection')" md-button>Full Screen</button>
-      </md-card-actions>
-    </md-card>
-  </md-list-item>
+      <md-list-item>
+        <md-card>
+          <md-card-header>
+            <md-card-title>Custom Projection</md-card-title>
+            <md-card-subtitle>Custom Projection using EPSG:2100</md-card-subtitle>
+          </md-card-header>
+          <md-card-content>
+            <custom-projection></custom-projection>
+          </md-card-content>
+          <md-card-actions>
+            <button (click)="fullscreen('projection')" md-button>Full Screen</button>
+          </md-card-actions>
+        </md-card>
+      </md-list-item>
 
-  <md-list-item>
-      <md-card>
-        <md-card-header>
-          <md-card-title>Travelling salesman</md-card-title>
-          <md-card-subtitle>Basic implementation of a genetic like algorithm trying to solve the Travelling salesman problem </md-card-subtitle>
-        </md-card-header>
-        <md-card-content>
-          <random-points></random-points>
-        </md-card-content>
-        <md-card-actions>
-          <button (click)="fullscreen('random')" md-button>Full Screen</button>
-        </md-card-actions>
-      </md-card>
-    </md-list-item>
-</md-list>
+      <md-list-item>
+        <md-card>
+          <md-card-header>
+            <md-card-title>Travelling salesman</md-card-title>
+            <md-card-subtitle>Basic implementation of a genetic like algorithm trying to solve the Travelling salesman problem </md-card-subtitle>
+          </md-card-header>
+          <md-card-content>
+            <random-points></random-points>
+          </md-card-content>
+          <md-card-actions>
+            <button (click)="fullscreen('random')" md-button>Full Screen</button>
+          </md-card-actions>
+        </md-card>
+      </md-list-item>
+    </md-list>
+  </div>
+  <div class="inner">
+    <md-list>
+      <md-list-item>
+        <md-card>
+          <md-card-header>
+            Template
+          </md-card-header>
+          <md-card-content>
+            <pre>
+                  <code>
+                    {{getTemplate('bm')}}
+                  </code>
+            </pre> * missing value
+          </md-card-content>
+        </md-card>
+      </md-list-item>
+
+      <md-list-item>
+        <md-card>
+          <md-card-header>
+            Template
+          </md-card-header>
+          <md-card-content>
+            <pre>
+                      <code>
+                        {{getTemplate('ss')}}
+                      </code>
+                </pre> * missing value
+          </md-card-content>
+        </md-card>
+      </md-list-item>
+
+      <md-list-item>
+        <md-card>
+          <md-card-header>
+            Template
+          </md-card-header>
+          <md-card-content>
+            <pre>
+                      <code>
+                        {{getTemplate('cp')}}
+                      </code>
+                </pre> * missing value <br> $ coordinates in custom projection
+
+          </md-card-content>
+        </md-card>
+      </md-list-item>
+
+      <md-list-item>
+        <md-card>
+          <md-card-header>
+            Template
+          </md-card-header>
+          <md-card-content>
+            <pre>
+                      <code>
+                        {{getTemplate('rnd')}}
+                      </code>
+                </pre> * missing value
+          </md-card-content>
+        </md-card>
+      </md-list-item>
+    </md-list>
+  </div>
+</div>

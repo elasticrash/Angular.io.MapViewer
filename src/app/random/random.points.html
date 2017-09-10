@@ -1,8 +1,6 @@
-<div class="full-dim" layout="column">
-    <leaf-element [zoom]=11 [layerControl]=true>
-		<layer-element [name]="'carto'" [type]="'basemap'" [slippyLayer]="'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'"></layer-element>
-        <leaflet-group>
-            <generate-points></generate-points>
-        </leaflet-group>
-    </leaf-element>
-</div>
+<leaf-element [zoom]=11 [layerControl]=true>
+    <layer-element [name]="'carto'" [type]="'basemap'" [slippyLayer]="'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'"></layer-element>
+    <leaflet-group>
+        <generate-points></generate-points>
+    </leaflet-group>
+</leaf-element>

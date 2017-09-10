@@ -1,3 +1,4 @@
+import { AnnotationService } from './services/annotation.service';
 import { IntroViewComponent } from './intro-view/intro-view.component';
 import { AppComponent } from "./app.component";
 import { CoordinateControl } from './display-coordinates/coordinates';
@@ -58,7 +59,7 @@ import { ToolbarElement } from "./toolbar/toolbar.element";
     ToolbarElement,
     CoordinateControl
   ],
-  providers: [GameResolver],
+  providers: [GameResolver, AnnotationService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

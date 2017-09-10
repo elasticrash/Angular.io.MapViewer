@@ -1,9 +1,4 @@
 :host {
-    width: 100px;
-    height:100px;
-}
-
-:host /deep/ .map-container{
-    top: 80px !important;
-    height: 220px;
+    width: 100%;
+    height: 100%;
 }
