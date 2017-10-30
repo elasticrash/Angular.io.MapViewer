@@ -10,7 +10,6 @@ import { CustomProjectionComponent } from './custom-projection/custom-projection
 import { Simple } from './simple/simple.component';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { MaterialModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { ngxLeafletModule } from 'ngx.leaflet.components/ngx.leaflet.module';
@@ -22,10 +21,24 @@ import { MainViewComponent } from "./main-view/main-view.component";
 import { ToolbarElement } from "./toolbar/toolbar.element";
 
 
+import {
+  MatButtonModule,
+  MatCardModule,
+  MatCheckboxModule,
+  MatToolbarModule
+} from "@angular/material";
+
+const MaterialModule = [
+  MatButtonModule,
+  MatCardModule,
+  MatCheckboxModule,
+  MatToolbarModule
+];
+
 @NgModule({
   imports: [
     BrowserModule,
-    MaterialModule,
+    ...MaterialModule,
     FormsModule,
     HttpModule,
     ngxLeafletModule,
