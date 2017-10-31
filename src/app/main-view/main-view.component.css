@@ -18,20 +18,20 @@
   flex: 2;
 }
 
-md-list {
+mat-list {
   padding-top: 256px;
 }
 
-md-list-item {
+mat-list-item {
   height: 400px;
 }
 
-md-card {
+mat-card {
   width: 100%;
   height: 300px;
 }
 
-md-card-content {
+mat-card-content {
   height: 200px;
 }
 

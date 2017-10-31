@@ -70,12 +70,12 @@
     font-size: 48px;
 }
 
-md-grid-list {
+mat-grid-list {
     margin-top: 32px;
     height: 256px;
 }
 
-md-grid-tile {
+mat-grid-tile {
     height: 256px;
 }
 

@@ -19,28 +19,36 @@ import { GamePoints } from './game/game';
 import { GameResolver } from './game/game.resolver';
 import { MainViewComponent } from "./main-view/main-view.component";
 import { ToolbarElement } from "./toolbar/toolbar.element";
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
 import {
   MatButtonModule,
   MatCardModule,
   MatCheckboxModule,
-  MatToolbarModule
+  MatToolbarModule,
+  MatIconModule,
+  MatGridListModule,
+  MatListModule
 } from "@angular/material";
 
 const MaterialModule = [
   MatButtonModule,
   MatCardModule,
   MatCheckboxModule,
-  MatToolbarModule
+  MatToolbarModule,
+  MatIconModule,
+  MatGridListModule,
+  MatListModule
 ];
 
 @NgModule({
   imports: [
     BrowserModule,
-    ...MaterialModule,
+    BrowserAnimationsModule,
     FormsModule,
     HttpModule,
+    ...MaterialModule,
     ngxLeafletModule,
     RouterModule.forRoot([
       { path: '', component: IntroViewComponent },
@@ -56,7 +64,9 @@ const MaterialModule = [
       },
       { path: 'random', component: RandomPoints },
       { path: 'simple', component: Simple }
-    ]),
+    ], {
+        useHash: true,
+      }),
   ],
   declarations: [
     AppComponent,
@@ -71,6 +81,9 @@ const MaterialModule = [
     Simple,
     ToolbarElement,
     CoordinateControl
+  ],
+  exports: [
+    ...MaterialModule,
   ],
   providers: [GameResolver, AnnotationService],
   bootstrap: [AppComponent]

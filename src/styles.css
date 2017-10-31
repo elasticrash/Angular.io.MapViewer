@@ -7,15 +7,15 @@ html, body  {
     height: 100%;
 }
 
-md-input-container .md-errors-spacer{
+mat-input-container .mat-errors-spacer{
     min-height: 0px !important;
 }
 
-.md-no-style {
+.mat-no-style {
     min-height: 0px !important;
 }
 
-md-list-item .ng-hide {
+mat-list-item .ng-hide {
     animation: fadeIn 0.5s
 }
 
