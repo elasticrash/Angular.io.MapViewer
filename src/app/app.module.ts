@@ -20,7 +20,7 @@ import { GameResolver } from './game/game.resolver';
 import { MainViewComponent } from "./main-view/main-view.component";
 import { ToolbarElement } from "./toolbar/toolbar.element";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { SpatialIndexComponent } from 'app/spatial-index/spatial-index.component';
 
 import {
   MatButtonModule,
@@ -56,6 +56,7 @@ const MaterialModule = [
       { path: 'basic', component: BasicMapComponent },
       { path: 'extended', component: ExtendedMapComponent },
       { path: 'projection', component: CustomProjectionComponent },
+      { path: 'spindex', component: SpatialIndexComponent },      
       {
         path: 'game', component: GameComponent,
         resolve: {
@@ -63,7 +64,7 @@ const MaterialModule = [
         }
       },
       { path: 'random', component: RandomPoints },
-      { path: 'simple', component: Simple }
+      { path: 'simple', component: Simple },
     ], {
         useHash: true,
       }),
@@ -74,7 +75,9 @@ const MaterialModule = [
     MainViewComponent,
     BasicMapComponent,
     ExtendedMapComponent,
-    CustomProjectionComponent, GameComponent,
+    CustomProjectionComponent,
+    GameComponent,
+    SpatialIndexComponent,
     GamePoints,
     RandomPoints,
     GeneratePoints,
