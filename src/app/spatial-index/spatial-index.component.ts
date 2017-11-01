@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { SpatialIndex } from 'app/spatial-index/model/spatial-index';
+import { BoundingBox } from 'app/spatial-index/model/boundingbox';
+import { Point } from 'app/spatial-index/model/point';
 
 @Component({
   selector: 'app-spatial-index',
@@ -16,41 +19,41 @@ export class SpatialIndexComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    var points = [];
     this.count.forEach(element => {
+      points.push(new Point(this.lat[element], this.lon[element]));
       this.latlonColllection.push({ lat: this.lat[element], lon: this.lon[element] });
     });
 
-    this.polygonCollection.push([
-      [Math.min(...this.lat), Math.max(...this.lon)],
-      [Math.max(...this.lat), Math.max(...this.lon)],
-      [Math.max(...this.lat), Math.min(...this.lon)],
-      [Math.min(...this.lat), Math.min(...this.lon)]
-    ])
+    var initialIndex = new SpatialIndex();
+    initialIndex.bbox = new BoundingBox([
+      Math.min(...this.lat),
+      Math.max(...this.lat),
+      Math.min(...this.lon),
+      Math.max(...this.lon)
+    ]);
 
-    this.cutInNine(this.polygonCollection[0]);
-    this.cutInNine(this.polygonCollection[1]);
-    
-    this.latlonColllection.forEach(element => {
+    initialIndex.setDimensions();
 
-    });
-  }
+    this.polygonCollection.push(initialIndex.bbox.getBBox());
 
-  cutInNine(tetraedron) {
-    var width = Math.sqrt(Math.pow(tetraedron[1][0] - tetraedron[0][0], 2)) / 3;
-    var height = Math.sqrt(Math.pow(tetraedron[0][1] - tetraedron[2][1], 2)) / 3;
+    initialIndex.setCollection(3);
+    initialIndex.setItems(points);
 
-    console.log(width, height);
-
-    for (var i = 0; i < 3; i++) {
-      for (var j = 0; j < 3; j++) {
-        this.polygonCollection.push([
-          [Math.min(...this.lat) + (width * i), Math.min(...this.lon) + (height * j)],
-          [Math.min(...this.lat) + (width * (i + 1)), Math.min(...this.lon) + (height * j)],
-          [Math.min(...this.lat) + (width * (i + 1)), Math.min(...this.lon) + (height * (j + 1))],
-          [Math.min(...this.lat) + (width * i), Math.min(...this.lon) + (height * (j + 1))]
-        ])
+    initialIndex.collection.forEach(element => {
+      this.polygonCollection.push(element.bbox.getBBox())
+      element.setDimensions();
+      element.setCollection(3);
+      element.setItems(initialIndex.items);
+      if (element.collection.length > 0) {
+        element.collection.forEach(ll => {
+          this.polygonCollection.push(ll.bbox.getBBox());
+          ll.setItems(element.items);
+        });
       }
-    }
+    });
+
+    console.log(initialIndex);
   }
 
   randomFromInterval(min, max) {
