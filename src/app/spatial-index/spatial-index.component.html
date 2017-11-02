@@ -1,8 +1,17 @@
-<leaf-element [zoom]=-8 crs=L.CRS.Simple [x]=0 [y]=0>
-  <leaflet-group>
-    <circle-element *ngFor="let c; of:latlonColllection;" [lat]='c.lat' [lon]='c.lon' [radius]='0.05'></circle-element>
-  </leaflet-group>
-  <leaflet-group>
-    <polygon-element *ngFor="let c; of:polygonCollection;" [latlngs]='c'></polygon-element>
-  </leaflet-group>
-</leaf-element>
+<div class="box">
+  <leaf-element [zoom]=-8 crs=L.CRS.Simple [x]=0 [y]=0>
+    <leaflet-group>
+      <circle-element *ngFor="let c; of:latlonColllection;" [lat]='c.lat' [lon]='c.lon' [radius]='0.05'></circle-element>
+    </leaflet-group>
+    <leaflet-group>
+      <polygon-element *ngFor="let c; of:polygonCollection;" [latlngs]='c'></polygon-element>
+    </leaflet-group>
+  </leaf-element>
+</div>
+<div class="box">
+  <leaf-element [zoom]=-8 crs=L.CRS.Simple [x]=0 [y]=0>
+    <leaflet-group>
+      <circle-element *ngFor="let c; of:gravityCollection;" [x]='c.x' [y]='c.y' [radius]='0.05'></circle-element>
+    </leaflet-group>
+  </leaf-element>
+</div>

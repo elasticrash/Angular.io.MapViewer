@@ -46,11 +46,18 @@ export class CoordinateControl {
         let map = this.mapService.getMap();
         map.on('mousemove', function (e) {
             map.removeControl(model.ourCustomControl);
-            var proj = model.crs.forward([e.latlng.lng, e.latlng.lat]);
-            model.ourCustomControl = new model.ourCustomControlConstructor({
-                x: proj[0],
-                y: proj[1]
-            });
+            if (this.crs) {
+                var proj = model.crs.forward([e.latlng.lng, e.latlng.lat]);
+                model.ourCustomControl = new model.ourCustomControlConstructor({
+                    x: proj[0],
+                    y: proj[1]
+                });
+            } else {
+                model.ourCustomControl = new model.ourCustomControlConstructor({
+                    x: e.latlng.lng,
+                    y: e.latlng.lat
+                });
+            }
             map.addControl(model.ourCustomControl);
         });
         this.ourCustomControl = new this.ourCustomControlConstructor({ x: 0, y: 0 });

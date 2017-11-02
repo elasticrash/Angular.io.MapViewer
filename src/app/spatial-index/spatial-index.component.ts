@@ -15,7 +15,7 @@ export class SpatialIndexComponent implements OnInit {
   lon: Array<number> = this.randomArray(0, 10, this.population);
   latlonColllection: Array<any> = [];
   polygonCollection: Array<any> = [];
-
+  gravityColletion: Array<Point> = [];
   constructor() { }
 
   ngOnInit() {
@@ -43,6 +43,8 @@ export class SpatialIndexComponent implements OnInit {
     this.createIndex(initialIndex);
     this.createObjectForRender(initialIndex);
     console.log(initialIndex);
+    this.gravityColletion.push(...initialIndex.items);
+    
   }
 
   createIndex(sp: SpatialIndex) {

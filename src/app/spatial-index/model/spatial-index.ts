@@ -47,10 +47,19 @@ export class SpatialIndex {
                 }
             }
         });
-        
-        this.averageDistance = 0;
-        this.items.forEach(element => {
-            this.averageDistance += Math.sqrt(Math.pow(this.items[0].x - element.x, 2) + Math.pow(this.items[0].y - element.y, 2));
-        });
+
+        this.count = this.items.length;
+
+        if (this.count > 0) {
+            this.averageDistance = 0;
+            this.gravity = new Point(0, 0);
+            this.items.forEach(element => {
+                this.averageDistance += Math.sqrt(Math.pow(this.items[0].x - element.x, 2) + Math.pow(this.items[0].y - element.y, 2));
+                this.gravity.x += element.x;
+                this.gravity.y += element.y;
+            });
+            this.gravity.x = this.gravity.x / this.count;
+            this.gravity.y = this.gravity.y / this.count;
+        }
     }
 }
