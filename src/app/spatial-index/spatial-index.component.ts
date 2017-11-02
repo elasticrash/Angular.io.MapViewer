@@ -40,20 +40,29 @@ export class SpatialIndexComponent implements OnInit {
     initialIndex.setCollection(3);
     initialIndex.setItems(points);
 
-    initialIndex.collection.forEach(element => {
-      this.polygonCollection.push(element.bbox.getBBox())
+    this.createIndex(initialIndex);
+    this.createObjectForRender(initialIndex);
+    console.log(initialIndex);
+  }
+
+  createIndex(sp: SpatialIndex) {
+    sp.collection.forEach(element => {
       element.setDimensions();
-      element.setCollection(3);
-      element.setItems(initialIndex.items);
-      if (element.collection.length > 0) {
-        element.collection.forEach(ll => {
-          this.polygonCollection.push(ll.bbox.getBBox());
-          ll.setItems(element.items);
-        });
+      element.setItems(sp.items);
+      if (element.averageDistance > 0.1) {
+        element.setCollection(3);
+        this.createIndex(element);
       }
     });
+  }
 
-    console.log(initialIndex);
+  createObjectForRender(sp: SpatialIndex) {
+    sp.collection.forEach(element => {
+      this.polygonCollection.push(element.bbox.getBBox());
+      if (element.collection.length > 0) {
+        this.createObjectForRender(element);
+      }
+    });
   }
 
   randomFromInterval(min, max) {

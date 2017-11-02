@@ -9,6 +9,7 @@ export class SpatialIndex {
     collection: Array<SpatialIndex>;
     gravity: Point;
     items: Array<Point>;
+    averageDistance: number;
 
     constructor() {
         this.collection = [];
@@ -45,6 +46,11 @@ export class SpatialIndex {
                     this.items.push(element);
                 }
             }
+        });
+        
+        this.averageDistance = 0;
+        this.items.forEach(element => {
+            this.averageDistance += Math.sqrt(Math.pow(this.items[0].x - element.x, 2) + Math.pow(this.items[0].y - element.y, 2));
         });
     }
 }
