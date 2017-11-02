@@ -10,6 +10,7 @@ export class SpatialIndex {
     gravity: Point;
     items: Array<Point>;
     averageDistance: number;
+    depth: number;
 
     constructor() {
         this.collection = [];
@@ -41,8 +42,8 @@ export class SpatialIndex {
 
     setItems(points: Array<Point>) {
         points.forEach(element => {
-            if (element.x > this.bbox.minX && element.x < this.bbox.maxX) {
-                if (element.y > this.bbox.minY && element.y < this.bbox.maxY) {
+            if (element.x >= this.bbox.minX && element.x <= this.bbox.maxX) {
+                if (element.y >= this.bbox.minY && element.y <= this.bbox.maxY) {
                     this.items.push(element);
                 }
             }
