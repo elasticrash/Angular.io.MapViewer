@@ -1,5 +1,5 @@
-import { BoundingBox } from "app/spatial-index/model/boundingbox";
-import { Point } from "app/spatial-index/model/point";
+import { BoundingBox } from 'app/spatial-index/model/boundingbox';
+import { Point } from 'app/spatial-index/model/point';
 
 export class SpatialIndex {
     bbox: BoundingBox;
@@ -23,12 +23,12 @@ export class SpatialIndex {
     }
 
     setCollection(divider): void {
-        var w = this.width / divider;
-        var h = this.height / divider;
+        const w = this.width / divider;
+        const h = this.height / divider;
 
-        for (var i = 0; i < divider; i++) {
-            for (var j = 0; j < divider; j++) {
-                var sp = new SpatialIndex();
+        for (let i = 0; i < divider; i++) {
+            for (let j = 0; j < divider; j++) {
+                const sp = new SpatialIndex();
                 sp.bbox = new BoundingBox([
                     this.bbox.minX + (w * i),
                     this.bbox.minX + (w * (i + 1)),
@@ -61,6 +61,7 @@ export class SpatialIndex {
             });
             this.gravity.x = this.gravity.x / this.count;
             this.gravity.y = this.gravity.y / this.count;
+            this.gravity.type = 'estimate';
         }
     }
 }

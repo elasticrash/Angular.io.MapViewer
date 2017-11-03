@@ -6,10 +6,10 @@
           <mat-card-content>
             <leaf-element [zoom]=4 crs=L.CRS.Simple [x]=0 [y]=0>
               <leaflet-group>
-                <circle-element *ngFor="let c; of:latlonColllection;" [lat]='c.lat' [lon]='c.lon' [radius]='0.05'></circle-element>
+                <circle-element *ngFor="let c; of:latlonColllection;" [Options]="{fillColor:'#a46887', color: '#a40087', fillOpacity:1}" [lat]='c.lat' [lon]='c.lon' [radius]='0.05'></circle-element>
               </leaflet-group>
               <leaflet-group>
-                <polygon-element *ngFor="let c; of:polygonCollection;" [latlngs]='c'></polygon-element>
+                <polygon-element *ngFor="let c; of:polygonCollection;" [Options]="{fill:false}" [latlngs]='c'></polygon-element>
               </leaflet-group>
             </leaf-element>
           </mat-card-content>

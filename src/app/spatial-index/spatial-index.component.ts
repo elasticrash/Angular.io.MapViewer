@@ -1,19 +1,19 @@
-import { Component, OnInit, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
 import { SpatialIndex } from 'app/spatial-index/model/spatial-index';
 import { BoundingBox } from 'app/spatial-index/model/boundingbox';
 import { Point } from 'app/spatial-index/model/point';
-import { LeafletElement } from '../../../../ngx.leaflet.component/map/map';
 import { GeneralizedLevels } from 'app/spatial-index/model/generalize';
+import { LeafletElement } from 'ngx.leaflet.components/map';
 
 @Component({
   selector: 'app-spatial-index',
   templateUrl: './spatial-index.component.html',
   styleUrls: ['./spatial-index.component.css']
 })
-export class SpatialIndexComponent implements OnInit {
+export class SpatialIndexComponent implements OnInit, AfterViewInit {
   @ViewChildren(LeafletElement) mapInstances: QueryList<LeafletElement>;
 
-  population: number = 100;
+  population: any = 200;
   count: Array<number> = Array(this.population).fill(0, 0).map((x, i) => i);
   lat: Array<number> = this.randomArray(0, 10, this.population);
   lon: Array<number> = this.randomArray(0, 10, this.population);
@@ -25,13 +25,13 @@ export class SpatialIndexComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    var points = [];
+    const points = [];
     this.count.forEach(element => {
       points.push(new Point(this.lat[element], this.lon[element]));
       this.latlonColllection.push({ lat: this.lat[element], lon: this.lon[element] });
     });
 
-    var initialIndex = new SpatialIndex();
+    const initialIndex = new SpatialIndex();
     initialIndex.bbox = new BoundingBox([
       Math.min(...this.lat),
       Math.max(...this.lat),
@@ -49,32 +49,67 @@ export class SpatialIndexComponent implements OnInit {
 
     this.createIndex(initialIndex);
     this.createObjectForRender(initialIndex);
+
+    this.LevelGravity(initialIndex);
+    this.createGravityPool(initialIndex);
+
     console.log(initialIndex);
     console.log(this.generalizedLevels);
 
-    initialIndex.collection.forEach(element => {
-      this.gravityCollection.push(element.gravity);
-    });
-
-  }
-
-  LevelGravity(sp: SpatialIndex) {
-    var element = this.generalizedLevels.sublevel;
-    for (var index = 0; index <= sp.depth; index++) {
-      element = element.sublevel;
-    }
-    element.points.push(sp.gravity);
   }
 
   ngAfterViewInit() {
     console.log(this.mapInstances);
 
-    this.mapInstances.last.mapElement.nativeElement.myMapProperty.on('zoomend', (e) => {
-      console.log(e.target.getZoom());
+    const first = this.mapInstances.first.mapElement.nativeElement.myMapProperty;
+    const last = this.mapInstances.last.mapElement.nativeElement.myMapProperty;
+
+    last.on('zoomend', (e) => {
+      this.getLevelGravity(e.target.getZoom());
     })
-    // this.mapInstances.changes.subscribe((r=>{
-    //  console.log("change");
-    // })); 
+
+    first.on('move', (e) => {
+      if (first.getCenter().lat !== last.getCenter().lat) {
+        last.panTo(e.target.getCenter());
+      }
+    })
+
+    first.on('zoomend', (e) => {
+      last.setZoom(e.target.getZoom());
+    })
+  }
+
+  LevelGravity(sp: SpatialIndex) {
+    let element = this.generalizedLevels;
+
+    for (let index = 0; index < sp.depth; index++) {
+      if (element.sublevel === undefined) {
+        element.sublevel = new GeneralizedLevels();
+      }
+      element = element.sublevel;
+    }
+    if (sp.gravity) {
+      element.points.push(sp.gravity);
+    }
+  }
+
+  getLevelGravity(zoom) {
+    let element = this.generalizedLevels;
+    for (let index = 0; index < zoom; index++) {
+      if (element.sublevel === undefined) {
+        element = element;
+      } else {
+        element = element.sublevel;
+      }
+    }
+    this.gravityCollection = element.points;
+  }
+
+  createGravityPool(sp: SpatialIndex) {
+    sp.collection.forEach(element => {
+      this.LevelGravity(element);
+      this.createGravityPool(element);
+    });
   }
 
   createIndex(sp: SpatialIndex) {
@@ -88,7 +123,6 @@ export class SpatialIndexComponent implements OnInit {
       if (element.averageDistance > 0.1) {
         element.setCollection(3);
         this.createIndex(element);
-
       }
     });
   }
@@ -103,12 +137,12 @@ export class SpatialIndexComponent implements OnInit {
   }
 
   randomFromInterval(min, max) {
-    let rand = Math.floor(Math.random() * (max * 1000 - min * 1000 + 1) + min * 1000);
+    const rand = Math.floor(Math.random() * (max * 1000 - min * 1000 + 1) + min * 1000);
     return rand / 1000;
   }
 
   randomArray(min, max, size) {
-    let val: Array<number> = Array(size).fill(0, 0);
+    const val: Array<number> = Array(size).fill(0, 0);
     val.forEach((element, index, arrayObject) => {
       arrayObject[index] = this.randomFromInterval(min, max);
     });

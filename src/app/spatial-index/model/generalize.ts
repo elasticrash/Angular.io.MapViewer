@@ -1,4 +1,4 @@
-import { Point } from "app/spatial-index/model/point";
+import { Point } from 'app/spatial-index/model/point';
 
 export class GeneralizedLevels {
     public points: Array<Point>;
@@ -7,5 +7,6 @@ export class GeneralizedLevels {
 
     constructor(depth?) {
         this.depth = depth;
+        this.points = [];
     }
 }
