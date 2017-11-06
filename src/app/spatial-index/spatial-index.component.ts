@@ -3,7 +3,7 @@ import { SpatialIndex } from 'app/spatial-index/model/spatial-index';
 import { BoundingBox } from 'app/spatial-index/model/boundingbox';
 import { Point } from 'app/spatial-index/model/point';
 import { GeneralizedLevels } from 'app/spatial-index/model/generalize';
-import { LeafletElement } from 'ngx.leaflet.components/map';
+import { LeafletElement } from 'ngx.leaflet.components';
 
 @Component({
   selector: 'app-spatial-index',

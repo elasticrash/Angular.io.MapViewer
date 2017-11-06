@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { MapService } from 'ngx.leaflet.components/services/map.service';
 import * as L from 'leaflet';
+import { MapService } from 'ngx.leaflet.components';
 
 @Component({
     selector: 'coordinate-control',

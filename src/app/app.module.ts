@@ -12,7 +12,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { ngxLeafletModule } from 'ngx.leaflet.components/ngx.leaflet.module';
+import { ngxLeafletModule } from 'ngx.leaflet.components';
 import { RouterModule } from '@angular/router';
 import { GeneratePoints } from './experiments/generate.points';
 import { GamePoints } from './game/game';

@@ -1,9 +1,9 @@
 import { Component, Input, Output, NgZone } from '@angular/core';
 import { Observable, Subscription } from 'rxjs/Rx';
-import { MapService } from 'ngx.leaflet.components/services/map.service';
 declare var L: any;
 
 import * as moment from 'moment';
+import { MapService } from 'ngx.leaflet.components';
 
 @Component({
     selector: 'generate-points',
